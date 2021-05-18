@@ -112,11 +112,6 @@ void GlobalWatchMod::LoadAllDebug() {
 	m_watches.push_back(WatchEntry(0x3BCF, WatchType::kString, std::string("Audio 2")));
 	m_watches.push_back(WatchEntry(0x3D92, WatchType::kString, std::string("Audio 3")));
 	m_watches.push_back(WatchEntry(0x3B2A, WatchType::kString, std::string("Audio 4")));
-
-	for (int i = 0; i < 9; i++)
-		m_watches.push_back(WatchEntry(0x15692 + (i * 4), WatchType::kInt,
-			std::string("Vehicle Id ") + std::to_string(i)));
-
 }
 
 void GlobalWatchMod::DrawMenuBar()

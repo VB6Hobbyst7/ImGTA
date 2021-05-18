@@ -44,6 +44,7 @@ void PlayerSwitchMod::DrawMenuBar()
 	{
 		if (ImGui::BeginMenu("Menu"))
 		{
+			ImGui::MenuItem("Empty");
 			ImGui::EndMenu();
 		}
 
