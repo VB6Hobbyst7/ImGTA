@@ -2,7 +2,7 @@
 #include "main.h"
 #include "natives.h"
 
-Model::Model( const char *model, bool block ) : Model( GAMEPLAY::GET_HASH_KEY( ( char * )model ), block ) {}
+Model::Model( const char *model, bool block ) : Model( MISC::GET_HASH_KEY( ( char * )model ), block ) {}
 
 Model::Model( Hash modelHash, bool block ) : m_hash( modelHash )
 {

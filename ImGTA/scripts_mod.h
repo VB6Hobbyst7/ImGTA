@@ -26,7 +26,7 @@ public:
     void Unload() override;
 
 private:
-    void ShowMenuBar();
+    void DrawMenuBar();
     void ShowSelectedPopup();
 
     std::vector<ScriptObject> m_scripts;

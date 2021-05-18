@@ -19,8 +19,9 @@ public:
 
 private:
     void ShowAddAddress();
-    void ShowMenuBar();
+    void DrawMenuBar();
     void ShowSelectedPopup();
+	void LoadAllDebug();
 
     std::vector<WatchEntry> m_watches;
     std::mutex m_watchesMutex;
@@ -28,4 +29,7 @@ private:
     WatchEntry *m_pSelectedEntry = nullptr;
     int m_iInputAddr = 0;
     int m_iInputType = 0;
+
+	float m_inGameOffsetX = 0.01f;
+	float m_inGameOffsetY = 0.08f;
 };

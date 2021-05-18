@@ -35,6 +35,15 @@ private:
     bool m_bIsScriptedSpeechPlaying = false;
     bool m_bIsAnySpeechPlaying = false;
 
+	char m_audioSceneVarName[256] = "";
+	float m_audioSceneVarValue = 0;
+
+	std::string m_audioName = "";
+	std::string m_audioSource = "";
+	std::string m_audio1 = "";
+	std::string m_audio2 = "";
+
+
     // ImGui inputs
     bool m_bStopConversationParam = false;
     bool m_bPauseConversationParam = false;

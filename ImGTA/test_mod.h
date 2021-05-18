@@ -6,16 +6,17 @@
 class TestMod : public Mod
 {
 public:
-    TestMod() : Mod( "Test", true )
-    {
-        m_iWindowFlags = ImGuiWindowFlags_None;
-    }
+	TestMod() : Mod("Test", true)
+	{
+		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
+	}
 
-    bool Draw() override;
-    void Think() override;
-    void Load() override;
-    void Unload() override;
+	bool Draw() override;
+	void Think() override;
+	void Load() override;
+	void Unload() override;
 
 private:
-
+	void DrawMenuBar();
 };
+

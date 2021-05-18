@@ -20,16 +20,29 @@ public:
 
 private:
     char m_szRequestedCutscene[256] = "";
-    void ShowMenuBar();
+    void DrawMenuBar();
 
     bool m_bHasCutsceneLoaded = false;
     bool m_bHasCutsceneFinished = false;
+	bool m_bWasCutsceneSkipped = false;
     bool m_bIsCutscenePlaying = false;
     bool m_bIsCutsceneActive = false;
 
+	bool m_bCanRequestAssetsForCutsceneEntity = false;
+	bool m_bHasCutsceneCutThisFrame = false;
+
+	int m_iCutsceneId = 0;
     int m_iCutsceneTime = 0;
     int m_iCutsceneTotalDuration = 0;
     int m_iCutsceneSectionPlaying = 0;
+
+	int m_loaded_cutscene_id = -1;
+
+	char m_audioVariableName[256] = "INOUT";
+	float m_audioVariableValue = 0;
+
+	int m_param0 = 0;
+	int m_param1 = 0;
 
     // ImGui inputs
     unsigned int m_iCutsceneRequestFlags = 8;

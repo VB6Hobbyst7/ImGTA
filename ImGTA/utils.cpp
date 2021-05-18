@@ -1,3 +1,5 @@
+#include <bitset>
+
 #include "utils.h"
 #include "natives.h"
 #include "enums.h"
@@ -29,16 +31,56 @@ HWND find_main_window( unsigned long process_id )
     return data.window_handle;
 }
 
-void DrawTextToScreen( const char *text, float x, float y, float scale, eFont font )
+void DrawTextToScreen( const char *text, float x, float y, float scale, eFont font, bool alignRight, int red, int green, int blue)
 {
-    UI::SET_TEXT_FONT( ( int )font );
-    UI::SET_TEXT_SCALE( scale, scale );
-    UI::SET_TEXT_COLOUR( 255, 255, 255, 255 );
-    UI::SET_TEXT_WRAP( 0.0, 1.0 );
-    UI::SET_TEXT_CENTRE( false );
-    UI::SET_TEXT_DROPSHADOW( 2, 2, 0, 0, 0 );
-    UI::SET_TEXT_EDGE( 1, 0, 0, 0, 205 );
-    UI::BEGIN_TEXT_COMMAND_DISPLAY_TEXT( ( char * )"STRING" );
-    UI::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME( ( char * )text );
-    UI::END_TEXT_COMMAND_DISPLAY_TEXT( x, y );
+    HUD::SET_TEXT_FONT( ( int )font );
+    HUD::SET_TEXT_SCALE( scale, scale );
+    HUD::SET_TEXT_COLOUR( red, green, blue, 255 );
+    HUD::SET_TEXT_WRAP( 0.0, 1.0 );
+    HUD::SET_TEXT_CENTRE( false );
+	HUD::SET_TEXT_RIGHT_JUSTIFY(alignRight);
+    HUD::SET_TEXT_DROPSHADOW( 2, 2, 0, 0, 0 );
+    HUD::SET_TEXT_EDGE( 1, 0, 0, 0, 205 );
+    HUD::BEGIN_TEXT_COMMAND_DISPLAY_TEXT( ( char * )"STRING" );
+    HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME( ( char * )text );
+    HUD::END_TEXT_COMMAND_DISPLAY_TEXT( x, y, 0 );
+}
+
+void ClipInt(int & value, int min, int max)
+{
+	if (value < min)
+		value = min;
+	else if (value > max) {
+		if (max > min)
+			value = max;
+		else
+			value = min;
+	}
+}
+
+void ClipFloat(float & value, float min, float max)
+{
+	if (value < min)
+		value = min;
+	else if (value > max) {
+		if (max > min)
+			value = max;
+		else
+			value = min;
+	}
+}
+
+const char * BoolToStr(bool value)
+{
+	return value ? "True" : "False";
+}
+
+Vector3 InitVector3(float value)
+{
+	Vector3 vec;
+	vec.x = value;
+	vec.y = value;
+	vec.z = value;
+
+	return vec;
 }

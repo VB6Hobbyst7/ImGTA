@@ -20,7 +20,7 @@ void LuaConsoleMod::Think()
 
 }
 
-void LuaConsoleMod::ShowMenuBar()
+void LuaConsoleMod::DrawMenuBar()
 {
     if ( ImGui::BeginMenuBar() )
     {
@@ -37,10 +37,14 @@ void LuaConsoleMod::ShowMenuBar()
 
 bool LuaConsoleMod::Draw()
 {
+	ImGui::SetWindowFontScale(m_menuFontSize);
+	DrawMenuBar();
+
+	ImGui::SetWindowFontScale(m_contentFontSize);
+
+	ImGui::TextColored(ImVec4(255, 0, 0, 255), "Needs testing, can crash your game.");
+
     const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // thanks omar
-
-    ShowMenuBar();
-
     if ( ImGui::BeginChild( "ConsoleText", ImVec2( 0.0f, -footer_height_to_reserve ) ) )
         ImGui::TextUnformatted( lua_stream.str().c_str() );
     ImGui::EndChild(); // legacy dont-care-about-return-value end.

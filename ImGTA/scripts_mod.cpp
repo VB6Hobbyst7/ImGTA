@@ -27,16 +27,16 @@ void ScriptsMod::Think()
         std::lock_guard<std::mutex> lock( m_scriptsMutex );
         m_bWantsUpdate = false;
         m_scripts.clear();
-        SCRIPT::_BEGIN_ENUMERATING_THREADS();
+        SCRIPT::SCRIPT_THREAD_ITERATOR_RESET();
         int id;
-        while ( ( id = SCRIPT::_GET_ID_OF_NEXT_THREAD_IN_ENUMERATION() ) != 0 )
+        while ( ( id = SCRIPT::SCRIPT_THREAD_ITERATOR_GET_NEXT_THREAD_ID() ) != 0 )
             m_scripts.push_back( ScriptObject( SCRIPT::_GET_NAME_OF_THREAD( id ), id ) );
 
         std::sort( m_scripts.begin(), m_scripts.end(), CompareScript );
     }
 }
 
-void ScriptsMod::ShowMenuBar()
+void ScriptsMod::DrawMenuBar()
 {
     if ( ImGui::BeginMenuBar() )
     {
@@ -88,7 +88,10 @@ void ScriptsMod::ShowSelectedPopup()
 
 bool ScriptsMod::Draw()
 {
-    ShowMenuBar();
+	ImGui::SetWindowFontScale(m_menuFontSize);
+	DrawMenuBar();
+
+	ImGui::SetWindowFontScale(m_contentFontSize);
 
     if ( m_scripts.size() > 0 )
     {

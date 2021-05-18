@@ -14,9 +14,9 @@ void lua_BaseInvoke( lua_State *L )
     for ( int i = 2; i <= lua_gettop( L ); i++ )
     {
         if ( lua_isinteger( L, i ) )
-            nativePush<int>( lua_tointeger( L, i ) );
+            nativePush<int>( static_cast<int>(lua_tointeger( L, i )) );
         else if ( lua_isnumber( L, i ) )
-            nativePush( static_cast<float>( lua_tonumber( L, i ) ) );
+            nativePush( static_cast<float>(lua_tonumber( L, i )) );
         else if ( lua_isstring( L, i ) )
             nativePush( lua_tostring( L, i ) );
         else
@@ -30,7 +30,7 @@ int lua_Invoke( lua_State *L )
 {
     lua_BaseInvoke( L );
 
-    lua_pushnumber( L, *nativeCall() );
+    lua_pushinteger( L, *nativeCall() );
 
     return 1;
 }
@@ -82,14 +82,14 @@ static int lua_GetGlobal( lua_State *L )
     if ( !realAddr )
         luaL_error( L, "invalid global address" );
 
-    lua_pushnumber( L, *realAddr );
+    lua_pushinteger( L, *realAddr );
 
     return 1;
 }
 
 static int lua_SetGlobal( lua_State *L )
 {
-    int addr = luaL_checkinteger( L, 1 );
+    int addr = static_cast<int>(luaL_checkinteger( L, 1 ));
 
     if ( addr < 0 )
         luaL_error( L, "invalid global address" );

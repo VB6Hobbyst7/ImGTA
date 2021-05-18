@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{CFC71C4E-A8D0-4F0F-9059-5DB9AA9B00A6}</ProjectGuid>
     <RootNamespace>ImGTA</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,13 +41,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -77,9 +77,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetExt>.asi</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);imgui;imgui\backends</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetExt>.asi</TargetExt>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);imgui;imgui\backends</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,12 +108,15 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\examples;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\backends;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)ScriptHookV_SDK\lib;$(SolutionDir)lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ScriptHookV.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+      <GenerateMapFile>false</GenerateMapFile>
+      <MapExports>false</MapExports>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "E:\Grand Theft Auto V"
@@ -144,8 +151,8 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\examples;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\backends;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -159,13 +166,15 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\imgui\examples\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\imgui\examples\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="..\imgui\imgui.cpp" />
     <ClCompile Include="..\imgui\imgui_demo.cpp" />
     <ClCompile Include="..\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="anim_dict.cpp" />
+    <ClCompile Include="area_mod.cpp" />
     <ClCompile Include="cheats_mod.cpp" />
     <ClCompile Include="cutscene_mod.cpp" />
     <ClCompile Include="global_watch_mod.cpp" />
@@ -176,18 +185,21 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClCompile Include="lua_engine.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mission_helper.cpp" />
+    <ClCompile Include="mission_mod.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="model.cpp" />
+    <ClCompile Include="player_switch_mod.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="audio_mod.cpp" />
     <ClCompile Include="scripts_mod.cpp" />
+    <ClCompile Include="sync_scene_mod.cpp" />
     <ClCompile Include="test_mod.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="watch_entry.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\imgui\examples\imgui_impl_dx11.h" />
-    <ClInclude Include="..\imgui\examples\imgui_impl_win32.h" />
+    <ClInclude Include="..\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="..\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="..\imgui\imconfig.h" />
     <ClInclude Include="..\imgui\imgui.h" />
     <ClInclude Include="..\imgui\imgui_internal.h" />
@@ -195,19 +207,28 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClInclude Include="..\imgui\imstb_textedit.h" />
     <ClInclude Include="..\imgui\imstb_truetype.h" />
     <ClInclude Include="anim_dict.h" />
+    <ClInclude Include="area_mod.h" />
+    <ClInclude Include="audio_scenes.h" />
     <ClInclude Include="cheats_mod.h" />
     <ClInclude Include="cutscene_mod.h" />
+    <ClInclude Include="cutscene_names.h" />
     <ClInclude Include="global_watch_mod.h" />
     <ClInclude Include="gta_script.h" />
     <ClInclude Include="handle_helper_mod.h" />
     <ClInclude Include="imgui_extras.h" />
+    <ClInclude Include="input_controls.h" />
     <ClInclude Include="lua_console_mod.h" />
     <ClInclude Include="mission_helper.h" />
+    <ClInclude Include="mission_mod.h" />
+    <ClInclude Include="mission_names.h" />
     <ClInclude Include="mod.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="music_events.h" />
+    <ClInclude Include="player_switch_mod.h" />
     <ClInclude Include="scripts_mod.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="audio_mod.h" />
+    <ClInclude Include="sync_scene_mod.h" />
     <ClInclude Include="test_mod.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="watch_entry.h" />

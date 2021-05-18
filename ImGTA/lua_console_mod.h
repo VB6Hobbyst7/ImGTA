@@ -18,7 +18,7 @@ public:
     void Unload() override;
 
 private:
-    void ShowMenuBar();
+    void DrawMenuBar();
     char m_szInput[1024] = "";
     char m_szLuaInput[1024] = "";
     int m_iCurrentHistory = 0;

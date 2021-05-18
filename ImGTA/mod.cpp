@@ -14,3 +14,15 @@ const std::string Mod::GetName()
 {
     return m_szName;
 }
+
+void Mod::SetFontSize(float menuSize, float contentSize, float inGameSize)
+{
+	m_menuFontSize = menuSize;
+	m_contentFontSize = contentSize;
+	m_inGameFontSize = inGameSize;
+}
+
+void Mod::SetShowInGame(bool show)
+{
+	m_showInGame = show;
+}

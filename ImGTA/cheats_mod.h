@@ -26,7 +26,14 @@ private:
     void DrawHUDMenu();
 
     bool m_bExplosiveBullets = false;
-    bool m_bShowDebug = false;
+	bool m_scriptVarNeedsUpdate = false;
+    bool m_bShowDebug = true;
+	bool m_bFloatingMenu = true;
+
+	float m_menuFontSize = 1.0f;
+	float m_contentFontSize = 1.0f;
+	float m_inGameFontSize = 0.3f;
+	bool m_displayKMH = true;
 
     int m_iLargestStreaming = 0;
     int m_iLargestStreamingTime = 0;
