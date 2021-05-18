@@ -5,7 +5,7 @@
 class AudioMod : public Mod
 {
 public:
-    AudioMod() : Mod( "Audio", true )
+    AudioMod(bool supportGlobals) : Mod( "Audio", true, supportGlobals )
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

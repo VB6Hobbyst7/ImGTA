@@ -5,8 +5,6 @@
 class MissionHelper
 {
 public:
-    static bool IsVersionSupported( eGameVersion ver );
-
     MissionHelper( eGameVersion ver );
 
     void Fail();

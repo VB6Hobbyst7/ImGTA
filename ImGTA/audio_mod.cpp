@@ -36,10 +36,13 @@ void AudioMod::Think()
     m_bIsScriptedSpeechPlaying = AUDIO::IS_SCRIPTED_SPEECH_PLAYING( p );
     m_bIsAnySpeechPlaying = AUDIO::IS_ANY_SPEECH_PLAYING( p );
 
-	m_audioName = std::string((char *) getGlobalPtr(0x3BCF));
-	m_audioSource = std::string((char *) getGlobalPtr(0x3D92));
-	m_audio1 = std::string((char *) getGlobalPtr(0x4138));
-	m_audio2 = std::string((char *) getGlobalPtr(0x3B2A));
+	if (m_supportGlobals)
+	{
+		m_audioName = std::string((char *) getGlobalPtr(0x3BCF));
+		m_audioSource = std::string((char *) getGlobalPtr(0x3D92));
+		m_audio1 = std::string((char *) getGlobalPtr(0x4138));
+		m_audio2 = std::string((char *) getGlobalPtr(0x3B2A));
+	}
 }
 
 void AudioMod::DrawMenuBar()
@@ -244,10 +247,13 @@ bool AudioMod::Draw()
     ImGui::Text( "Is Scripted Speech Playing: %d", m_bIsScriptedSpeechPlaying );
     ImGui::Text( "Is Any Speech Playing: %d", m_bIsAnySpeechPlaying );
 
-	ImGui::Separator();
-	ImGui::Text("Name: %s", m_audioName.c_str());
-	ImGui::Text("Source: %s", m_audioSource.c_str());
-	ImGui::Text("Unknown 1: %s", m_audio1.c_str());
-	ImGui::Text("Unknown 2: %s", m_audio2.c_str());
+	if (m_supportGlobals)
+	{
+		ImGui::Separator();
+		ImGui::Text("Name: %s", m_audioName.c_str());
+		ImGui::Text("Source: %s", m_audioSource.c_str());
+		ImGui::Text("Unknown 1: %s", m_audio1.c_str());
+		ImGui::Text("Unknown 2: %s", m_audio2.c_str());
+	}
     return true;
 }

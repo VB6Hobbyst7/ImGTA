@@ -126,9 +126,12 @@ void GlobalWatchMod::DrawMenuBar()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::MenuItem("Load all debug"))
+			if (m_supportGlobals)
 			{
-				LoadAllDebug();
+				if (ImGui::MenuItem("Load all debug"))
+				{
+					LoadAllDebug();
+				}
 			}
 
 			if (ImGui::MenuItem("Clear"))

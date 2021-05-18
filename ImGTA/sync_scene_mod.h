@@ -6,7 +6,7 @@
 class SyncSceneMod : public Mod
 {
 public:
-    SyncSceneMod() : Mod( "Synchronized Scene", true )
+    SyncSceneMod(bool supportGlobals) : Mod( "Synchronized Scene", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

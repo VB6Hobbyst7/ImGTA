@@ -6,7 +6,7 @@
 class CheatsMod : public Mod
 {
 public:
-    CheatsMod() : Mod( "Cheats", false )
+    CheatsMod(bool supportGlobals) : Mod( "Cheats", false, supportGlobals)
     {
         m_teleportPos.x = 0;
         m_teleportPos.y = 0;

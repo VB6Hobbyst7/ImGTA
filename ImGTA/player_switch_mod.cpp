@@ -27,10 +27,13 @@ void PlayerSwitchMod::Think()
 }
 
 void PlayerSwitchMod::UpdateLocationData(bool once) {
-	int offset = m_locationArrayStartAddr + m_locationID * sizeof(LocationArray) / 8;
+	if (m_supportGlobals)
+	{
+		int offset = m_locationArrayStartAddr + m_locationID * sizeof(LocationArray) / 8;
 
-	m_locationCount = *(int *) getGlobalPtr(m_locationArraySizeAddr);
-	m_locationArray = *(LocationArray *) getGlobalPtr(offset);
+		m_locationCount = *(int *) getGlobalPtr(m_locationArraySizeAddr);
+		m_locationArray = *(LocationArray *) getGlobalPtr(offset);
+	}
 
 	m_switchInProgress = STREAMING::IS_PLAYER_SWITCH_IN_PROGRESS();
 	m_switchType = STREAMING::GET_PLAYER_SWITCH_TYPE();
@@ -85,23 +88,25 @@ bool PlayerSwitchMod::Draw()
 	ImGui::Text("Switch state: %d", m_switchState);
 	ImGui::Text("Short switch state: %d", m_shortSwitchState);
 
-	ImGui::Separator();
-	if (ImGui::TreeNode("Player switch locations?"))
+	if (m_supportGlobals)
 	{
-		if (ImGui::InputInt("Handle", &m_locationID)) {
-			//ClipInt(m_locationID, 0, m_locationCount - 1);
-			m_bWantsUpdate = true;
-		}
+		ImGui::Separator();
+		if (ImGui::TreeNode("Player switch locations?"))
+		{
+			if (ImGui::InputInt("Handle", &m_locationID)) {
+				//ClipInt(m_locationID, 0, m_locationCount - 1);
+				m_bWantsUpdate = true;
+			}
 
-		ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_locationArray.field_0.x, m_locationArray.field_0.y, m_locationArray.field_0.z);
-		ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_locationArray.field_1.x, m_locationArray.field_1.y, m_locationArray.field_1.z);
-		ImGui::Text("Field 2: %f", m_locationArray.field_2);
-		ImGui::Text("Field 3: %d", m_locationArray.field_3);
-		ImGui::Text("Field 4: %d", m_locationArray.field_4);
-		ImGui::Text("Field 5: %d", m_locationArray.field_5);
-		ImGui::TreePop();
+			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_locationArray.field_0.x, m_locationArray.field_0.y, m_locationArray.field_0.z);
+			ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_locationArray.field_1.x, m_locationArray.field_1.y, m_locationArray.field_1.z);
+			ImGui::Text("Field 2: %f", m_locationArray.field_2);
+			ImGui::Text("Field 3: %d", m_locationArray.field_3);
+			ImGui::Text("Field 4: %d", m_locationArray.field_4);
+			ImGui::Text("Field 5: %d", m_locationArray.field_5);
+			ImGui::TreePop();
+		}
 	}
-	
 	return true;
 }
 

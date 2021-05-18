@@ -5,7 +5,7 @@
 class CutsceneMod : public Mod
 {
 public:
-    CutsceneMod() : Mod( "Cutscene", true )
+    CutsceneMod(bool supportGlobals) : Mod( "Cutscene", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
         m_startPos.x = 0;

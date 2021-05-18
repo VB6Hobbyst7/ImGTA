@@ -7,7 +7,7 @@
 class LuaConsoleMod : public Mod
 {
 public:
-    LuaConsoleMod() : Mod( "Lua Console", true )
+    LuaConsoleMod(bool supportGlobals) : Mod( "Lua Console", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

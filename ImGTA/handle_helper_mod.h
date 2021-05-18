@@ -7,7 +7,7 @@
 class HandleHelperMod : public Mod
 {
 public:
-    HandleHelperMod() : Mod( "Handle Helper", true )
+    HandleHelperMod(bool supportGlobals) : Mod( "Handle Helper", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

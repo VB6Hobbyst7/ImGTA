@@ -36,9 +36,9 @@ bool isOpen = false;
 bool isFirstLoad = true;
 bool floatingMenu = true;
 bool checkFirstUpdate = false;
-float menuFontSize;
-float contentFontSize;
-float inGameFontSize;
+float menuFontSize = 1.0f;
+float contentFontSize = 1.0f;
+float inGameFontSize = 0.3f;
 
 std::vector<std::function<void()>> toRun;
 std::mutex toRun_mutex;
@@ -46,29 +46,32 @@ std::mutex toRun_mutex;
 void InitMods() {
 	InitLuaEngine();
 
-	modsLoaded.push_back(new GlobalWatchMod());
-	modsLoaded.push_back(new CheatsMod());
-	modsLoaded.push_back(new CutsceneMod());
-	modsLoaded.push_back(new AudioMod());
-	modsLoaded.push_back(new ScriptsMod());
-	modsLoaded.push_back(new HandleHelperMod());
-	modsLoaded.push_back(new SyncSceneMod());
-	modsLoaded.push_back(new PlayerSwitchMod());
-	modsLoaded.push_back(new MissionMod());
-	modsLoaded.push_back(new AreaMod());
-	//modsLoaded.push_back(new TestMod());
-	modsLoaded.push_back(new LuaConsoleMod());
+	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
+
+	modsLoaded.push_back(new GlobalWatchMod(supportGlobals));
+	modsLoaded.push_back(new CheatsMod(supportGlobals));
+	modsLoaded.push_back(new CutsceneMod(supportGlobals));
+	modsLoaded.push_back(new AudioMod(supportGlobals));
+	modsLoaded.push_back(new ScriptsMod(supportGlobals));
+	modsLoaded.push_back(new HandleHelperMod(supportGlobals));
+	modsLoaded.push_back(new SyncSceneMod(supportGlobals));
+	modsLoaded.push_back(new PlayerSwitchMod(supportGlobals));
+	if (supportGlobals)
+		modsLoaded.push_back(new MissionMod(supportGlobals));
+	modsLoaded.push_back(new AreaMod(supportGlobals));
+	//modsLoaded.push_back(new TestMod(supportGlobals));
+	modsLoaded.push_back(new LuaConsoleMod(supportGlobals));
 }
 void Update()
 {
-	/*if (isOpen) {
+	if (isOpen) {
 		if (floatingMenu)
 			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 		else
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
 	else
-			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);*/
+			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 
     toRun_mutex.lock();
     for ( auto &f : toRun )

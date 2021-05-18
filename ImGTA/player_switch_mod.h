@@ -30,7 +30,7 @@ struct LocationArray {
 class PlayerSwitchMod : public Mod
 {
 public:
-	PlayerSwitchMod() : Mod("Player Switch", true)
+	PlayerSwitchMod(bool supportGlobals) : Mod("Player Switch", true, supportGlobals)
 	{
 		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
 	}

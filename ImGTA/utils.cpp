@@ -84,3 +84,8 @@ Vector3 InitVector3(float value)
 
 	return vec;
 }
+
+bool IsVersionSupportedForGlobals(eGameVersion ver)
+{
+	return ver == eGameVersion::VER_1_0_372_2_STEAM || ver == eGameVersion::VER_1_0_372_2_NOSTEAM; // TODO: are globals the same in steam and nonsteam?
+}

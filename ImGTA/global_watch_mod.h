@@ -7,7 +7,7 @@
 class GlobalWatchMod : public Mod
 {
 public:
-    GlobalWatchMod() : Mod( "Global Watch", true )
+    GlobalWatchMod(bool supportGlobals) : Mod( "Global Watch", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

@@ -5,7 +5,7 @@
 class Mod
 {
 public:
-    Mod( std::string name, bool hasWindow );
+    Mod( std::string name, bool hasWindow, bool supportGlobals);
     bool HasWindow();
     const std::string GetName();
 
@@ -22,6 +22,7 @@ public:
 protected:
     std::string m_szName;
     bool m_bHasWindow;
+	bool m_supportGlobals;
 
 	bool m_showInGame = true;
 	float m_menuFontSize = 1.0f;

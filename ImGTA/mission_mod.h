@@ -141,7 +141,7 @@ struct MissionArray7 {
 class MissionMod : public Mod
 {
 public:
-	MissionMod() : Mod("Mission", true)
+	MissionMod(bool supportGlobals) : Mod("Mission", true, supportGlobals)
 	{
 		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
 	}

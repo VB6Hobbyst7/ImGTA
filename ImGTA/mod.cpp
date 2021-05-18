@@ -1,6 +1,6 @@
 #include "mod.h"
 
-Mod::Mod( std::string name, bool hasWindow ) : m_szName( name ), m_bHasWindow( hasWindow )
+Mod::Mod( std::string name, bool hasWindow, bool supportGlobals) : m_szName( name ), m_bHasWindow( hasWindow ), m_supportGlobals(supportGlobals)
 {
 
 }

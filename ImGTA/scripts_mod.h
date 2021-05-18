@@ -15,7 +15,7 @@ public:
 class ScriptsMod : public Mod
 {
 public:
-    ScriptsMod() : Mod( "Scripts", true )
+    ScriptsMod(bool supportGlobals) : Mod( "Scripts", true, supportGlobals)
     {
         m_iWindowFlags = ImGuiWindowFlags_MenuBar;
     }

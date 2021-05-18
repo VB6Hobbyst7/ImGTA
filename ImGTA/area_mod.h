@@ -6,7 +6,7 @@
 class AreaMod : public Mod
 {
 public:
-	AreaMod() : Mod("Area", true)
+	AreaMod(bool supportGlobals) : Mod("Area", true, supportGlobals)
 	{
 		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
 	}

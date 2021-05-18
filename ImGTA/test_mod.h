@@ -6,7 +6,7 @@
 class TestMod : public Mod
 {
 public:
-	TestMod() : Mod("Test", true)
+	TestMod(bool supportGlobals) : Mod("Test", true, supportGlobals)
 	{
 		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
 	}
