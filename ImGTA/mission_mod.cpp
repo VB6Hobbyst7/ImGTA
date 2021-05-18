@@ -34,10 +34,10 @@ void MissionMod::ResetData()
 	m_currentMission.hash = 0;
 	m_currentMission.acronym[0] = '\0';
 	m_currentMission.trigger_id = 0;
-	m_currentMission.field_4 = 0;
+	m_currentMission.characterSetID = 0;
 	m_currentMission.field_5 = 0;
-	m_currentMission.field_6 = 0;
-	m_currentMission.field_7 = 0;
+	m_currentMission.timeframeStart = 0;
+	m_currentMission.timeframeEnd = 0;
 	m_currentMission.field_8 = 0;
 
 	m_currentMission2.field_1 = 0;
@@ -47,11 +47,10 @@ void MissionMod::ResetData()
 	m_deathName = "";
 }
 
-void MissionMod::UpdateMissionData(bool once) {
-	
-	int missionOffset = m_missionArrayStartAddr + m_missionID * sizeof(MissionArray) / 8;
-
+void MissionMod::UpdateMissionData(bool once)
+{
 	// fill the MissionArray
+	int missionOffset = m_missionArrayStartAddr + m_missionID * sizeof(MissionArray) / 8;
 	m_missionCount = *(int *) getGlobalPtr(m_missionArraySizeAddr);
 	m_currentMission = *(MissionArray *) getGlobalPtr(missionOffset);
 
@@ -78,6 +77,7 @@ void MissionMod::UpdateMissionData(bool once) {
 	m_mission7Size = *(int *)getGlobalPtr(m_missionArray7SizeAddr);
 	m_mission7 = *(MissionArray7 *)getGlobalPtr(missionArray7Offset);
 
+	m_availableMissionCount = *(int *)getGlobalPtr(0x15503);
 	m_missionState = *(int *) getGlobalPtr(0x15F6A);
 	m_deathName = std::string((char *) getGlobalPtr(0x10B7D));
 	m_missionUnk0 = *(int *)getGlobalPtr(0x10B9B);
@@ -118,7 +118,7 @@ bool MissionMod::Draw()
 
 	ImGui::Separator();
 	if (ImGui::TreeNode("Mission info")) {
-		if (ImGui::InputInt("MissionArrayID", &m_missionID)) {
+		if (ImGui::InputInt("Mission ID", &m_missionID)) {
 			ClipInt(m_missionID, 0, m_missionCount - 1);
 			m_bWantsUpdate = true;
 		}
@@ -127,14 +127,14 @@ bool MissionMod::Draw()
 		ImGui::Text("Hash: %u", m_currentMission.hash);
 		ImGui::Text("Field 2: %d", m_currentMission.field_2);
 		ImGui::Text("Acronym: %s", m_currentMission.acronym);
-		ImGui::Text("Trigger ID: %d", m_currentMission.trigger_id);
-		ImGui::Text("Field 4: %d", m_currentMission.field_4);
+		ImGui::Text("Cutscene trigger ID: %d", m_currentMission.trigger_id);
+		ImGui::Text("Character List: %d (%s)", m_currentMission.characterSetID,
+											   CharacterSetIDStr(m_currentMission.characterSetID).c_str());
 		ImGui::Text("Field 4b: %d", m_currentMission.field_4b);
 		ImGui::Text("Field 5: %d", m_currentMission.field_5);
-		ImGui::Text("Field 6: %d", m_currentMission.field_6);
-		ImGui::Text("Field 7: %d", m_currentMission.field_7);
-		ImGui::Text("Field 8: %d", m_currentMission.field_8);
-		ImGui::Text("Field 8b: %d", m_currentMission.field_8b);
+		ImGui::Text("Timeframe start: %d", m_currentMission.timeframeStart);
+		ImGui::Text("Timeframe end: %d", m_currentMission.timeframeEnd);
+		ImGui::Text("Field 8: %s", m_currentMission.field_8.to_string().c_str());
 		ImGui::Text("Field 9: %d", m_currentMission.field_9);
 
 		ImGui::Text("Field 11 size: %d", m_currentMission.field_11_size);
@@ -186,16 +186,18 @@ bool MissionMod::Draw()
 			m_bWantsUpdate = true;
 		}
 
-		ImGui::Text("Field 0: %d", m_mission4.field_0);
+		ImGui::Text("Available count: %d", m_availableMissionCount);
+
+		ImGui::Text("Ready: %d", m_mission4.isReady);
 		ImGui::Text("Field 1: %d", m_mission4.field_1);
 		ImGui::Text("Field 2: %d", m_mission4.field_2);
 		ImGui::Text("Field 3: %d", m_mission4.field_3);
 		ImGui::Text("Field 4: %d", m_mission4.field_4);
-		ImGui::Text("Field 5: %d", m_mission4.field_5);
+		ImGui::Text("Mission ID: %d", m_mission4.missionID);
 		ImGui::Text("Field 6: %d", m_mission4.field_6);
 		ImGui::Text("Field 7: %d", m_mission4.field_7);
-		ImGui::Text("Field 8: %d", m_mission4.field_8);
-		ImGui::Text("Mission ID: %d", m_mission4.mission_id);
+		ImGui::Text("Character List: %d, (%s)", m_mission4.field_8, CharacterSetIDStr(m_mission4.field_8).c_str());
+		ImGui::Text("Cutscene Trigger ID: %d", m_mission4.triggerID);
 
 		ImGui::Text("Field A_0: %d", m_mission4.field_A.field_0);
 		ImGui::Text("Field A_1: %s", m_mission4.field_A.field_1.to_string().c_str());
@@ -249,4 +251,34 @@ bool MissionMod::Draw()
 	}
 
 	return true;
+}
+
+const char * CharacterIDStr(CharacterID id)
+{
+	switch (id)
+	{
+	case MICHAEL:
+		return "Michael";
+	case FRANKLIN:
+		return "Franklin";
+	case TREVOR:
+		return "Trevor";
+	default:
+		return std::to_string(id).c_str();
+	}
+}
+
+std::string CharacterSetIDStr(int characterSetID)
+{
+	if (characterSetID < 0 || characterSetID > 7)
+		return std::string("NULL");
+	std::bitset<32> set = characterSetID;
+	std::string names;
+	if (set.test(0))
+		names = "Michael, ";
+	if (set.test(1))
+		names += "Franklin, ";
+	if (set.test(2))
+		names += "Trevor";
+	return names;
 }

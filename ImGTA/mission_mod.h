@@ -3,6 +3,21 @@
 #include "types.h"
 
 #include <bitset>
+#include <string>
+
+enum CharacterID { // Guess from standard_global_reg
+	MICHAEL = 0,
+	FRANKLIN = 1,
+	TREVOR = 2,
+	LAMAR = 3,
+	JIMMY = 4,
+	AMANDA = 5,
+	FRIEND = 145
+};
+
+std::string CharacterSetIDStr(int characterSetID);
+const char * CharacterIDStr(CharacterID id);
+
 
 struct PaddedInt {
 	int val = 0;
@@ -18,22 +33,21 @@ struct MissionArray {
 	char acronym[16] = { '\0' }; // 8
 	int trigger_id = 0; // A
 	DWORD _paddings3;
-	int field_4 = 0; // B
+	int characterSetID = 0; // B or set of character (bit0: michael, bit1: franklin, bit2: trevor)
 	int field_4b = 0;
 	int field_5 = 0; // C
 	DWORD _paddings5;
-	int field_6 = 0; // D
+	int timeframeStart = 0; // D
 	DWORD _paddings6;
-	int field_7 = 0; // E
+	int timeframeEnd = 0; // E
 	DWORD _paddings7;
-	int field_8 = 0; // F
-	int field_8b = 0;
+	std::bitset<64> field_8; // F
 	int field_9 = 0; // 10
 	DWORD _paddings9;
 	int field_11_size = 16; // 11 // Array size even though fixed size
 	DWORD _paddings10;
 	PaddedInt field_11[16]; // Fixed size
-}; // Size 34
+}; // Size 34 * 8 bytes
 
 struct MissionArray2 {
 	// 0x14980
@@ -41,7 +55,7 @@ struct MissionArray2 {
 	DWORD _paddings1;
 	float field_2 = 0;
 	DWORD _paddings2;
-}; // Size 2
+}; // Size 2 * 8 bytes
 
 struct MissionArray3 {
 	// 0x60AC
@@ -65,7 +79,7 @@ struct MissionArray3 {
 	char field_14[16] = { '\0' }; // text file
 	int field_16;
 	DWORD _padding16;
-}; // Size 23
+}; // Size 23 * 8 bytes
 
 struct MissionArray4Bis {
 	int field_0;
@@ -84,7 +98,7 @@ struct MissionArray4Bis {
 
 struct MissionArray4 {
 	// 0x15504
-	int field_0;
+	int isReady;
 	DWORD _padding0;
 	int field_1;
 	DWORD _padding1;
@@ -94,18 +108,18 @@ struct MissionArray4 {
 	DWORD _padding3;
 	int field_4;
 	DWORD _padding4;
-	int field_5;
+	int missionID; // 5
 	DWORD _padding5;
 	int field_6;
 	DWORD _padding6;
 	int field_7;
 	DWORD _padding7;
-	int field_8;
+	int field_8; // Character that see it 
 	DWORD _padding8;
-	int mission_id; // Mission second ID
+	int triggerID; // 9
 	DWORD _padding9;
 	MissionArray4Bis field_A;
-}; // Size 17
+}; // Size 17 * 8 bytes
 
 struct MissionArray5 {
 	// 0x10C0F -> Global_10BA2.f_6D
@@ -117,7 +131,7 @@ struct MissionArray5 {
 	DWORD _padding2;
 	int field_3;
 	DWORD _padding3;
-}; // Size 4
+}; // Size 4 * 8 bytes
 
 struct MissionArray6 {
 	// 0x1264B -> Global_10BA2.f_1AA9
@@ -127,7 +141,7 @@ struct MissionArray6 {
 	DWORD _padding1;
 	int field_2;
 	DWORD _padding2;
-}; // Size 3
+}; // Size 3 * 8 bytes
 
 struct MissionArray7 {
 	// 0x198F8 -> Global_17C49.f_1CAD.f_2
@@ -136,7 +150,7 @@ struct MissionArray7 {
 	DWORD _padding1;
 	int field_2;
 	DWORD _padding2;
-}; // Size 3
+}; // Size 3 * 8 bytes
 
 class MissionMod : public Mod
 {
@@ -184,6 +198,7 @@ private:
 	int m_missionArray7StartAddr = m_missionArray7SizeAddr + 1;
 
 
+	int m_availableMissionCount = 0;
 	int m_missionState = 0;
 	std::string m_deathName = "";
 	int m_missionUnk0 = 0;
