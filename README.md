@@ -1,4 +1,4 @@
-This mod helps you debug GTA scripts by watching and interacting with internal variables.<br />
+This mod helps you debug GTA V scripts by watching and interacting with internal global variables.<br />
 
 Mod menu:
 ![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameMenu.jpg?raw=true)
