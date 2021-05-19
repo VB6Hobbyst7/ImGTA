@@ -21,7 +21,7 @@ void HandleHelperMod::Unload()
 
 void HandleHelperMod::Think()
 {
-	if ((m_constantUpdate || m_wantsUpdate))
+	if (m_constantUpdate || m_wantsUpdate)
 	{
 		ListPeds();
 		ListVehs();
@@ -66,20 +66,23 @@ void HandleHelperMod::ListPeds()
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(pedArr.entities[i].id, true);
 			float screenX, screenY;
-			bool retVal = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
+			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
 				&screenX, &screenY);
-			char buf[256] = "";
-			int health = ENTITY::GET_ENTITY_HEALTH(pedArr.entities[i].id);
-			int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(pedArr.entities[i].id);
+			if (!m_drawOnScreenEntityOnly || !notOnScreen)
+			{
+				char buf[256] = "";
+				int health = ENTITY::GET_ENTITY_HEALTH(pedArr.entities[i].id);
+				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(pedArr.entities[i].id);
 
-			if (m_drawId && m_drawLife)
-				sprintf_s(buf, "%dPed ID: %d\nLife: %d/%d", retVal, pedArr.entities[i].id, health, maxHealth);
-			else if (m_drawId)
-				sprintf_s(buf, "Ped: %d", pedArr.entities[i].id);
-			else if (m_drawLife)
-				sprintf_s(buf, "Ped: %d/%d", health, maxHealth);
+				if (m_drawId && m_drawLife)
+					sprintf_s(buf, "Ped ID: %d\nLife: %d/%d", pedArr.entities[i].id, health, maxHealth);
+				else if (m_drawId)
+					sprintf_s(buf, "Ped: %d", pedArr.entities[i].id);
+				else if (m_drawLife)
+					sprintf_s(buf, "Ped: %d/%d", health, maxHealth);
 
-			DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+				DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+			}
 		}
 	}
 }
@@ -104,20 +107,23 @@ void HandleHelperMod::ListVehs()
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(vehArr.entities[i].id, true);
 			float screenX, screenY;
-			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
+			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
 				&screenX, &screenY);
-			char buf[256] = "";
-			int health = ENTITY::GET_ENTITY_HEALTH(vehArr.entities[i].id);
-			int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(vehArr.entities[i].id);
+			if (!m_drawOnScreenEntityOnly || !notOnScreen)
+			{
+				char buf[256] = "";
+				int health = ENTITY::GET_ENTITY_HEALTH(vehArr.entities[i].id);
+				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(vehArr.entities[i].id);
 
-			if (m_drawId && m_drawLife)
-				sprintf_s(buf, "\n\nVeh ID: %d\nLife: %d/%d", vehArr.entities[i].id, health, maxHealth);
-			else if (m_drawId)
-				sprintf_s(buf, "\n\nVeh: %d", vehArr.entities[i].id);
-			else if (m_drawLife)
-				sprintf_s(buf, "\n\nVeh: %d/%d", health, maxHealth);
+				if (m_drawId && m_drawLife)
+					sprintf_s(buf, "\n\nVeh ID: %d\nLife: %d/%d", vehArr.entities[i].id, health, maxHealth);
+				else if (m_drawId)
+					sprintf_s(buf, "\n\nVeh: %d", vehArr.entities[i].id);
+				else if (m_drawLife)
+					sprintf_s(buf, "\n\nVeh: %d/%d", health, maxHealth);
 
-			DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+				DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+			}
 		}
 	}
 }
@@ -221,6 +227,7 @@ void HandleHelperMod::DrawMenuBar()
 
 		if (ImGui::BeginMenu("HUD"))
 		{
+			ImGui::MenuItem("Show entities on scren only", NULL, &m_drawOnScreenEntityOnly);
 			ImGui::MenuItem("Show on HUD", NULL, &m_drawEntityInfo);
 			ImGui::MenuItem("Show Handle", NULL, &m_drawId);
 			ImGui::MenuItem("Show Life", NULL, &m_drawLife);

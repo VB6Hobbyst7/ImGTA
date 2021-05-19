@@ -110,6 +110,7 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\backends;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)ScriptHookV_SDK\lib;$(SolutionDir)lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -220,7 +221,7 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClInclude Include="lua_console_mod.h" />
     <ClInclude Include="mission_helper.h" />
     <ClInclude Include="mission_mod.h" />
-    <ClInclude Include="mission_names.h" />
+    <ClInclude Include="script_infos.h" />
     <ClInclude Include="mod.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="music_events.h" />
@@ -228,6 +229,7 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClInclude Include="scripts_mod.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="audio_mod.h" />
+    <ClInclude Include="script_names.h" />
     <ClInclude Include="sync_scene_mod.h" />
     <ClInclude Include="test_mod.h" />
     <ClInclude Include="utils.h" />

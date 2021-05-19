@@ -17,7 +17,7 @@ void SyncSceneMod::Unload()
 
 void SyncSceneMod::Think()
 {
-	if ((m_constantUpdate || m_wantsUpdate))
+	if (m_constantUpdate || m_wantsUpdate)
 	{
 		UpdateHandleData();
 		ListRunning();

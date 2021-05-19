@@ -20,7 +20,7 @@ void MissionMod::Unload()
 
 void MissionMod::Think()
 {
-	if ((m_constantUpdate || m_wantsUpdate))
+	if (m_constantUpdate || m_wantsUpdate)
 	{
 		UpdateMissionData();
 		m_wantsUpdate = false;

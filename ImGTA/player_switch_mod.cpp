@@ -20,7 +20,7 @@ void PlayerSwitchMod::Unload()
 
 void PlayerSwitchMod::Think()
 {
-	if ((m_constantUpdate || m_wantsUpdate))
+	if (m_constantUpdate || m_wantsUpdate)
 	{
 		UpdateLocationData();
 		m_wantsUpdate = false;
