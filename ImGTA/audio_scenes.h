@@ -1,6 +1,6 @@
 #pragma once
 
-const char* audio_scenes[] = {
+const char* audioScenes[] = {
 "AGENCY_H_1_DRIVE_TO_FACTORY",
 "AGENCY_H_1_FOCUS_ON_JANITOR",
 "AGENCY_H_1_FOCUS_ON_PLATES",

@@ -2,6 +2,9 @@
 #include "types.h"
 #include "nativeCaller.h"
 
+#pragma warning(push)
+#pragma warning(disable: 4505)
+
 // Generated Mon, 17 May 2021 19:21:41 GMT
 // https://alloc8or.re/gta5/nativedb/
 
@@ -6469,3 +6472,4 @@ namespace ZONE
 	static Hash GET_HASH_OF_MAP_AREA_AT_COORDS(float x, float y, float z) { return invoke<Hash>(0x7EE64D51E8498728, x, y, z); } // 0x7EE64D51E8498728 0xB5C5C99B b323
 }
 
+#pragma warning(pop)

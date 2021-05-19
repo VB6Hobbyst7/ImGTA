@@ -15,25 +15,26 @@ void PlayerSwitchMod::Load()
 
 void PlayerSwitchMod::Unload()
 {
-	
+
 }
 
 void PlayerSwitchMod::Think()
 {
-	if ((m_bConstantUpdate || m_bWantsUpdate))
+	if ((m_constantUpdate || m_wantsUpdate))
 	{
-		UpdateLocationData(m_bWantsUpdate);
-		m_bWantsUpdate = false;
+		UpdateLocationData();
+		m_wantsUpdate = false;
 	}
 }
 
-void PlayerSwitchMod::UpdateLocationData(bool once) {
+void PlayerSwitchMod::UpdateLocationData()
+{
 	if (m_supportGlobals)
 	{
 		int offset = m_locationArrayStartAddr + m_locationID * sizeof(LocationArray) / 8;
 
-		m_locationCount = *(int *) getGlobalPtr(m_locationArraySizeAddr);
-		m_locationArray = *(LocationArray *) getGlobalPtr(offset);
+		m_locationCount = *(int *)getGlobalPtr(m_locationArraySizeAddr);
+		m_locationArray = *(LocationArray *)getGlobalPtr(offset);
 	}
 
 	m_switchInProgress = STREAMING::IS_PLAYER_SWITCH_IN_PROGRESS();
@@ -66,8 +67,10 @@ void PlayerSwitchMod::DrawMenuBar()
 	}
 }
 
-std::string switchTypeStr(SwitchType type) {
-	switch (type) {
+std::string switchTypeStr(SwitchType type)
+{
+	switch (type)
+	{
 	case SwitchType::SWITCH_TYPE_AUTO:
 		return std::string("AUTO");
 	case SwitchType::SWITCH_TYPE_LONG:
@@ -88,10 +91,10 @@ bool PlayerSwitchMod::Draw()
 
 	ImGui::SetWindowFontScale(m_contentFontSize);
 
-	ImGui::Checkbox("Constant Updates?", &m_bConstantUpdate);
-	if (!m_bConstantUpdate)
+	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
+	if (!m_constantUpdate)
 		if (ImGui::Button("Update"))
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 
 	ImGui::Separator();
 	if (m_supportGlobals)
@@ -106,11 +109,12 @@ bool PlayerSwitchMod::Draw()
 
 	if (m_supportGlobals)
 	{
-		if (ImGui::TreeNode("Messages")) {
+		if (ImGui::TreeNode("Messages"))
+		{
 			if (ImGui::InputInt("Message ID", &m_characterID))
 			{
 				ClipInt(m_characterID, 0, m_characterCount - 1);
-				m_bWantsUpdate = true;
+				m_wantsUpdate = true;
 			}
 
 			ImGui::Text("Hash: %d", m_characterArray.field_0);
@@ -144,7 +148,7 @@ bool PlayerSwitchMod::Draw()
 		{
 			if (ImGui::InputInt("Handle", &m_locationID)) {
 				ClipInt(m_locationID, 0, m_locationCount - 1);
-				m_bWantsUpdate = true;
+				m_wantsUpdate = true;
 			}
 
 			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_locationArray.field_0.x, m_locationArray.field_0.y, m_locationArray.field_0.z);

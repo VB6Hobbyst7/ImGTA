@@ -6,10 +6,10 @@ struct IDXGISwapChain;
 void InitMods();
 void Load();
 void Unload();
-void OnPresent( IDXGISwapChain *swap );
+void OnPresent(IDXGISwapChain *swap);
 
 // Relying on this function is not recommended!
-void RunOnNativeThread( std::function<void()> func );
+void RunOnNativeThread(std::function<void()> func);
 void SetFloatingMenu(bool isFloating);
 bool GetFloatingMenu();
 void SetShowAllInGame(bool show);

@@ -6,22 +6,21 @@
 class SyncSceneMod : public Mod
 {
 public:
-    SyncSceneMod(bool supportGlobals) : Mod( "Synchronized Scene", true, supportGlobals)
-    {
-        m_iWindowFlags = ImGuiWindowFlags_MenuBar;
-    }
+	SyncSceneMod(bool supportGlobals) : Mod("Synchronized Scene", true, supportGlobals)
+	{
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
+	}
 
-    bool Draw() override;
-    void Think() override;
-    void Load() override;
-    void Unload() override;
+	bool Draw() override;
+	void Think() override;
+	void Load() override;
+	void Unload() override;
 
 private:
 	void DrawMenuBar();
-	void UpdateHandleData(bool once = false);
+	void UpdateHandleData();
 	void ResetData();
 	void ListRunning();
-
 
 	float m_phase = 0;
 	float m_rate = 0;
@@ -34,11 +33,11 @@ private:
 	float m_rateInput = 0;
 
 	// ImGui inputs / internals
-	bool m_bWantsUpdate = false;
-	int m_iHandleInput = 0;
-	bool m_bConstantUpdate = true;
-	char m_szAnimDictInput[256] = "";
-	char m_szAnimNameInput[256] = "";
-	unsigned int m_iAnimFlags = 0;
-	bool m_bAnimLoop = false;
+	bool m_wantsUpdate = false;
+	int m_handleInput = 0;
+	bool m_constantUpdate = true;
+	char m_animDictInput[256] = "";
+	char m_animNameInput[256] = "";
+	unsigned int m_animFlags = 0;
+	bool m_animLoop = false;
 };

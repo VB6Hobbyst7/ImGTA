@@ -157,7 +157,7 @@ class MissionMod : public Mod
 public:
 	MissionMod(bool supportGlobals) : Mod("Mission", true, supportGlobals)
 	{
-		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
 
 	bool Draw() override;
@@ -168,7 +168,7 @@ public:
 private:
 	void DrawMenuBar();
 	void ResetData();
-	void UpdateMissionData(bool once);
+	void UpdateMissionData();
 
 	MissionArray m_currentMission;
 	MissionArray2 m_currentMission2;
@@ -197,7 +197,6 @@ private:
 	int m_missionArray7SizeAddr = 0x198F8;
 	int m_missionArray7StartAddr = m_missionArray7SizeAddr + 1;
 
-
 	int m_availableMissionCount = 0;
 	int m_missionState = 0;
 	std::string m_deathName = "";
@@ -205,16 +204,16 @@ private:
 	int m_missionUnk1 = 0;
 
 	// ImGui inputs / internals
-	bool m_bWantsUpdate = false;
+	bool m_wantsUpdate = false;
 	int m_missionID = 0;
 	int m_missionID3 = 0;
 	int m_missionID4 = 0;
 	int m_missionID5 = 0;
 	int m_missionID6 = 0;
 	int m_missionID7 = 0;
-	bool m_bConstantUpdate = true;
-	char m_szAnimDictInput[256] = "";
-	char m_szAnimNameInput[256] = "";
-	unsigned int m_iAnimFlags = 0;
-	bool m_bAnimLoop = false;
+	bool m_constantUpdate = true;
+	char m_animDictInput[256] = "";
+	char m_animNameInput[256] = "";
+	unsigned int m_animFlags = 0;
+	bool m_animLoop = false;
 };

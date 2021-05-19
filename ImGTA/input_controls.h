@@ -1,6 +1,7 @@
 #pragma once
 
-enum CONTROL_TYPE {
+enum CONTROL_TYPE
+{
 	PLAYER_CONTROL = 0,
 	FRONTEND_CONTROL = 2
 };

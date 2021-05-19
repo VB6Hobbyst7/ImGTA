@@ -17,15 +17,16 @@ void SyncSceneMod::Unload()
 
 void SyncSceneMod::Think()
 {
-	if ((m_bConstantUpdate || m_bWantsUpdate))
+	if ((m_constantUpdate || m_wantsUpdate))
 	{
-		UpdateHandleData(m_bWantsUpdate);
+		UpdateHandleData();
 		ListRunning();
-		m_bWantsUpdate = false;
+		m_wantsUpdate = false;
 	}
 }
 
-void SyncSceneMod::ResetData() {
+void SyncSceneMod::ResetData()
+{
 	m_phase = 0;
 	m_rate = 0;
 	m_looped = 0;
@@ -33,21 +34,23 @@ void SyncSceneMod::ResetData() {
 	m_holdLastFrame = false;
 }
 
-void SyncSceneMod::ListRunning() {
+void SyncSceneMod::ListRunning()
+{
 	m_runningList = "";
-	for (int i = 0; i < 500; i++) {
+	for (int i = 0; i < 500; i++)
+	{
 		if (PED::IS_SYNCHRONIZED_SCENE_RUNNING(i))
 			m_runningList += std::to_string(i) + ", ";
 	}
 }
 
-void SyncSceneMod::UpdateHandleData(bool once)
+void SyncSceneMod::UpdateHandleData()
 {
-	m_phase = PED::GET_SYNCHRONIZED_SCENE_PHASE(m_iHandleInput);
-	m_rate = PED::GET_SYNCHRONIZED_SCENE_RATE(m_iHandleInput);
-	m_looped = PED::IS_SYNCHRONIZED_SCENE_LOOPED(m_iHandleInput);
-	m_running = PED::IS_SYNCHRONIZED_SCENE_RUNNING(m_iHandleInput);
-	m_holdLastFrame = PED::IS_SYNCHRONIZED_SCENE_HOLD_LAST_FRAME(m_iHandleInput);
+	m_phase = PED::GET_SYNCHRONIZED_SCENE_PHASE(m_handleInput);
+	m_rate = PED::GET_SYNCHRONIZED_SCENE_RATE(m_handleInput);
+	m_looped = PED::IS_SYNCHRONIZED_SCENE_LOOPED(m_handleInput);
+	m_running = PED::IS_SYNCHRONIZED_SCENE_RUNNING(m_handleInput);
+	m_holdLastFrame = PED::IS_SYNCHRONIZED_SCENE_HOLD_LAST_FRAME(m_handleInput);
 }
 
 void SyncSceneMod::DrawMenuBar()
@@ -60,7 +63,7 @@ void SyncSceneMod::DrawMenuBar()
 			{
 				RunOnNativeThread([=]
 				{
-					PED::SET_SYNCHRONIZED_SCENE_LOOPED(m_iHandleInput, !m_looped);
+					PED::SET_SYNCHRONIZED_SCENE_LOOPED(m_handleInput, !m_looped);
 				});
 			}
 
@@ -72,7 +75,7 @@ void SyncSceneMod::DrawMenuBar()
 					RunOnNativeThread([=]
 					{
 						if (m_phaseInput >= 0 && m_phaseInput <= 1)
-							PED::SET_SYNCHRONIZED_SCENE_PHASE(m_iHandleInput, m_phaseInput);
+							PED::SET_SYNCHRONIZED_SCENE_PHASE(m_handleInput, m_phaseInput);
 					});
 				}
 				ImGui::EndMenu();
@@ -86,7 +89,7 @@ void SyncSceneMod::DrawMenuBar()
 					RunOnNativeThread([=]
 					{
 						if (m_rateInput >= 0 && m_rateInput <= 2)
-							PED::SET_SYNCHRONIZED_SCENE_RATE(m_iHandleInput, m_rateInput);
+							PED::SET_SYNCHRONIZED_SCENE_RATE(m_handleInput, m_rateInput);
 					});
 				}
 				ImGui::EndMenu();
@@ -96,7 +99,7 @@ void SyncSceneMod::DrawMenuBar()
 			{
 				RunOnNativeThread([=]
 				{
-					PED::SET_SYNCHRONIZED_SCENE_HOLD_LAST_FRAME(m_iHandleInput, !m_holdLastFrame);
+					PED::SET_SYNCHRONIZED_SCENE_HOLD_LAST_FRAME(m_handleInput, !m_holdLastFrame);
 				});
 			}
 
@@ -115,20 +118,20 @@ bool SyncSceneMod::Draw()
 
 	ImGui::SetWindowFontScale(m_contentFontSize);
 
-	ImGui::Checkbox("Constant Updates?", &m_bConstantUpdate);
-	if (!m_bConstantUpdate)
+	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
+	if (!m_constantUpdate)
 		if (ImGui::Button("Update"))
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 
-	
+
 	ImGui::Separator();
 	if (ImGui::TreeNode("Synchronized scene"))
 	{
-		if (ImGui::InputInt("Handle", &m_iHandleInput))
+		if (ImGui::InputInt("Handle", &m_handleInput))
 		{
-			if (m_iHandleInput < 0)
-				m_iHandleInput = 0;
-			m_bWantsUpdate = true;
+			if (m_handleInput < 0)
+				m_handleInput = 0;
+			m_wantsUpdate = true;
 		}
 
 		ImGui::Text("Phase: %.2f", m_phase);

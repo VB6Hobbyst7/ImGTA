@@ -5,11 +5,11 @@
 class MissionHelper
 {
 public:
-    MissionHelper( eGameVersion ver );
+	MissionHelper(eGameVersion ver);
 
-    void Fail();
-    void Skip();
+	void Fail();
+	void Skip();
 
 private:
-    eGameVersion m_version;
+	eGameVersion m_version;
 };

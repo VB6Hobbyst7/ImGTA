@@ -1,6 +1,6 @@
 #pragma once
 
-const char* cutscene_names[] = {
+const char* cutsceneNames[] = {
 "ah_1_ext_t6",
 "ah_1_int",
 "ah_1_mcs_1",
@@ -486,4 +486,4 @@ const char* cutscene_names[] = {
 "sub_int",
 "subj_ext",
 "subj_mcs0",
-"subj_mcs1"};
+"subj_mcs1" };

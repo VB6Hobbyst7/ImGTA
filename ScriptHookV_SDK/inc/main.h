@@ -6,6 +6,9 @@
 
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable: 4505)
+
 #include <windows.h>
 
 #define IMPORT __declspec(dllimport)
@@ -144,3 +147,5 @@ enum eGameVersion : int
 };
 
 IMPORT eGameVersion getGameVersion();
+
+#pragma warning(pop)

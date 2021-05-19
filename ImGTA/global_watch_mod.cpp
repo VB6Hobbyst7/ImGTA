@@ -26,36 +26,36 @@ void GlobalWatchMod::Unload()
 
 void GlobalWatchMod::Think()
 {
-    if ( m_watches.size() > 0 )
-    {
-        std::lock_guard<std::mutex> lock( m_watchesMutex );
+	if (m_watches.size() > 0)
+	{
+		std::lock_guard<std::mutex> lock(m_watchesMutex);
 
-        char buf[128] = "";
-        float yOff = m_inGameOffsetY;
-        for ( auto &w : m_watches )
-        {
+		char buf[128] = "";
+		float yOff = m_inGameOffsetY;
+		for (auto &w : m_watches)
+		{
 			w.UpdateValue();
-            if ( w.m_drawInGame && m_showInGame )
-            {
-                sprintf_s( buf, "0x%x: %s", w.m_iGlobalAddress, w.m_value.c_str() );
-                DrawTextToScreen( buf, m_inGameOffsetX, yOff, m_inGameFontSize, eFont::FontChaletLondon );
-                yOff += 0.02f;
-            }
-        }
-    }
+			if (w.m_drawInGame && m_showInGame)
+			{
+				sprintf_s(buf, "0x%x: %s", w.m_globalAddress, w.m_value.c_str());
+				DrawTextToScreen(buf, m_inGameOffsetX, yOff, m_inGameFontSize, eFont::FontChaletLondon);
+				yOff += 0.02f;
+			}
+		}
+	}
 }
 
 void GlobalWatchMod::ShowAddAddress()
 {
-    ImGui::InputInt( "Address##AddAddress", &m_iInputAddr, 1, 100, ImGuiInputTextFlags_CharsHexadecimal );
-    ImGui::Combo( "Type##AddAddress", &m_iInputType, watchTypeNames, IM_ARRAYSIZE( watchTypeNames ) );
-    if ( ImGui::Button( "Add##AddAddress" ) )
-    {
-        if ( getGlobalPtr( m_iInputAddr ) == nullptr )
-            return;
+	ImGui::InputInt("Address##AddAddress", &m_inputAddr, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
+	ImGui::Combo("Type##AddAddress", &m_inputType, watchTypeNames, IM_ARRAYSIZE(watchTypeNames));
+	if (ImGui::Button("Add##AddAddress"))
+	{
+		if (getGlobalPtr(m_inputAddr) == nullptr)
+			return;
 
-        std::lock_guard<std::mutex> lock( m_watchesMutex );
-		m_watches.push_back(WatchEntry(m_iInputAddr, (WatchType)m_iInputType));
+		std::lock_guard<std::mutex> lock(m_watchesMutex);
+		m_watches.push_back(WatchEntry(m_inputAddr, (WatchType)m_inputType));
 	}
 }
 
@@ -63,12 +63,12 @@ void GlobalWatchMod::ShowSelectedPopup()
 {
 	if (ImGui::BeginPopup("PopupEntryProperties"))
 	{
-		ImGui::Combo("Type##EntryProperties", (int *)&m_pSelectedEntry->m_type, watchTypeNames, IM_ARRAYSIZE(watchTypeNames));
-		ImGui::Checkbox("Show Ingame##EntryProperties", &m_pSelectedEntry->m_drawInGame);
+		ImGui::Combo("Type##EntryProperties", (int *)&m_selectedEntry->m_type, watchTypeNames, IM_ARRAYSIZE(watchTypeNames));
+		ImGui::Checkbox("Show Ingame##EntryProperties", &m_selectedEntry->m_drawInGame);
 
-		uint64_t *val = getGlobalPtr(m_pSelectedEntry->m_iGlobalAddress);
+		uint64_t *val = getGlobalPtr(m_selectedEntry->m_globalAddress);
 
-		switch (m_pSelectedEntry->m_type)
+		switch (m_selectedEntry->m_type)
 		{
 		case WatchType::kBitfield:
 			ImGuiExtras::BitField("Value##GlobalWatchValueBitfield", (unsigned int *)val, nullptr);
@@ -94,7 +94,7 @@ void GlobalWatchMod::ShowSelectedPopup()
 		if (ImGui::Button("Remove##EntryProperties"))
 		{
 			std::lock_guard<std::mutex> lock(m_watchesMutex);
-			m_watches.erase(std::remove(m_watches.begin(), m_watches.end(), m_pSelectedEntry), m_watches.end());
+			m_watches.erase(std::remove(m_watches.begin(), m_watches.end(), m_selectedEntry), m_watches.end());
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -102,7 +102,8 @@ void GlobalWatchMod::ShowSelectedPopup()
 	}
 }
 
-void GlobalWatchMod::LoadAllDebug() {
+void GlobalWatchMod::LoadAllDebug()
+{
 	std::lock_guard<std::mutex> lock(m_watchesMutex);
 	m_watches.push_back(WatchEntry(0x3D4C, WatchType::kInt, std::string("Dialogue state")));
 	m_watches.push_back(WatchEntry(0x14A40, WatchType::kInt, std::string("Skip a scene")));
@@ -157,8 +158,8 @@ void GlobalWatchMod::DrawMenuBar()
 			ImGui::EndMenu();
 		}
 
-        ImGui::EndMenuBar();
-    }
+		ImGui::EndMenuBar();
+	}
 }
 
 bool GlobalWatchMod::Draw()
@@ -167,39 +168,39 @@ bool GlobalWatchMod::Draw()
 	DrawMenuBar();
 
 	ImGui::SetWindowFontScale(m_contentFontSize);
-    ImGui::TextColored( ImVec4( 255, 0, 0, 255 ), "Game version: %d", getGameVersion() );
+	ImGui::TextColored(ImVec4(255, 0, 0, 255), "Game version: %d", getGameVersion());
 
-    char buf[128] = "";
+	char buf[128] = "";
 
-    ImGui::Columns( 4 );
-    ImGui::Separator();
-    ImGui::Text( "Address" ); ImGui::NextColumn();
+	ImGui::Columns(4);
+	ImGui::Separator();
+	ImGui::Text("Address"); ImGui::NextColumn();
 	ImGui::Text("Type"); ImGui::NextColumn();
 	ImGui::Text("Info"); ImGui::NextColumn();
-    ImGui::Text( "Value" ); ImGui::NextColumn();
-    ImGui::Separator();
-    if ( m_watches.size() > 0 )
-    {
-        std::lock_guard<std::mutex> lock( m_watchesMutex );
-        for ( auto &w : m_watches )
-        {
-            sprintf_s( buf, "0x%x", w.m_iGlobalAddress );
+	ImGui::Text("Value"); ImGui::NextColumn();
+	ImGui::Separator();
+	if (m_watches.size() > 0)
+	{
+		std::lock_guard<std::mutex> lock(m_watchesMutex);
+		for (auto &w : m_watches)
+		{
+			sprintf_s(buf, "0x%x", w.m_globalAddress);
 
-            if ( ImGui::Selectable( buf, false, ImGuiSelectableFlags_SpanAllColumns ) )
-            {
-                m_pSelectedEntry = &w;
-                ImGui::OpenPopup( "PopupEntryProperties" );
-            }
+			if (ImGui::Selectable(buf, false, ImGuiSelectableFlags_SpanAllColumns))
+			{
+				m_selectedEntry = &w;
+				ImGui::OpenPopup("PopupEntryProperties");
+			}
 
-            ImGui::NextColumn();
-            ImGui::Text( "%s", watchTypeNames[w.m_type] ); ImGui::NextColumn();
-			ImGui::Text( "%s", w.m_info.c_str()); ImGui::NextColumn();
-            ImGui::Text( "%s", w.m_value.c_str() ); ImGui::NextColumn();
-        }
-        ImGui::Columns( 1 );
-        ImGui::Separator();
-    }
+			ImGui::NextColumn();
+			ImGui::Text("%s", watchTypeNames[w.m_type]); ImGui::NextColumn();
+			ImGui::Text("%s", w.m_info.c_str()); ImGui::NextColumn();
+			ImGui::Text("%s", w.m_value.c_str()); ImGui::NextColumn();
+		}
+		ImGui::Columns(1);
+		ImGui::Separator();
+	}
 
-    ShowSelectedPopup();
-    return true;
+	ShowSelectedPopup();
+	return true;
 }

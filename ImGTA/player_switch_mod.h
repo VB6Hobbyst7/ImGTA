@@ -5,14 +5,16 @@
 #include "mission_mod.h"
 
 
-enum class SwitchType {
+enum class SwitchType
+{
 	SWITCH_TYPE_AUTO = 0,
 	SWITCH_TYPE_LONG = 1,
 	SWITCH_TYPE_MEDIUM = 2,
 	SWITCH_TYPE_SHORT = 3
 };
 
-struct LocationArray {
+struct LocationArray
+{
 	// 0x14D9D
 	Vector3 field_0 = { 0 }; // 0
 	Vector3 field_1 = { 0 }; // 3
@@ -26,7 +28,8 @@ struct LocationArray {
 	DWORD _padding5;
 }; // Size 10 * 8 bytes
 
-struct MessageArray {
+struct MessageArray
+{
 	// 0x1F097 Global_17C49.f_744E
 	int field_0; // Hash example 'ig_devin' -> Look in standard_global_reg for correspondance
 	DWORD _padding0;
@@ -53,9 +56,10 @@ struct MessageArray {
 	PaddedInt field_18[4];
 }; // Size 29 * 8 bytes
 
-struct MessageArray2 {
+// TODO
+/*struct MessageArray2 {
 	// 0x61
-}; // Size 
+};*/ // Size 
 
 
 class PlayerSwitchMod : public Mod
@@ -63,7 +67,7 @@ class PlayerSwitchMod : public Mod
 public:
 	PlayerSwitchMod(bool supportGlobals) : Mod("Player Switch", true, supportGlobals)
 	{
-		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
 
 	bool Draw() override;
@@ -72,6 +76,9 @@ public:
 	void Unload() override;
 
 private:
+	void DrawMenuBar();
+	void UpdateLocationData();
+
 	bool m_switchInProgress = false;
 	int m_switchType = 0;
 	int m_switchState = 0;
@@ -92,14 +99,11 @@ private:
 	int m_characterArrayStartAddr = m_characterArraySizeAddr + 1;
 
 	// ImGui inputs / internals
-	bool m_bWantsUpdate = false;
+	bool m_wantsUpdate = false;
 	int m_locationID = 0;
-	bool m_bConstantUpdate = true;
-	char m_szAnimDictInput[256] = "";
-	char m_szAnimNameInput[256] = "";
-	unsigned int m_iAnimFlags = 0;
-	bool m_bAnimLoop = false;
-
-	void DrawMenuBar();
-	void UpdateLocationData(bool once);
+	bool m_constantUpdate = true;
+	char m_animDictInput[256] = "";
+	char m_animNameInput[256] = "";
+	unsigned int m_animFlags = 0;
+	bool m_animLoop = false;
 };

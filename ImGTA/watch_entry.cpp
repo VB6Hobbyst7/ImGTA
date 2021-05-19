@@ -5,7 +5,7 @@
 
 void WatchEntry::UpdateValue()
 {
-	m_value = GetDisplayForType(m_iGlobalAddress, m_type);
+	m_value = GetDisplayForType(m_globalAddress, m_type);
 }
 
 std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)

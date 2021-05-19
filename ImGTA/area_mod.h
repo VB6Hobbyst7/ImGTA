@@ -8,7 +8,7 @@ class AreaMod : public Mod
 public:
 	AreaMod(bool supportGlobals) : Mod("Area", true, supportGlobals)
 	{
-		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
 
 	bool Draw() override;
@@ -56,12 +56,12 @@ private:
 	int m_coordUnk2 = 0;
 
 	// ImGui inputs / internals
-	bool m_bWantsUpdate = false;
-	int m_iHandleInput = 0;
-	bool m_bConstantUpdate = true;
-	char m_szAnimDictInput[256] = "";
-	char m_szAnimNameInput[256] = "";
-	unsigned int m_iAnimFlags = 0;
-	bool m_bAnimLoop = false;
+	bool m_wantsUpdate = false;
+	int m_handleInput = 0;
+	bool m_constantUpdate = true;
+	char m_animDictInput[256] = "";
+	char m_animNameInput[256] = "";
+	unsigned int m_animFlags = 0;
+	bool m_animLoop = false;
 };
 

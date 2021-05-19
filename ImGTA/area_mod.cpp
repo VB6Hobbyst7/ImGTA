@@ -18,7 +18,7 @@ void AreaMod::Unload()
 
 void AreaMod::Think()
 {
-	if ((m_bConstantUpdate || m_bWantsUpdate))
+	if ((m_constantUpdate || m_wantsUpdate))
 	{
 		Ped ped = PLAYER::PLAYER_PED_ID();
 		if (ENTITY::DOES_ENTITY_EXIST(ped))
@@ -33,7 +33,7 @@ void AreaMod::Think()
 			m_isInArea = ENTITY::IS_ENTITY_IN_AREA(ped,
 				m_areaStartPoint.x, m_areaStartPoint.y, m_areaStartPoint.z,
 				m_areaEndPoint.x, m_areaEndPoint.x, m_areaEndPoint.x,
-				m_areaUnk0, m_areaUnk1, m_areaUnk2);
+				m_areaUnk0, m_areaUnk1, (Any)m_areaUnk2);
 
 			m_isAtCoord = ENTITY::IS_ENTITY_AT_COORD(ped,
 				m_coordPoint.x, m_coordPoint.y, m_coordPoint.z,
@@ -81,7 +81,7 @@ void AreaMod::Think()
 		{
 			float screenX, screenY;
 			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(m_currentPos.x, m_currentPos.y, m_currentPos.z + m_drawOffsetZ,
-															 &screenX, &screenY);
+				&screenX, &screenY);
 
 			char buf[256] = "";
 			sprintf_s(buf, "Angled area: %s\nArea: %s\nCoord: %s",
@@ -89,7 +89,7 @@ void AreaMod::Think()
 			DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
 		}
 
-		m_bWantsUpdate = false;
+		m_wantsUpdate = false;
 	}
 }
 
@@ -97,7 +97,8 @@ void AreaMod::DrawMenuBar()
 {
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("HUD")) {
+		if (ImGui::BeginMenu("HUD"))
+		{
 			ImGui::MenuItem("Show on HUD", NULL, &m_drawInGame);
 
 			if (ImGui::BeginMenu("Misc"))
@@ -120,10 +121,10 @@ bool AreaMod::Draw()
 
 	ImGui::SetWindowFontScale(m_contentFontSize);
 
-	ImGui::Checkbox("Constant Updates?", &m_bConstantUpdate);
-	if (!m_bConstantUpdate)
+	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
+	if (!m_constantUpdate)
 		if (ImGui::Button("Update"))
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 
 	if (ImGui::TreeNodeEx("Draw Box", ImGuiTreeNodeFlags_DefaultOpen))
 	{

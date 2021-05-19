@@ -43,7 +43,8 @@ float inGameFontSize = 0.3f;
 std::vector<std::function<void()>> toRun;
 std::mutex toRun_mutex;
 
-void InitMods() {
+void InitMods()
+{
 	InitLuaEngine();
 
 	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
@@ -62,43 +63,45 @@ void InitMods() {
 	//modsLoaded.push_back(new TestMod(supportGlobals));
 	modsLoaded.push_back(new LuaConsoleMod(supportGlobals));
 }
+
 void Update()
 {
-	if (isOpen) {
+	if (isOpen)
+	{
 		if (floatingMenu)
 			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 		else
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
 	else
-			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
+		PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 
-    toRun_mutex.lock();
-    for ( auto &f : toRun )
-        f();
-    toRun.clear();
-    toRun_mutex.unlock();
+	toRun_mutex.lock();
+	for (auto &f : toRun)
+		f();
+	toRun.clear();
+	toRun_mutex.unlock();
 
-    for ( auto &m : modsLoaded )
-        m->Think();
+	for (auto &m : modsLoaded)
+		m->Think();
 }
 
 void UpdateWindows()
 {
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 
-    for ( auto &m : modsLoaded )
-    {
-        if ( m->HasWindow() )
-            ImGui::Begin( m->GetName().c_str(), nullptr, m->m_iWindowFlags );
-        if ( m->Draw() && m->HasWindow() )
-            ImGui::End();
-    }
+	for (auto &m : modsLoaded)
+	{
+		if (m->HasWindow())
+			ImGui::Begin(m->GetName().c_str(), nullptr, m->m_windowFlags);
+		if (m->Draw() && m->HasWindow())
+			ImGui::End();
+	}
 
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (!checkFirstUpdate)
 		checkFirstUpdate = true;
 }
@@ -110,37 +113,37 @@ void Load()
 		InitMods();
 		for (auto &m : modsLoaded)
 			m->Load();
-		MISC::SET_THIS_SCRIPT_CAN_BE_PAUSED( false );
+		MISC::SET_THIS_SCRIPT_CAN_BE_PAUSED(false);
 		isFirstLoad = false;
 	}
 
-    while ( true )
-    {
-        Update();
-        WAIT( 0 );
-    }
-   
+	while (true)
+	{
+		Update();
+		WAIT(0);
+	}
+
 }
 
 void Unload()
 {
 	isOpen = false;
-    for ( auto &m : modsLoaded )
-    {
-        m->Unload();
-        delete m;
-    }
+	for (auto &m : modsLoaded)
+	{
+		m->Unload();
+		delete m;
+	}
 
-    modsLoaded.clear();
+	modsLoaded.clear();
 
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-    if ( oldProc )
-        SetWindowLongPtr( find_main_window( GetCurrentProcessId() ), GWLP_WNDPROC, oldProc );
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+	if (oldProc)
+		SetWindowLongPtr(find_main_window(GetCurrentProcessId()), GWLP_WNDPROC, oldProc);
 }
 
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT __stdcall WndProc(HWND hand, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	if (msg == WM_KEYDOWN)
@@ -154,40 +157,40 @@ LRESULT __stdcall WndProc(HWND hand, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	if (isOpen)
 		ImGui_ImplWin32_WndProcHandler(hand, msg, wParam, lParam);
-	
-    return CallWindowProcW( ( WNDPROC )oldProc, hand, msg, wParam, lParam );
+
+	return CallWindowProcW((WNDPROC)oldProc, hand, msg, wParam, lParam);
 }
 
-void OnPresent( IDXGISwapChain *swap )
+void OnPresent(IDXGISwapChain *swap)
 {
-    if ( !hasInitializedImgui )
-    {
-        hasInitializedImgui = true;
-        ID3D11Device *device;
-        ID3D11DeviceContext *context;
+	if (!hasInitializedImgui)
+	{
+		hasInitializedImgui = true;
+		ID3D11Device *device;
+		ID3D11DeviceContext *context;
 
-        swap->GetDevice( __uuidof( ID3D11Device ), ( void ** )&device );
-        device->GetImmediateContext( &context );
+		swap->GetDevice(__uuidof(ID3D11Device), (void **)&device);
+		device->GetImmediateContext(&context);
 
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
+		ImGui::CreateContext();
+		ImGui::StyleColorsDark();
 
-        HWND window = find_main_window( GetCurrentProcessId() );
-        ImGui_ImplWin32_Init( window );
-        ImGui_ImplDX11_Init( device, context );
+		HWND window = find_main_window(GetCurrentProcessId());
+		ImGui_ImplWin32_Init(window);
+		ImGui_ImplDX11_Init(device, context);
 
-        ImGui::GetIO().ConfigFlags = ImGuiConfigFlags_NavEnableGamepad;
+		ImGui::GetIO().ConfigFlags = ImGuiConfigFlags_NavEnableGamepad;
 
-        oldProc = SetWindowLongPtr( window, GWLP_WNDPROC, ( LONG_PTR )WndProc );
-    }
+		oldProc = SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
+	}
 
-    if ( isOpen )
-        UpdateWindows();
+	if (isOpen)
+		UpdateWindows();
 }
 
-void RunOnNativeThread( std::function<void()> func )
+void RunOnNativeThread(std::function<void()> func)
 {
-    toRun.push_back( func );
+	toRun.push_back(func);
 }
 
 void SetFloatingMenu(bool isFloating)

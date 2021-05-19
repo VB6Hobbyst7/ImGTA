@@ -3,51 +3,65 @@
 
 #include "mod.h"
 #include "types.h"
+#include "utils.h"
+
+struct PaddedEntity
+{
+	DWORD _padding;
+	int id;
+};
+
+const int maxEntCount = 100;
+struct nearbyEnts
+{
+	int size = maxEntCount;
+	PaddedEntity entities[maxEntCount] = { 0, 0 };
+};
 
 class HandleHelperMod : public Mod
 {
 public:
-    HandleHelperMod(bool supportGlobals) : Mod( "Handle Helper", true, supportGlobals)
-    {
-        m_iWindowFlags = ImGuiWindowFlags_MenuBar;
-    }
+	HandleHelperMod(bool supportGlobals) : Mod("Handle Helper", true, supportGlobals)
+	{
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
+	}
 
-    bool Draw() override;
-    void Think() override;
-    void Load() override;
-    void Unload() override;
+	bool Draw() override;
+	void Think() override;
+	void Load() override;
+	void Unload() override;
 
 private:
-    void DrawMenuBar();
-    void UpdateHandleData( bool once = false );
+	void DrawMenuBar();
+	void UpdateHandleData();
 	void ResetData();
 	void ListPeds();
 	void ListVehs();
 
-    int m_iType = 0;
-    int m_iHealth = 0;
-    int m_iMaxHealth = 0;
-	bool m_bInjured = false;
-    Hash m_modelHash = 0;
-	Vector3 m_position = { 0, 0, 0 };
-    bool m_bIsMissionEntity = false;
+	int m_type = 0;
+	int m_health = 0;
+	int m_maxHealth = 0;
+	bool m_injured = false;
+	Hash m_modelHash = 0;
+	Vector3 m_position = InitVector3(0);
+	bool m_isMissionEntity = false;
 	std::mutex m_pedListMutex;
 	std::mutex m_vehListMutex;
 	std::string m_pedList = "";
 	std::string m_vehList = "";
 
-	int m_iNearbyObjectMax = 30;
-	int m_iDrawOffsetZ = 0;
+	int m_nearbyObjectMax = 30;
+	int m_drawOffsetZ = 0;
 	bool m_drawEntityInfo = true;
-	bool m_bDrawID = true;
-	bool m_bDrawLife = true;
+	bool m_drawId = true;
+	bool m_drawLife = true;
 
-    // ImGui inputs / internals
-    bool m_bWantsUpdate = false;
-    int m_iHandleInput = 0;
-    bool m_bConstantUpdate = true;
-    char m_szAnimDictInput[256] = "";
-    char m_szAnimNameInput[256] = "";
-    unsigned int m_iAnimFlags = 0;
-    bool m_bAnimLoop = false;
+	// ImGui inputs / internals
+	bool m_wantsUpdate = false;
+	int m_handleInput = 0;
+	bool m_constantUpdate = true;
+	char m_animDictInput[256] = "";
+	char m_animNameInput[256] = "";
+	unsigned int m_animFlags = 0;
+	bool m_animLoop = false;
 };

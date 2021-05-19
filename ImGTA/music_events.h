@@ -1,6 +1,6 @@
 #pragma once
 
-const char* music_events[] = {
+const char* musicEvents[] = {
 "AC_DELIVERED",
 "AC_DONE",
 "AC_EN_ROUTE_CULT",

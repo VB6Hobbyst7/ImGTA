@@ -4,8 +4,7 @@
 #include <cstdio>
 #include <iostream>
 
-FILE * stream = NULL;
-BOOL WINAPI DllMain( HINSTANCE inst, DWORD reason, LPVOID /*resv */ )
+BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID /*resv */)
 {
 	switch (reason)
 	{
@@ -28,5 +27,5 @@ BOOL WINAPI DllMain( HINSTANCE inst, DWORD reason, LPVOID /*resv */ )
 		break;
 	}
 
-    return TRUE;
+	return TRUE;
 }

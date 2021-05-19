@@ -6,44 +6,44 @@
 class CheatsMod : public Mod
 {
 public:
-    CheatsMod(bool supportGlobals) : Mod( "Cheats", false, supportGlobals)
-    {
-        m_teleportPos.x = 0;
-        m_teleportPos.y = 0;
-        m_teleportPos.z = 0;
-    }
+	CheatsMod(bool supportGlobals) : Mod("Cheats", false, supportGlobals)
+	{
+		m_teleportPos.x = 0;
+		m_teleportPos.y = 0;
+		m_teleportPos.z = 0;
+	}
 
-    bool Draw() override;
-    void Think() override;
-    void Load() override;
-    void Unload() override;
+	bool Draw() override;
+	void Think() override;
+	void Load() override;
+	void Unload() override;
 
 private:
-    void DrawPlayerMenu();
-    void DrawVehicleMenu();
-    void DrawWorldMenu();
-    void DrawMissionMenu();
-    void DrawHUDMenu();
+	void DrawPlayerMenu();
+	void DrawVehicleMenu();
+	void DrawWorldMenu();
+	void DrawMissionMenu();
+	void DrawHUDMenu();
 
-    bool m_bExplosiveBullets = false;
+	bool m_explosiveBullets = false;
 	bool m_scriptVarNeedsUpdate = false;
-    bool m_bShowDebug = true;
-	bool m_bFloatingMenu = true;
+	bool m_showDebug = true;
+	bool m_floatingMenu = true;
 
 	float m_menuFontSize = 1.0f;
 	float m_contentFontSize = 1.0f;
 	float m_inGameFontSize = 0.3f;
 	bool m_displayKMH = true;
 
-    int m_iLargestStreaming = 0;
-    int m_iLargestStreamingTime = 0;
+	int m_largestStreaming = 0;
+	int m_largestStreamingTime = 0;
 
-    Vector3 m_teleportPos;
+	Vector3 m_teleportPos;
 
-    char m_szVehicleHashInput[256] = "";
+	char m_vehicleHashInput[256] = "";
 
-    // TODO: create spawn history, allow more stuff.
-    Entity m_lastSpawned = 0;
+	// TODO: create spawn history, allow more stuff.
+	Entity m_lastSpawned = 0;
 
-    MissionHelper *m_helper = nullptr;
+	MissionHelper *m_helper = nullptr;
 };

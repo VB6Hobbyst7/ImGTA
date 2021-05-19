@@ -5,7 +5,9 @@
 */
 
 #pragma once
-
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#pragma warning(disable: 4505)
 #include "main.h"
 
 template <typename T>
@@ -576,3 +578,5 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 
 	return *reinterpret_cast<R *>(nativeCall());
 }
+
+#pragma warning(pop)

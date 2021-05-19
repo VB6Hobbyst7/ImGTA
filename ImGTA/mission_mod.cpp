@@ -20,10 +20,10 @@ void MissionMod::Unload()
 
 void MissionMod::Think()
 {
-	if ((m_bConstantUpdate || m_bWantsUpdate))
+	if ((m_constantUpdate || m_wantsUpdate))
 	{
-		UpdateMissionData(m_bWantsUpdate);
-		m_bWantsUpdate = false;
+		UpdateMissionData();
+		m_wantsUpdate = false;
 	}
 }
 
@@ -47,19 +47,19 @@ void MissionMod::ResetData()
 	m_deathName = "";
 }
 
-void MissionMod::UpdateMissionData(bool once)
+void MissionMod::UpdateMissionData()
 {
 	// fill the MissionArray
 	int missionOffset = m_missionArrayStartAddr + m_missionID * sizeof(MissionArray) / 8;
-	m_missionCount = *(int *) getGlobalPtr(m_missionArraySizeAddr);
-	m_currentMission = *(MissionArray *) getGlobalPtr(missionOffset);
+	m_missionCount = *(int *)getGlobalPtr(m_missionArraySizeAddr);
+	m_currentMission = *(MissionArray *)getGlobalPtr(missionOffset);
 
 	int missionArray2Offset = m_missionArray2StartAddr + m_missionID * sizeof(MissionArray2) / 8;
-	m_currentMission2 = *(MissionArray2 *) getGlobalPtr(missionArray2Offset);
+	m_currentMission2 = *(MissionArray2 *)getGlobalPtr(missionArray2Offset);
 
 	int missionArray3Offset = m_missionArray3StartAddr + m_missionID3 * sizeof(MissionArray3) / 8;
 	m_mission3Size = *(int *)getGlobalPtr(m_missionArray3SizeAddr);
-	m_mission3 = *(MissionArray3 *) getGlobalPtr(missionArray3Offset);
+	m_mission3 = *(MissionArray3 *)getGlobalPtr(missionArray3Offset);
 
 	int missionArray4Offset = m_missionArray4StartAddr + m_missionID4 * sizeof(MissionArray4) / 8;
 	m_mission4Size = *(int *)getGlobalPtr(m_missionArray4SizeAddr);
@@ -78,8 +78,8 @@ void MissionMod::UpdateMissionData(bool once)
 	m_mission7 = *(MissionArray7 *)getGlobalPtr(missionArray7Offset);
 
 	m_availableMissionCount = *(int *)getGlobalPtr(0x15503);
-	m_missionState = *(int *) getGlobalPtr(0x15F6A);
-	m_deathName = std::string((char *) getGlobalPtr(0x10B7D));
+	m_missionState = *(int *)getGlobalPtr(0x15F6A);
+	m_deathName = std::string((char *)getGlobalPtr(0x10B7D));
 	m_missionUnk0 = *(int *)getGlobalPtr(0x10B9B);
 	m_missionUnk1 = *(int *)getGlobalPtr(0x10BAB); // 0x10BAB->Global_10BA2.f_9;
 }
@@ -105,10 +105,10 @@ bool MissionMod::Draw()
 
 	ImGui::SetWindowFontScale(m_contentFontSize);
 
-	ImGui::Checkbox("Constant Updates?", &m_bConstantUpdate);
-	if (!m_bConstantUpdate)
+	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
+	if (!m_constantUpdate)
 		if (ImGui::Button("Update"))
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 
 	ImGui::Separator();
 	ImGui::Text("Mission state: %d", m_missionState);
@@ -120,7 +120,7 @@ bool MissionMod::Draw()
 	if (ImGui::TreeNode("Mission info")) {
 		if (ImGui::InputInt("Mission ID", &m_missionID)) {
 			ClipInt(m_missionID, 0, m_missionCount - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 
 		ImGui::Text("Name: %s", m_currentMission.name);
@@ -129,7 +129,7 @@ bool MissionMod::Draw()
 		ImGui::Text("Acronym: %s", m_currentMission.acronym);
 		ImGui::Text("Cutscene trigger ID: %d", m_currentMission.trigger_id);
 		ImGui::Text("Character List: %d (%s)", m_currentMission.characterSetID,
-											   CharacterSetIDStr(m_currentMission.characterSetID).c_str());
+			CharacterSetIDStr(m_currentMission.characterSetID).c_str());
 		ImGui::Text("Field 4b: %d", m_currentMission.field_4b);
 		ImGui::Text("Field 5: %d", m_currentMission.field_5);
 		ImGui::Text("Timeframe start: %d", m_currentMission.timeframeStart);
@@ -144,7 +144,7 @@ bool MissionMod::Draw()
 		ImGui::Text(field_11.c_str());
 		ImGui::TreePop();
 	}
-	
+
 	ImGui::Separator();
 	if (ImGui::TreeNode("Mission Array 2"))
 	{
@@ -158,7 +158,7 @@ bool MissionMod::Draw()
 	{
 		if (ImGui::InputInt("Trigger ID", &m_missionID3)) {
 			ClipInt(m_missionID3, 0, m_mission3Size - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 
 		ImGui::Text("Field 0 Size: %d", m_mission3.field_0_size);
@@ -177,13 +177,13 @@ bool MissionMod::Draw()
 		ImGui::Text("Field 16: %d", m_mission3.field_16);
 		ImGui::TreePop();
 	}
-	
+
 	ImGui::Separator();
 	if (ImGui::TreeNode("Available missions"))
 	{
 		if (ImGui::InputInt("Available index", &m_missionID4)) {
 			ClipInt(m_missionID4, 0, m_mission4Size - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 
 		ImGui::Text("Available count: %d", m_availableMissionCount);
@@ -208,13 +208,13 @@ bool MissionMod::Draw()
 		ImGui::Text("Field A_6: %s", m_mission4.field_A.field_6.to_string().c_str());
 		ImGui::TreePop();
 	}
-	
+
 	ImGui::Separator();
 	if (ImGui::TreeNode("Array 5"))
 	{
 		if (ImGui::InputInt("Array 5 ID", &m_missionID5)) {
 			ClipInt(m_missionID5, 0, m_mission5Size - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 
 		ImGui::Text("Field 0: %d", m_mission5.missionArrayID);
@@ -229,7 +229,7 @@ bool MissionMod::Draw()
 	{
 		if (ImGui::InputInt("Array 6 ID", &m_missionID6)) {
 			ClipInt(m_missionID6, 0, m_mission6Size - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 		ImGui::Text("Hash: %d", m_mission6.hash);
 		ImGui::Text("Field 1: %d", m_mission6.field_1);
@@ -242,7 +242,7 @@ bool MissionMod::Draw()
 	{
 		if (ImGui::InputInt("Array 7 ID", &m_missionID7)) {
 			ClipInt(m_missionID7, 0, m_mission7Size - 1);
-			m_bWantsUpdate = true;
+			m_wantsUpdate = true;
 		}
 		ImGui::Text("Field 0: %s", m_mission7.field_0.to_string().c_str());
 		ImGui::Text("Field 1: %d", m_mission7.field_1);
@@ -263,8 +263,16 @@ const char * CharacterIDStr(CharacterID id)
 		return "Franklin";
 	case TREVOR:
 		return "Trevor";
+	case LAMAR:
+		return "Lamar";
+	case JIMMY:
+		return "Jimmy";
+	case AMANDA:
+		return "Amanda";
+	case FRIEND:
+		return "Friend";
 	default:
-		return std::to_string(id).c_str();
+		return "NULL";
 	}
 }
 

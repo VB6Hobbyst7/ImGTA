@@ -15,7 +15,7 @@ const char *weapons[] = { "weapon_dagger", "weapon_bat", "weapon_bottle", "weapo
 
 void CheatsMod::Load()
 {
-    m_helper = new MissionHelper( getGameVersion() );
+	m_helper = new MissionHelper(getGameVersion());
 }
 
 void CheatsMod::Unload()
@@ -26,11 +26,11 @@ void CheatsMod::Unload()
 void CheatsMod::Think()
 {
 	int playerID = PLAYER::PLAYER_PED_ID();
-    if ( m_bExplosiveBullets )
-        MISC::SET_EXPLOSIVE_AMMO_THIS_FRAME(playerID);
+	if (m_explosiveBullets)
+		MISC::SET_EXPLOSIVE_AMMO_THIS_FRAME(playerID);
 
-    if ( m_bShowDebug && m_showInGame )
-    {
+	if (m_showDebug && m_showInGame)
+	{
 		char buf[256] = "";
 		std::ostringstream buffer;
 		float startX = 0.155f;
@@ -43,7 +43,7 @@ void CheatsMod::Think()
 		// TODO: Remove the manual tweaks here and there... It's unreadable
 
 		// Position
-        Vector3 pos = ENTITY::GET_ENTITY_COORDS(playerID, TRUE );
+		Vector3 pos = ENTITY::GET_ENTITY_COORDS(playerID, TRUE);
 		buffer << "Position (x, y, z): (";
 		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_inGameFontSize, font);
 		buffer.str("");
@@ -60,7 +60,7 @@ void CheatsMod::Think()
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.z << ")";
 		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.2f, startY, m_inGameFontSize, font);
-		
+
 		startY += step;
 
 		int health = ENTITY::GET_ENTITY_HEALTH(playerID);
@@ -90,7 +90,8 @@ void CheatsMod::Think()
 			speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(vehicle, TRUE);
 		else
 			speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(playerID, TRUE);
-		if (m_displayKMH) {
+		if (m_displayKMH)
+		{
 			speed3.x *= 3.6f;
 			speed3.y *= 3.6f;
 			speed3.z *= 3.6f;
@@ -155,32 +156,32 @@ void CheatsMod::Think()
 		DrawTextToScreen(buf, startX, startY, m_inGameFontSize, font);
 		startY += step;
 
-        int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
+		int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
 
-		if (streamingCount >= m_iLargestStreaming)
+		if (streamingCount >= m_largestStreaming)
 		{
-			m_iLargestStreaming = streamingCount;
-			m_iLargestStreamingTime = MISC::GET_GAME_TIMER();
+			m_largestStreaming = streamingCount;
+			m_largestStreamingTime = MISC::GET_GAME_TIMER();
 
 		}
-        sprintf_s( buf, "Streaming: %d (%d)", streamingCount, m_iLargestStreaming );
-        DrawTextToScreen( buf, startX, startY, m_inGameFontSize, font);
+		sprintf_s(buf, "Streaming: %d (%d)", streamingCount, m_largestStreaming);
+		DrawTextToScreen(buf, startX, startY, m_inGameFontSize, font);
 		startY += step;
 
-        if ( m_iLargestStreaming != 0 && MISC::GET_GAME_TIMER() >= m_iLargestStreamingTime + 3000 )
-            m_iLargestStreaming = 0;
+		if (m_largestStreaming != 0 && MISC::GET_GAME_TIMER() >= m_largestStreamingTime + 3000)
+			m_largestStreaming = 0;
 
-        sprintf_s( buf, "Your Ped Handle: %d", playerID);
-        DrawTextToScreen( buf, startX, startY, m_inGameFontSize, font);
+		sprintf_s(buf, "Your Ped Handle: %d", playerID);
+		DrawTextToScreen(buf, startX, startY, m_inGameFontSize, font);
 		startY += step;
 
 		sprintf_s(buf, "Menu key: 'Insert'");
 		DrawTextToScreen(buf, 0.5f, 0.98f, m_inGameFontSize, font, false, 200, 0, 0);
-    }
+	}
 
 	if (m_scriptVarNeedsUpdate)
 	{
-		SetFloatingMenu(m_bFloatingMenu);
+		SetFloatingMenu(m_floatingMenu);
 		SetShowAllInGame(m_showInGame);
 		m_scriptVarNeedsUpdate = false;
 	}
@@ -188,193 +189,193 @@ void CheatsMod::Think()
 
 void CheatsMod::DrawPlayerMenu()
 {
-    if ( ImGui::BeginMenu( "Player" ) )
-    {
-        if ( ImGui::MenuItem( "Heal" ) )
-        {
-            RunOnNativeThread( []
-            {
-                auto p = PLAYER::PLAYER_PED_ID();
-                ENTITY::SET_ENTITY_HEALTH( p, PED::GET_PED_MAX_HEALTH( p ), FALSE);
-            } );
-        }
+	if (ImGui::BeginMenu("Player"))
+	{
+		if (ImGui::MenuItem("Heal"))
+		{
+			RunOnNativeThread([]
+			{
+				auto p = PLAYER::PLAYER_PED_ID();
+				ENTITY::SET_ENTITY_HEALTH(p, PED::GET_PED_MAX_HEALTH(p), FALSE);
+			});
+		}
 
-        if ( ImGui::MenuItem( "Kill" ) )
-        {
-            RunOnNativeThread( []
-            {
-                ENTITY::SET_ENTITY_HEALTH( PLAYER::PLAYER_PED_ID(), 0, FALSE);
-            } );
-        }
+		if (ImGui::MenuItem("Kill"))
+		{
+			RunOnNativeThread([]
+			{
+				ENTITY::SET_ENTITY_HEALTH(PLAYER::PLAYER_PED_ID(), 0, FALSE);
+			});
+		}
 
-        if ( ImGui::BeginMenu( "Teleport" ) )
-        {
-            ImGuiExtras::InputVector3( "TeleportPos", &m_teleportPos );
-            if ( ImGui::Button( "Teleport" ) )
-            {
-                RunOnNativeThread( [ = ]
-                {
-                    ENTITY::SET_ENTITY_COORDS( PLAYER::PLAYER_PED_ID(), m_teleportPos.x, m_teleportPos.y, m_teleportPos.z, TRUE, TRUE, TRUE, FALSE );
-                } );
-            }
-            ImGui::EndMenu();
-        }
+		if (ImGui::BeginMenu("Teleport"))
+		{
+			ImGuiExtras::InputVector3("TeleportPos", &m_teleportPos);
+			if (ImGui::Button("Teleport"))
+			{
+				RunOnNativeThread([=]
+				{
+					ENTITY::SET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), m_teleportPos.x, m_teleportPos.y, m_teleportPos.z, TRUE, TRUE, TRUE, FALSE);
+				});
+			}
+			ImGui::EndMenu();
+		}
 
-        if ( ImGui::BeginMenu( "Weapon" ) )
-        {
-            ImGui::MenuItem( "Explosive Bullets", NULL, &m_bExplosiveBullets );
+		if (ImGui::BeginMenu("Weapon"))
+		{
+			ImGui::MenuItem("Explosive Bullets", NULL, &m_explosiveBullets);
 
-            if ( ImGui::MenuItem( "Clear" ) )
-            {
-                RunOnNativeThread( []
-                {
-                    WEAPON::REMOVE_ALL_PED_WEAPONS( PLAYER::PLAYER_PED_ID(), FALSE );
-                } );
-            }
+			if (ImGui::MenuItem("Clear"))
+			{
+				RunOnNativeThread([]
+				{
+					WEAPON::REMOVE_ALL_PED_WEAPONS(PLAYER::PLAYER_PED_ID(), FALSE);
+				});
+			}
 
-            if ( ImGui::MenuItem( "Give All" ) )
-            {
-                RunOnNativeThread( []
-                {
-                    for ( int i = 0; i < IM_ARRAYSIZE( weapons ); i++ )
-                    {
-                        WEAPON::GIVE_WEAPON_TO_PED( PLAYER::PLAYER_PED_ID(), MISC::GET_HASH_KEY( ( char * )weapons[i] ), 99999, FALSE, TRUE );
-                    }
-                } );
-            }
+			if (ImGui::MenuItem("Give All"))
+			{
+				RunOnNativeThread([]
+				{
+					for (int i = 0; i < IM_ARRAYSIZE(weapons); i++)
+					{
+						WEAPON::GIVE_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), MISC::GET_HASH_KEY((char *)weapons[i]), 99999, FALSE, TRUE);
+					}
+				});
+			}
 
-            if ( ImGui::BeginMenu( "Give..." ) )
-            {
-                for ( int i = 0; i < IM_ARRAYSIZE( weapons ); i++ )
-                {
-                    if ( ImGui::MenuItem( weapons[i] ) )
-                    {
-                        RunOnNativeThread( [i]
-                        {
-                            WEAPON::GIVE_WEAPON_TO_PED( PLAYER::PLAYER_PED_ID(), MISC::GET_HASH_KEY( ( char * )weapons[i] ), 99999, FALSE, TRUE );
-                        } );
-                    }
-                }
-                ImGui::EndMenu();
-            }
+			if (ImGui::BeginMenu("Give..."))
+			{
+				for (int i = 0; i < IM_ARRAYSIZE(weapons); i++)
+				{
+					if (ImGui::MenuItem(weapons[i]))
+					{
+						RunOnNativeThread([i]
+						{
+							WEAPON::GIVE_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), MISC::GET_HASH_KEY((char *)weapons[i]), 99999, FALSE, TRUE);
+						});
+					}
+				}
+				ImGui::EndMenu();
+			}
 
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-    }
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
 }
 
 void CheatsMod::DrawVehicleMenu()
 {
-    if ( ImGui::BeginMenu( "Vehicle" ) )
-    {
-        if ( ImGui::MenuItem( "Repair" ) )
-        {
-            RunOnNativeThread( []
-            {
-                Vehicle v = PED::GET_VEHICLE_PED_IS_IN( PLAYER::PLAYER_PED_ID(), FALSE );
-                if ( v != NULL )
-                    VEHICLE::SET_VEHICLE_FIXED( v );
-            } );
-        }
+	if (ImGui::BeginMenu("Vehicle"))
+	{
+		if (ImGui::MenuItem("Repair"))
+		{
+			RunOnNativeThread([]
+			{
+				Vehicle v = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE);
+				if (v != NULL)
+					VEHICLE::SET_VEHICLE_FIXED(v);
+			});
+		}
 
-        if ( ImGui::BeginMenu( "Destroy##Vehicle" ) )
-        {
-            if ( ImGui::MenuItem( "Kill" ) )
-            {
-                RunOnNativeThread( []
-                {
-                    Vehicle v = PED::GET_VEHICLE_PED_IS_IN( PLAYER::PLAYER_PED_ID(), FALSE );
-                    if ( v != NULL )
-                    {
-                        VEHICLE::SET_VEHICLE_ENGINE_HEALTH( v, 0.0f );
-                        VEHICLE::SET_VEHICLE_BODY_HEALTH( v, 0.0f );
-                        ENTITY::SET_ENTITY_HEALTH( v, 0, true);
-                    }
-                } );
-            }
+		if (ImGui::BeginMenu("Destroy##Vehicle"))
+		{
+			if (ImGui::MenuItem("Kill"))
+			{
+				RunOnNativeThread([]
+				{
+					Vehicle v = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE);
+					if (v != NULL)
+					{
+						VEHICLE::SET_VEHICLE_ENGINE_HEALTH(v, 0.0f);
+						VEHICLE::SET_VEHICLE_BODY_HEALTH(v, 0.0f);
+						ENTITY::SET_ENTITY_HEALTH(v, 0, true);
+					}
+				});
+			}
 
-            if ( ImGui::MenuItem( "Explode" ) )
-            {
-                RunOnNativeThread( []
-                {
-                    Vehicle v = PED::GET_VEHICLE_PED_IS_IN( PLAYER::PLAYER_PED_ID(), FALSE );
-                    if ( v != NULL )
-                        VEHICLE::EXPLODE_VEHICLE( v, TRUE, FALSE );
-                } );
-            }
+			if (ImGui::MenuItem("Explode"))
+			{
+				RunOnNativeThread([]
+				{
+					Vehicle v = PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE);
+					if (v != NULL)
+						VEHICLE::EXPLODE_VEHICLE(v, TRUE, FALSE);
+				});
+			}
 
-            ImGui::EndMenu();
-        }
+			ImGui::EndMenu();
+		}
 		/*
-        if ( ImGui::MenuItem( "Customize" ) )
-        {
-            // TODO: show customization window
-        }
+		if ( ImGui::MenuItem( "Customize" ) )
+		{
+			// TODO: show customization window
+		}
 		*/
-        ImGui::EndMenu();
-    }
+		ImGui::EndMenu();
+	}
 }
 
 void CheatsMod::DrawWorldMenu()
 {
-    if ( ImGui::BeginMenu( "World" ) )
-    {
-        if ( m_lastSpawned != 0 )
-            ImGui::Text( "Last Spawned Handle: %d", m_lastSpawned );
-        if ( ImGui::BeginMenu( "Spawn Vehicle" ) )
-        {
-            if ( ImGui::BeginMenu( "Hash##SpawnVehicleMenu" ) )
-            {
-                if ( ImGui::InputText( "Hash##SpawnVehicleInput", m_szVehicleHashInput, sizeof( m_szVehicleHashInput ), ImGuiInputTextFlags_EnterReturnsTrue ) )
-                {
-                    RunOnNativeThread( [ = ]
-                    {
-                        Model vehModel( m_szVehicleHashInput );
-                        if ( vehModel.IsValid() && vehModel.IsVehicle() )
-                        {
-                            Vector3 pos = ENTITY::GET_ENTITY_COORDS( PLAYER::PLAYER_PED_ID(), TRUE );
-                            m_lastSpawned = VEHICLE::CREATE_VEHICLE( vehModel.GetHash(), pos.x, pos.y, pos.z, 0.0f, TRUE, TRUE, FALSE );
-                        }
-                    } );
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenu();
-    }
+	if (ImGui::BeginMenu("World"))
+	{
+		if (m_lastSpawned != 0)
+			ImGui::Text("Last Spawned Handle: %d", m_lastSpawned);
+		if (ImGui::BeginMenu("Spawn Vehicle"))
+		{
+			if (ImGui::BeginMenu("Hash##SpawnVehicleMenu"))
+			{
+				if (ImGui::InputText("Hash##SpawnVehicleInput", m_vehicleHashInput, sizeof(m_vehicleHashInput), ImGuiInputTextFlags_EnterReturnsTrue))
+				{
+					RunOnNativeThread([=]
+					{
+						Model vehModel(m_vehicleHashInput);
+						if (vehModel.IsValid() && vehModel.IsVehicle())
+						{
+							Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
+							m_lastSpawned = VEHICLE::CREATE_VEHICLE(vehModel.GetHash(), pos.x, pos.y, pos.z, 0.0f, TRUE, TRUE, FALSE);
+						}
+					});
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenu();
+	}
 }
 
 void CheatsMod::DrawMissionMenu()
 {
-    if ( ImGui::BeginMenu( "Mission" ) )
-    {
-        if ( m_helper == nullptr )
-            ImGui::TextColored( ImVec4( 1.0f, 0.0f, 0.0f, 1.0f ), "Version unsupported." );
-        else
-        {
-            if ( ImGui::MenuItem( "Skip" ) )
-                m_helper->Skip();
-        }
+	if (ImGui::BeginMenu("Mission"))
+	{
+		if (m_helper == nullptr)
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Version unsupported.");
+		else
+		{
+			if (ImGui::MenuItem("Skip"))
+				m_helper->Skip();
+		}
 
-        ImGui::EndMenu();
-    }
+		ImGui::EndMenu();
+	}
 }
 
 void CheatsMod::DrawHUDMenu()
 {
-    if ( ImGui::BeginMenu( "HUD" ) )
-    {
-		if (ImGui::InputFloat("Menu Font size", &m_menuFontSize, 0.1f)) {
+	if (ImGui::BeginMenu("HUD"))
+	{
+		if (ImGui::InputFloat("Menu Font size", &m_menuFontSize, 0.1f))
 			ClipFloat(m_menuFontSize, 0.6f, 2.0f);
-		}
-		if (ImGui::InputFloat("Content Font size", &m_contentFontSize, 0.1f)) {
+
+		if (ImGui::InputFloat("Content Font size", &m_contentFontSize, 0.1f))
 			ClipFloat(m_contentFontSize, 0.6f, 2.0f);
-		}
-		if (ImGui::InputFloat("Ingame Font size", &m_inGameFontSize, 0.1f)) {
+
+		if (ImGui::InputFloat("Ingame Font size", &m_inGameFontSize, 0.1f))
 			ClipFloat(m_inGameFontSize, 0.1f, 2.0f);
-		}
+
 		if (ImGui::Button("Reset"))
 		{
 			m_menuFontSize = 1.0f;
@@ -382,32 +383,33 @@ void CheatsMod::DrawHUDMenu()
 			m_inGameFontSize = 0.3f;
 			SetAllFontSize(m_menuFontSize, m_contentFontSize, m_inGameFontSize);
 		}
+
 		if (ImGui::Button("Set"))
 			SetAllFontSize(m_menuFontSize, m_contentFontSize, m_inGameFontSize);
-        ImGui::EndMenu();
-    }
+		ImGui::EndMenu();
+	}
 }
 
 bool CheatsMod::Draw()
 {
 	ImGui::SetWindowFontScale(m_menuFontSize);
-    if ( ImGui::BeginMainMenuBar() )
-    {
-        DrawPlayerMenu();
-        DrawVehicleMenu();
-        DrawWorldMenu();
-        //DrawMissionMenu();
-        DrawHUDMenu();
+	if (ImGui::BeginMainMenuBar())
+	{
+		DrawPlayerMenu();
+		DrawVehicleMenu();
+		DrawWorldMenu();
+		//DrawMissionMenu();
+		DrawHUDMenu();
 
 		ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 100);
-		ImGui::Checkbox("Debug", &m_bShowDebug);
+		ImGui::Checkbox("Debug", &m_showDebug);
 		if (ImGui::Checkbox("Show in game", &m_showInGame))
 			m_scriptVarNeedsUpdate = true;
-		if (ImGui::Checkbox("Floating menu", &m_bFloatingMenu))
+		if (ImGui::Checkbox("Floating menu", &m_floatingMenu))
 			m_scriptVarNeedsUpdate = true;
 
-        ImGui::EndMainMenuBar();
-    }
+		ImGui::EndMainMenuBar();
+	}
 
-    return false;
+	return false;
 }

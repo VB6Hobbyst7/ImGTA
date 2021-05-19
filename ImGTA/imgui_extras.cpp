@@ -6,105 +6,102 @@ using namespace ImGui;
 
 namespace ImGuiExtras
 {
-    bool BitField( const char *label, unsigned *bits, unsigned *hoverIndex )
-    {
-        unsigned val = *bits;
+	bool BitField(const char *label, unsigned *bits, unsigned *hoverIndex)
+	{
+		ImGuiWindow *window = GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
 
-        ImGuiWindow *window = GetCurrentWindow();
-        if ( window->SkipItems )
-            return false;
+		ImGuiWindowFlags oldFlags = window->Flags;
+		const ImGuiStyle &style = ImGui::GetStyle();
+		const ImGuiID id = window->GetID(label);
+		const ImVec2 label_size = CalcTextSize(label, 0x0, true);
+		const ImVec2 smallLabelSize = ImVec2(label_size.x * 0.5f, label_size.y * 0.5f);
 
-        unsigned oldFlags = window->Flags;
-        ImGuiContext *g = ImGui::GetCurrentContext();
-        const ImGuiStyle &style = ImGui::GetStyle();
-        const ImGuiID id = window->GetID( label );
-        const ImVec2 label_size = CalcTextSize( label, 0x0, true );
-        const ImVec2 smallLabelSize = ImVec2( label_size.x * 0.5f, label_size.y * 0.5f );
+		const float spacingUnit = 2.0f;
 
-        const float spacingUnit = 2.0f;
+		bool anyPressed = false;
+		ImVec2 currentPos = window->DC.CursorPos;
+		for (unsigned i = 0; i < 32; ++i)
+		{
+			const void *lbl = (void *)(label + i);
+			const ImGuiID localId = window->GetID(lbl);
+			if (i == 16)
+			{
+				currentPos.x = window->DC.CursorPos.x;
+				currentPos.y += smallLabelSize.y + style.FramePadding.y * 2 + spacingUnit /*little bit of space*/;
+			}
+			if (i == 8 || i == 24)
+				currentPos.x += smallLabelSize.y;
 
-        bool anyPressed = false;
-        ImVec2 currentPos = window->DC.CursorPos;
-        for ( unsigned i = 0; i < 32; ++i )
-        {
-            const void *lbl = ( void * )( label + i );
-            const ImGuiID localId = window->GetID( lbl );
-            if ( i == 16 )
-            {
-                currentPos.x = window->DC.CursorPos.x;
-                currentPos.y += smallLabelSize.y + style.FramePadding.y * 2 + spacingUnit /*little bit of space*/;
-            }
-            if ( i == 8 || i == 24 )
-                currentPos.x += smallLabelSize.y;
+			const ImRect check_bb(currentPos, { currentPos.x + smallLabelSize.y + style.FramePadding.y * 2, currentPos.y + smallLabelSize.y + style.FramePadding.y * 2 });
 
-            const ImRect check_bb( currentPos, { currentPos.x + smallLabelSize.y + style.FramePadding.y * 2, currentPos.y + smallLabelSize.y + style.FramePadding.y * 2 } );
+			bool hovered, held;
+			bool pressed = ButtonBehavior(check_bb, localId, &hovered, &held, ImGuiButtonFlags_PressedOnClick);
+			if (pressed)
+				*bits ^= (1 << i);
 
-            bool hovered, held;
-            bool pressed = ButtonBehavior( check_bb, localId, &hovered, &held, ImGuiButtonFlags_PressedOnClick );
-            if ( pressed )
-                *bits ^= ( 1 << i );
+			if (hovered && hoverIndex)
+				*hoverIndex = i;
 
-            if ( hovered && hoverIndex )
-                *hoverIndex = i;
+			RenderFrame(check_bb.Min, check_bb.Max, GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg));
+			if (*bits & (1 << i))
+			{
+				const float check_sz = ImMin(check_bb.GetWidth(), check_bb.GetHeight());
+				const float pad = ImMax(spacingUnit, (float)(int)(check_sz / 4.0f));
+				window->DrawList->AddRectFilled(
+					{ check_bb.Min.x + pad, check_bb.Min.y + pad },
+					{ check_bb.Max.x - pad, check_bb.Max.y - pad }, GetColorU32(ImGuiCol_CheckMark));
+			}
 
-            RenderFrame( check_bb.Min, check_bb.Max, GetColorU32( ( held && hovered ) ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg ) );
-            if ( *bits & ( 1 << i ) )
-            {
-                const float check_sz = ImMin( check_bb.GetWidth(), check_bb.GetHeight() );
-                const float pad = ImMax( spacingUnit, ( float )( int )( check_sz / 4.0f ) );
-                window->DrawList->AddRectFilled(
-                { check_bb.Min.x + pad, check_bb.Min.y + pad },
-                { check_bb.Max.x - pad, check_bb.Max.y - pad }, GetColorU32( ImGuiCol_CheckMark ) );
-            }
+			anyPressed |= pressed;
+			currentPos.x = check_bb.Max.x + spacingUnit;
+		}
 
-            anyPressed |= pressed;
-            currentPos.x = check_bb.Max.x + spacingUnit;
-        }
+		const ImRect matrix_bb(window->DC.CursorPos,
+			{
+				window->DC.CursorPos.x + (smallLabelSize.y + style.FramePadding.y * 2) * 16 /*# of checks in a row*/ + smallLabelSize.y /*space between sets of 8*/ + 15 * spacingUnit /*spacing between each check*/,
+				window->DC.CursorPos.y + ((smallLabelSize.y + style.FramePadding.y * 2) * 2 /*# of rows*/ + spacingUnit /*spacing between rows*/)
+			});
 
-        const ImRect matrix_bb( window->DC.CursorPos,
-        {
-            window->DC.CursorPos.x + ( smallLabelSize.y + style.FramePadding.y * 2 ) * 16 /*# of checks in a row*/ + smallLabelSize.y /*space between sets of 8*/ + 15 * spacingUnit /*spacing between each check*/,
-            window->DC.CursorPos.y + ( ( smallLabelSize.y + style.FramePadding.y * 2 ) * 2 /*# of rows*/ + spacingUnit /*spacing between rows*/ )
-        } );
+		ItemSize(matrix_bb, style.FramePadding.y);
 
-        ItemSize( matrix_bb, style.FramePadding.y );
+		ImRect total_bb = matrix_bb;
 
-        ImRect total_bb = matrix_bb;
+		if (label_size.x > 0)
+			SameLine(0, style.ItemInnerSpacing.x);
 
-        if ( label_size.x > 0 )
-            SameLine( 0, style.ItemInnerSpacing.x );
+		const ImRect text_bb({ window->DC.CursorPos.x, window->DC.CursorPos.y + style.FramePadding.y }, { window->DC.CursorPos.x + label_size.x, window->DC.CursorPos.y + style.FramePadding.y + label_size.y });
+		if (label_size.x > 0)
+		{
+			ItemSize(ImVec2(text_bb.GetWidth(), matrix_bb.GetHeight()), style.FramePadding.y);
+			total_bb = ImRect(ImMin(matrix_bb.Min, text_bb.Min), ImMax(matrix_bb.Max, text_bb.Max));
+		}
 
-        const ImRect text_bb( { window->DC.CursorPos.x, window->DC.CursorPos.y + style.FramePadding.y }, { window->DC.CursorPos.x + label_size.x, window->DC.CursorPos.y + style.FramePadding.y + label_size.y } );
-        if ( label_size.x > 0 )
-        {
-            ItemSize( ImVec2( text_bb.GetWidth(), matrix_bb.GetHeight() ), style.FramePadding.y );
-            total_bb = ImRect( ImMin( matrix_bb.Min, text_bb.Min ), ImMax( matrix_bb.Max, text_bb.Max ) );
-        }
+		if (!ItemAdd(total_bb, id))
+			return false;
 
-        if ( !ItemAdd( total_bb, id ) )
-            return false;
+		if (label_size.x > 0.0f)
+			RenderText(text_bb.GetTL(), label);
 
-        if ( label_size.x > 0.0f )
-            RenderText( text_bb.GetTL(), label );
+		window->Flags = oldFlags;
+		return anyPressed;
+	}
 
-        window->Flags = oldFlags;
-        return anyPressed;
-    }
+	bool InputVector3(const char *label, Vector3 *vec, const char *fmt, ImGuiInputTextFlags flags)
+	{
+		char labelBuf[128] = "";
+		bool ret = false;
 
-    bool InputVector3( const char *label, Vector3 *vec, const char *fmt, ImGuiInputTextFlags flags )
-    {
-        char labelBuf[128] = "";
-        bool ret;
+		ImGui::PushItemWidth(75.0f);
+		sprintf_s(labelBuf, "##%sX", label);
+		ret |= ImGui::InputFloat(labelBuf, &vec->x, 0.0f, 0.0f, "%.3f", flags); ImGui::SameLine();
+		sprintf_s(labelBuf, "##%sY", label);
+		ret |= ImGui::InputFloat(labelBuf, &vec->y, 0.0f, 0.0f, "%.3f", flags); ImGui::SameLine();
+		sprintf_s(labelBuf, "##%sZ", label);
+		ret |= ImGui::InputFloat(labelBuf, &vec->z, 0.0f, 0.0f, "%.3f", flags);
+		ImGui::PopItemWidth();
 
-        ImGui::PushItemWidth( 75.0f );
-        sprintf_s( labelBuf, "##%sX", label );
-        ret |= ImGui::InputFloat( labelBuf, &vec->x, 0.0f, 0.0f, "%.3f", flags ); ImGui::SameLine();
-        sprintf_s( labelBuf, "##%sY", label );
-        ret |= ImGui::InputFloat( labelBuf, &vec->y, 0.0f, 0.0f, "%.3f", flags ); ImGui::SameLine();
-        sprintf_s( labelBuf, "##%sZ", label );
-        ret |= ImGui::InputFloat( labelBuf, &vec->z, 0.0f, 0.0f, "%.3f", flags );
-        ImGui::PopItemWidth();
-
-        return ret;
-    }
+		return ret;
+	}
 }

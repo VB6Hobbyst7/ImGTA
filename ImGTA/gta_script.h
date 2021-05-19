@@ -4,16 +4,16 @@
 class GTAScript
 {
 public:
-    GTAScript( const char *scriptName, bool block = true );
-    ~GTAScript();
+	GTAScript(const char *scriptName, bool block = true);
+	~GTAScript();
 
-    void Unload();
-    const char *GetScriptName();
-    bool IsValid();
-    void WaitForLoad();
+	void Unload();
+	const char *GetScriptName();
+	bool IsValid();
+	void WaitForLoad();
 
 private:
-    bool m_bIsValid = false;
-    bool m_bMarked = false;
-    char m_szScriptName[128] = "";
+	bool m_isValid = false;
+	bool m_marked = false;
+	char m_scriptName[128] = "";
 };

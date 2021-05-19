@@ -8,7 +8,7 @@ class TestMod : public Mod
 public:
 	TestMod(bool supportGlobals) : Mod("Test", true, supportGlobals)
 	{
-		m_iWindowFlags = ImGuiWindowFlags_MenuBar;
+		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
 
 	bool Draw() override;

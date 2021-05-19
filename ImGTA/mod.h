@@ -5,23 +5,25 @@
 class Mod
 {
 public:
-    Mod( std::string name, bool hasWindow, bool supportGlobals);
-    bool HasWindow();
-    const std::string GetName();
+	Mod(std::string name, bool hasWindow, bool supportGlobals);
+	virtual ~Mod(){}
+	bool HasWindow();
+	const std::string GetName();
 
-    virtual void Load() = 0;
-    virtual void Unload() = 0;
-    virtual void Think() = 0;
-    // Draws in an ImGui window, already created. Return false to NOT automatically end the window.
-    virtual bool Draw() = 0;
+	virtual void Load() = 0;
+	virtual void Unload() = 0;
+	virtual void Think() = 0;
+	// Draws in an ImGui window, already created. Return false to NOT automatically end the window.
+	virtual bool Draw() = 0;
 
 	void SetFontSize(float menuSize, float contentSize, float ingameSize);
 	void SetShowInGame(bool show);
 
-    ImGuiWindowFlags m_iWindowFlags;
+	ImGuiWindowFlags m_windowFlags;
+
 protected:
-    std::string m_szName;
-    bool m_bHasWindow;
+	std::string m_windowName;
+	bool m_hasWindow;
 	bool m_supportGlobals;
 
 	bool m_showInGame = true;
