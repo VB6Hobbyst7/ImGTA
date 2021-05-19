@@ -110,7 +110,8 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)ScriptHookV_SDK\inc;$(SolutionDir)imgui\;$(SolutionDir)imgui\backends;$(SolutionDir)lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ShowIncludes>false</ShowIncludes>
+      <ShowIncludes>
+      </ShowIncludes>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)ScriptHookV_SDK\lib;$(SolutionDir)lua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
