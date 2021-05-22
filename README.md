@@ -3,11 +3,11 @@ This mod helps you debug GTA V scripts by watching and interacting with internal
 Some of the functionalities are only available to GTA V build version 372 (online 1.27) because they use global addresses directly and these are dependent on version.<br />
 As the information based on globals is reverse engineered, it is sometimes without useful description or it can be wrongly described. Please let us know if you have any correction.
 
-# Mod menu
+# Mod menu (V1.0)
 ![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameMenu.jpg?raw=true)
 ![Mod Menu Detail](https://github.com/Rayope/ImGTA/blob/master/Images/InGameMenuDetail.jpg?raw=true)
 
-# Mod in-game displays
+# Mod in-game displays (V1.0)
 Note:
 * It shows nearby animals as well (e.g., Ped 24834)<br />
 * The nearby pedestrians and vehicles that are not in the field of view have their information displayed on the sides
