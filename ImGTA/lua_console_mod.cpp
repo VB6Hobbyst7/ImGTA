@@ -43,12 +43,20 @@ bool LuaConsoleMod::Draw()
 	ImGui::SetWindowFontScale(m_contentFontSize);
 
 	ImGui::TextColored(ImVec4(255, 0, 0, 255), "Needs testing, can crash your game.");
+	ImGui::TextColored(ImVec4(0, 25, 0, 255), "Look at natives.lua for function names. Examples:");
+	ImGui::TextColored(ImVec4(0, 25, 0, 255), "val = entity.get_entity_health(2)");
+	ImGui::TextColored(ImVec4(0, 25, 0, 255), "print(val)");
+	ImGui::TextColored(ImVec4(0, 25, 0, 255), "entity.set_entity_health(2, 150)");
 
 	const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing(); // thanks omar
 	if (ImGui::BeginChild("ConsoleText", ImVec2(0.0f, -footer_height_to_reserve)))
+	{
 		ImGui::TextUnformatted(lua_stream.str().c_str());
-	ImGui::EndChild(); // legacy dont-care-about-return-value end.
+		ImGui::SetScrollHereY(0.999f);
+		ImGui::EndChild(); // legacy dont-care-about-return-value end.
 
+	}
+	
 	ImGui::Separator();
 	ImGui::SetNextItemWidth(ImGui::GetCurrentWindow()->Size.x - 75.0f);
 
