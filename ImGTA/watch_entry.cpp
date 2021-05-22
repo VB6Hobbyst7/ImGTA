@@ -1,15 +1,27 @@
 #include "watch_entry.h"
 #include "types.h"
 #include "main.h"
+#include "utils.h"
 #include <bitset>
 
 void WatchEntry::UpdateValue()
 {
-	m_value = GetDisplayForType(m_globalAddress, m_type);
+	if (IsGlobal())
+		m_value = GetDisplayForType(m_addressIndex, m_type);
+	else
+		m_value = GetDisplayForType(m_addressIndex, m_scriptHash, m_type);
+}
+
+void WatchEntry::UpdateValue(int scriptHash)
+{
+	m_value = GetDisplayForType(scriptHash, m_addressIndex, m_type);
 }
 
 std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)
 {
+	if (globalAddr == nullptr)
+		return std::string("NULL");
+
 	char buf[256] = "";
 
 	switch (type)
@@ -37,4 +49,9 @@ std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)
 std::string GetDisplayForType(int addrId, WatchType type)
 {
 	return GetDisplayForType(getGlobalPtr(addrId), type);
+}
+
+std::string GetDisplayForType(int addrId, int scriptHash, WatchType type)
+{
+	return GetDisplayForType(GetThreadAddress(addrId, scriptHash), type);
 }

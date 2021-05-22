@@ -3,6 +3,7 @@
 #include "script.h"
 #include "audio_scenes.h"
 #include "music_events.h"
+#include "global_id.h"
 
 
 void AudioMod::Load()
@@ -38,10 +39,10 @@ void AudioMod::Think()
 
 	if (m_supportGlobals)
 	{
-		m_audioName = std::string((char *)getGlobalPtr(0x3BCF));
-		m_audioSource = std::string((char *)getGlobalPtr(0x3D92));
-		m_audio1 = std::string((char *)getGlobalPtr(0x4138));
-		m_audio2 = std::string((char *)getGlobalPtr(0x3B2A));
+		m_audioName = std::string((char *)getGlobalPtr(GlobalID::_15311));
+		m_audioSource = std::string((char *)getGlobalPtr(GlobalID::_15762));
+		m_audio1 = std::string((char *)getGlobalPtr(GlobalID::_16696));
+		m_audio2 = std::string((char *)getGlobalPtr(GlobalID::_15146));
 	}
 }
 

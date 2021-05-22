@@ -2,6 +2,7 @@
 #include "utils.h"
 #include <stdexcept>
 #include <map>
+#include "global_id.h"
 
 
 
@@ -13,12 +14,12 @@ MissionHelper::MissionHelper(eGameVersion ver) : m_version(ver)
 
 void MissionHelper::Fail()
 {
-	*getGlobalPtr(0x15F6A) = 0;
+	*getGlobalPtr(GlobalID::_89962) = 0;
 }
 
 void MissionHelper::Skip()
 {
-	*getGlobalPtr(0x14A40) = 1;
-	*getGlobalPtr(0xD5DC) = 1;
-	*getGlobalPtr(0x15F6A) = 9;
+	*getGlobalPtr(GlobalID::_84544) = 1;
+	*getGlobalPtr(GlobalID::_54748) = 1;
+	*getGlobalPtr(GlobalID::_89962) = 9;
 }

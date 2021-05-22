@@ -1,6 +1,7 @@
 #pragma once
 #include "mod.h"
 #include "types.h"
+#include "global_id.h"
 
 #include <bitset>
 #include <string>
@@ -25,7 +26,7 @@ struct PaddedInt {
 };
 
 struct MissionArray {
-	// 0x13D03
+	// Global_81155
 	char name[48] = { '\0' }; // 0
 	uint64_t hash = 0; // 6
 	int field_2 = 0; // 7
@@ -50,7 +51,7 @@ struct MissionArray {
 }; // Size 34 * 8 bytes
 
 struct MissionArray2 {
-	// 0x14980
+	// Global_84352
 	int field_1 = 0;
 	DWORD _paddings1;
 	float field_2 = 0;
@@ -58,7 +59,7 @@ struct MissionArray2 {
 }; // Size 2 * 8 bytes
 
 struct MissionArray3 {
-	// 0x60AC
+	// Global_24748
 	int field_0_size = 3; // 0 // Fixed size
 	DWORD _padding0;
 	Vector3 positions[3];
@@ -97,7 +98,7 @@ struct MissionArray4Bis {
 };
 
 struct MissionArray4 {
-	// 0x15504
+	// Global_87300
 	int isReady;
 	DWORD _padding0;
 	int field_1;
@@ -122,7 +123,7 @@ struct MissionArray4 {
 }; // Size 17 * 8 bytes
 
 struct MissionArray5 {
-	// 0x10C0F -> Global_10BA2.f_6D
+	// Global_68623 -> Global_10BA2.f_6D
 	int missionArrayID; // MissionArrayID
 	DWORD _padding0;
 	int field_1;
@@ -134,7 +135,7 @@ struct MissionArray5 {
 }; // Size 4 * 8 bytes
 
 struct MissionArray6 {
-	// 0x1264B -> Global_10BA2.f_1AA9
+	// Global_75339 -> Global_10BA2.f_1AA9
 	int hash;
 	DWORD _padding0;
 	int field_1;
@@ -144,7 +145,7 @@ struct MissionArray6 {
 }; // Size 3 * 8 bytes
 
 struct MissionArray7 {
-	// 0x198F8 -> Global_17C49.f_1CAD.f_2
+	// Global_104696 -> Global_17C49.f_1CAD.f_2
 	std::bitset<64> field_0;
 	int field_1;
 	DWORD _padding1;
@@ -183,18 +184,18 @@ private:
 	int m_mission5Size = 0;
 	int m_mission6Size = 0;
 	int m_mission7Size = 0;
-	int m_missionArraySizeAddr = 0x13D03;
+	int m_missionArraySizeAddr = GlobalID::_81155;
 	int m_missionArrayStartAddr = m_missionArraySizeAddr + 1;
-	int m_missionArray2StartAddr = 0x14981;
-	int m_missionArray3SizeAddr = 0x60AC;
+	int m_missionArray2StartAddr = GlobalID::_84353;
+	int m_missionArray3SizeAddr = GlobalID::_24748;
 	int m_missionArray3StartAddr = m_missionArray3SizeAddr + 1;
-	int m_missionArray4SizeAddr = 0x15504;
+	int m_missionArray4SizeAddr = GlobalID::_87300;
 	int m_missionArray4StartAddr = m_missionArray4SizeAddr + 1;
-	int m_missionArray5SizeAddr = 0x10C0F;
+	int m_missionArray5SizeAddr = GlobalID::_68623;
 	int m_missionArray5StartAddr = m_missionArray5SizeAddr + 1;
-	int m_missionArray6SizeAddr = 0x1264B;
+	int m_missionArray6SizeAddr = GlobalID::_75339;
 	int m_missionArray6StartAddr = m_missionArray6SizeAddr + 1;
-	int m_missionArray7SizeAddr = 0x198F8;
+	int m_missionArray7SizeAddr = GlobalID::_104696;
 	int m_missionArray7StartAddr = m_missionArray7SizeAddr + 1;
 
 	int m_availableMissionCount = 0;

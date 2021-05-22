@@ -401,7 +401,13 @@ bool CheatsMod::Draw()
 		//DrawMissionMenu();
 		DrawHUDMenu();
 
-		ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 100);
+		if (m_supportGlobals)
+			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 100);
+		else
+		{
+			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 530);
+			ImGui::TextColored(ImVec4(255, 0, 0, 255), "Your game version (%d) does not support specific memory access.", getGameVersion());
+		}
 		ImGui::Checkbox("Debug", &m_showDebug);
 		if (ImGui::Checkbox("Show in game", &m_showInGame))
 			m_scriptVarNeedsUpdate = true;

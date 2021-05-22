@@ -28,7 +28,7 @@ private:
 	bool m_explosiveBullets = false;
 	bool m_scriptVarNeedsUpdate = false;
 	bool m_showDebug = true;
-	bool m_floatingMenu = true;
+	bool m_floatingMenu = false;
 
 	float m_menuFontSize = 1.0f;
 	float m_contentFontSize = 1.0f;

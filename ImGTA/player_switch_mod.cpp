@@ -7,6 +7,7 @@
 #include "watch_entry.h"
 #include "imgui_extras.h"
 #include "mission_mod.h"
+#include "global_id.h"
 
 void PlayerSwitchMod::Load()
 {
@@ -44,12 +45,8 @@ void PlayerSwitchMod::UpdateLocationData()
 
 	if (m_supportGlobals)
 	{
-		int characterArrayOffset = m_characterArrayStartAddr + m_characterID * sizeof(MessageArray) / 8;
-		m_characterCount = *(int *)getGlobalPtr(m_characterArraySizeAddr);
-		m_characterArray = *(MessageArray *)getGlobalPtr(characterArrayOffset);
-
-		m_currentCharacterID = *(int *)getGlobalPtr(0x191B2); // Global_17C49.f_6C1.f_21B.f_C8D
-		m_previousCharacterID = *(int *)getGlobalPtr(0x19B4); // Global_17C49.f_6C1.f_21B.f_C8F
+		m_currentCharacterID = *(int *)getGlobalPtr(GlobalID::_102834); 
+		m_previousCharacterID = *(int *)getGlobalPtr(GlobalID::_6580);
 	}
 }
 
@@ -67,7 +64,7 @@ void PlayerSwitchMod::DrawMenuBar()
 	}
 }
 
-std::string switchTypeStr(SwitchType type)
+std::string SwitchTypeStr(SwitchType type)
 {
 	switch (type)
 	{
@@ -103,46 +100,12 @@ bool PlayerSwitchMod::Draw()
 		ImGui::Text("Previous Character ID: %d (%s)", m_previousCharacterID, CharacterIDStr((CharacterID)m_previousCharacterID));
 	}
 	ImGui::Text("Switch in progress: %d", m_switchInProgress);
-	ImGui::Text("Switch type: %s (%d)", switchTypeStr(SwitchType(m_switchType)).c_str(), m_switchType);
+	ImGui::Text("Switch type: %s (%d)", SwitchTypeStr(SwitchType(m_switchType)).c_str(), m_switchType);
 	ImGui::Text("Switch state: %d", m_switchState);
 	ImGui::Text("Short switch state: %d", m_shortSwitchState);
 
 	if (m_supportGlobals)
 	{
-		if (ImGui::TreeNode("Messages"))
-		{
-			if (ImGui::InputInt("Message ID", &m_characterID))
-			{
-				ClipInt(m_characterID, 0, m_characterCount - 1);
-				m_wantsUpdate = true;
-			}
-
-			ImGui::Text("Hash: %d", m_characterArray.field_0);
-			ImGui::Text("Field 1: %d", m_characterArray.field_1);
-			ImGui::Text("Field 2: %d", m_characterArray.field_2);
-			ImGui::Text("Field 3: %s", m_characterArray.field_3);
-			ImGui::Text("Field 7: %s", m_characterArray.field_7);
-			ImGui::Text("Field B: %d", m_characterArray.field_B);
-			ImGui::Text("Field C: %d", m_characterArray.field_C_size);
-			std::string field_C = "Field C: ";
-			for (int i = 0; i < m_characterArray.field_C_size; ++i)
-				field_C += std::to_string(m_characterArray.field_C[i].val) + ", ";
-			ImGui::Text(field_C.c_str());
-			ImGui::Text("Field 11: %d", m_characterArray.field_11);
-			ImGui::Text("Field 12: %d", m_characterArray.field_12);
-			ImGui::Text("Field 13: %d", m_characterArray.field_13_size);
-			std::string field_13 = "Field 13: ";
-			for (int i = 0; i < m_characterArray.field_13_size; ++i)
-				field_13 += std::to_string(m_characterArray.field_13[i].val) + ", ";
-			ImGui::Text(field_13.c_str());
-			ImGui::Text("Field 18: %d", m_characterArray.field_18_size);
-			std::string field_18 = "Field 18: ";
-			for (int i = 0; i < m_characterArray.field_18_size; ++i)
-				field_18 += std::to_string(m_characterArray.field_18[i].val) + ", ";
-			ImGui::Text(field_18.c_str());
-			ImGui::TreePop();
-		}
-
 		ImGui::Separator();
 		if (ImGui::TreeNode("Player switch locations?"))
 		{

@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "watch_entry.h"
 #include "imgui_extras.h"
+#include "global_id.h"
 
 
 void MissionMod::Load()
@@ -77,11 +78,11 @@ void MissionMod::UpdateMissionData()
 	m_mission7Size = *(int *)getGlobalPtr(m_missionArray7SizeAddr);
 	m_mission7 = *(MissionArray7 *)getGlobalPtr(missionArray7Offset);
 
-	m_availableMissionCount = *(int *)getGlobalPtr(0x15503);
-	m_missionState = *(int *)getGlobalPtr(0x15F6A);
-	m_deathName = std::string((char *)getGlobalPtr(0x10B7D));
-	m_missionUnk0 = *(int *)getGlobalPtr(0x10B9B);
-	m_missionUnk1 = *(int *)getGlobalPtr(0x10BAB); // 0x10BAB->Global_10BA2.f_9;
+	m_availableMissionCount = *(int *)getGlobalPtr(GlobalID::_87299);
+	m_missionState = *(int *)getGlobalPtr(GlobalID::_89962);
+	m_deathName = std::string((char *)getGlobalPtr(GlobalID::_68477));
+	m_missionUnk0 = *(int *)getGlobalPtr(GlobalID::_68507);
+	m_missionUnk1 = *(int *)getGlobalPtr(GlobalID::_68523);
 }
 
 void MissionMod::DrawMenuBar()

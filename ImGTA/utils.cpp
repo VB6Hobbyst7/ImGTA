@@ -5,6 +5,8 @@
 #include "enums.h"
 #include "mod.h"
 
+ThreadBasket threadBasket;
+
 BOOL is_main_window(HWND handle)
 {
 	return GetWindow(handle, GW_OWNER) == (HWND)0 && IsWindowVisible(handle);
@@ -91,4 +93,48 @@ bool IsVersionSupportedForGlobals(eGameVersion ver)
 {
 	// TODO: are globals the same in steam and nonsteam?
 	return ver == eGameVersion::VER_1_0_372_2_STEAM || ver == eGameVersion::VER_1_0_372_2_NOSTEAM;
+}
+
+void InitThreadBasket()
+{
+	// 0x9B5BCD: offset to get to the mov instruction that contains the offset to the threads structure
+	// 0x2A07D38: Offset to get the pointer to the ThreadBasket structure
+
+	// (*(srcThreads))[0] -> Address to first thread script
+	// (*srcThreads)[1] -> Address to second thread script
+
+	// (*(*srcThreads)[0]) -> First script thread
+
+	// (*(*srcThreads)[0]).pStack -> First script stack start address
+	// *(*(*srcThreads)[0]).pStack + index) -> iLocal_index
+
+	PVOID baseAddress = GetModuleHandleA("GTA5.exe");
+	PVOID offsetAddress = (PVOID)((char*)baseAddress + 0x2A07D38);
+
+	DWORD d, ds;
+	VirtualProtect(offsetAddress, sizeof(ThreadBasket), PAGE_EXECUTE_READ, &d);
+	memcpy(&threadBasket, offsetAddress, sizeof(ThreadBasket));
+	VirtualProtect(offsetAddress, sizeof(ThreadBasket), d, &ds);
+}
+
+uint64_t * GetThreadAddress(int localId, int scriptHash)
+{
+	if (threadBasket.srcThreads == nullptr)
+		InitThreadBasket();
+
+	uint64_t * localAddress = nullptr;
+	for (unsigned short i = 0; i < threadBasket.threadCount; i++)
+	{
+		ScrThread * scrThread = threadBasket.srcThreads[i];
+		if (scrThread != nullptr && scrThread->pStack != nullptr)
+		{
+			if (scrThread->scriptHash == scriptHash)
+			{
+				localAddress = scrThread->pStack + localId;
+				break;
+			}
+		}
+	}
+
+	return localAddress;
 }

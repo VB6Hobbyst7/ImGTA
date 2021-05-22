@@ -15,7 +15,7 @@ enum class SwitchType
 
 struct LocationArray
 {
-	// 0x14D9D
+	// Global_85405
 	Vector3 field_0 = { 0 }; // 0
 	Vector3 field_1 = { 0 }; // 3
 	float field_2 = 0; // 6
@@ -28,39 +28,7 @@ struct LocationArray
 	DWORD _padding5;
 }; // Size 10 * 8 bytes
 
-struct MessageArray
-{
-	// 0x1F097 Global_17C49.f_744E
-	int field_0; // Hash example 'ig_devin' -> Look in standard_global_reg for correspondance
-	DWORD _padding0;
-	int field_1;
-	DWORD _padding1;
-	int field_2;
-	DWORD _padding2;
-	char field_3[32];
-	char field_7[32];
-	int field_B;
-	DWORD _paddingB;
-	int field_C_size; // 4?
-	DWORD _paddingC;
-	PaddedInt field_C[4];
-	int field_11;
-	DWORD _padding11;
-	int field_12;
-	DWORD _padding12;
-	int field_13_size = 4;
-	DWORD _padding13;
-	PaddedInt field_13[4];
-	int field_18_size; // 4?
-	DWORD _padding18;
-	PaddedInt field_18[4];
-}; // Size 29 * 8 bytes
-
-// TODO
-/*struct MessageArray2 {
-	// 0x61
-};*/ // Size 
-
+std::string SwitchTypeStr(SwitchType type);
 
 class PlayerSwitchMod : public Mod
 {
@@ -89,15 +57,9 @@ private:
 
 	LocationArray m_locationArray;
 	int m_locationCount = 0;
-	int m_locationArraySizeAddr = 0x14D9D;
+	int m_locationArraySizeAddr = GlobalID::_85405;
 	int m_locationArrayStartAddr = m_locationArraySizeAddr + 1;
-
-	MessageArray m_characterArray;
-	int m_characterID = 0;
-	int m_characterCount = 0;
-	int m_characterArraySizeAddr = 0x1F097;
-	int m_characterArrayStartAddr = m_characterArraySizeAddr + 1;
-
+	
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;
 	int m_locationID = 0;

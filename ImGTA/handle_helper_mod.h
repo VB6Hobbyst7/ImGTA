@@ -53,7 +53,7 @@ private:
 	int m_nearbyObjectMax = 30;
 	int m_drawOffsetZ = 0;
 	bool m_drawEntityInfo = true;
-	bool m_drawOnScreenEntityOnly = false;
+	bool m_drawOnScreenEntityOnly = true;
 	bool m_drawId = true;
 	bool m_drawLife = true;
 

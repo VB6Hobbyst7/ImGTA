@@ -15,9 +15,6 @@
     <Filter Include="ImGui">
       <UniqueIdentifier>{428fc954-c067-4292-877f-75e68df3061d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Global Watch">
-      <UniqueIdentifier>{0c2141f1-ad67-4e26-bf75-aee59af5e18a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Mods\Cheats">
       <UniqueIdentifier>{b2db65e6-29cc-4eec-9083-d3f6885a62f9}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,12 @@
     <Filter Include="Mods\Area">
       <UniqueIdentifier>{e1967f6c-73e3-450c-ae1f-2cf74d20cdca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Mods\Memory Watcher">
+      <UniqueIdentifier>{a8778da9-053a-49cd-9aef-c68360d37fbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mods\Comms">
+      <UniqueIdentifier>{4659fcf2-47a9-42f1-9f30-8eeaa7a1f23c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -67,12 +70,6 @@
     </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="global_watch_mod.cpp">
-      <Filter>Mods\Global Watch</Filter>
-    </ClCompile>
-    <ClCompile Include="watch_entry.cpp">
-      <Filter>Mods\Global Watch</Filter>
     </ClCompile>
     <ClCompile Include="cheats_mod.cpp">
       <Filter>Mods\Cheats</Filter>
@@ -146,6 +143,15 @@
     <ClCompile Include="..\imgui\backends\imgui_impl_win32.cpp">
       <Filter>ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="watch_entry.cpp">
+      <Filter>Mods\Memory Watcher</Filter>
+    </ClCompile>
+    <ClCompile Include="mem_watcher_mod.cpp">
+      <Filter>Mods\Memory Watcher</Filter>
+    </ClCompile>
+    <ClCompile Include="comms_mod.cpp">
+      <Filter>Mods\Comms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h">
@@ -156,12 +162,6 @@
     </ClInclude>
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="global_watch_mod.h">
-      <Filter>Mods\Global Watch</Filter>
-    </ClInclude>
-    <ClInclude Include="watch_entry.h">
-      <Filter>Mods\Global Watch</Filter>
     </ClInclude>
     <ClInclude Include="cheats_mod.h">
       <Filter>Mods\Cheats</Filter>
@@ -252,6 +252,18 @@
     </ClInclude>
     <ClInclude Include="script_names.h">
       <Filter>Mods\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="global_id.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="watch_entry.h">
+      <Filter>Mods\Memory Watcher</Filter>
+    </ClInclude>
+    <ClInclude Include="mem_watcher_mod.h">
+      <Filter>Mods\Memory Watcher</Filter>
+    </ClInclude>
+    <ClInclude Include="comms_mod.h">
+      <Filter>Mods\Comms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

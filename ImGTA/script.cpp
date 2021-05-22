@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <iostream>
 
-#include "global_watch_mod.h"
+#include "mem_watcher_mod.h"
 #include "cheats_mod.h"
 #include "cutscene_mod.h"
 #include "audio_mod.h"
@@ -23,6 +23,7 @@
 #include "scripts_mod.h"
 #include "sync_scene_mod.h"
 #include "player_switch_mod.h"
+#include "comms_mod.h"
 #include "mission_mod.h"
 #include "area_mod.h"
 #include "test_mod.h"
@@ -34,7 +35,7 @@ bool hasInitializedImgui;
 LONG_PTR oldProc;
 bool isOpen = false;
 bool isFirstLoad = true;
-bool floatingMenu = true;
+bool floatingMenu = false;
 bool checkFirstUpdate = false;
 float menuFontSize = 1.0f;
 float contentFontSize = 1.0f;
@@ -49,7 +50,7 @@ void InitMods()
 
 	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
 
-	modsLoaded.push_back(new GlobalWatchMod(supportGlobals));
+	modsLoaded.push_back(new MemWatcherMod(supportGlobals));
 	modsLoaded.push_back(new CheatsMod(supportGlobals));
 	modsLoaded.push_back(new CutsceneMod(supportGlobals));
 	modsLoaded.push_back(new AudioMod(supportGlobals));
@@ -57,6 +58,7 @@ void InitMods()
 	modsLoaded.push_back(new HandleHelperMod(supportGlobals));
 	modsLoaded.push_back(new SyncSceneMod(supportGlobals));
 	modsLoaded.push_back(new PlayerSwitchMod(supportGlobals));
+	modsLoaded.push_back(new CommsMod(supportGlobals));
 	if (supportGlobals)
 		modsLoaded.push_back(new MissionMod(supportGlobals));
 	modsLoaded.push_back(new AreaMod(supportGlobals));

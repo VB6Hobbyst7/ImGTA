@@ -14,4 +14,3 @@ void SetFloatingMenu(bool isFloating);
 bool GetFloatingMenu();
 void SetShowAllInGame(bool show);
 void SetAllFontSize(float menuSize, float contentSize, float ingameSize);
-const char * BoolToStr(bool value);

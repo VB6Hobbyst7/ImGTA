@@ -43,6 +43,8 @@ void ScriptsMod::Think()
 			std::sort(m_scripts.begin(), m_scripts.end(), CompareScriptByName);
 		else
 			std::sort(m_scripts.begin(), m_scripts.end(), CompareScriptByHandle);
+
+		m_noLoadingScreen = SCRIPT::GET_NO_LOADING_SCREEN();
 		m_wantsUpdate = false;
 	}
 
@@ -112,6 +114,30 @@ void ScriptsMod::DrawMenuBar()
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("Loading"))
+		{
+			if (ImGui::MenuItem("Stop loading screen"))
+			{
+				RunOnNativeThread([=]
+				{
+					SCRIPT::SHUTDOWN_LOADING_SCREEN();
+				});
+			}
+			if (ImGui::BeginMenu("Set loading screen"))
+			{
+				ImGui::Checkbox("Toggle", &m_noLoadingScreenOption);
+				if (ImGui::MenuItem("Set no loading screen"))
+				{
+					RunOnNativeThread([=]
+					{
+						SCRIPT::SET_NO_LOADING_SCREEN(m_noLoadingScreenOption);
+					});
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Options"))
 		{
 			ImGui::MenuItem("Sort by name", NULL, &m_sortByName);
@@ -168,9 +194,15 @@ bool ScriptsMod::Draw()
 		if (ImGui::Button("Update"))
 			m_wantsUpdate = true;
 
+	ImGui::Text("Set no loading screen: %s", BoolToStr(m_noLoadingScreen));
+
 	if (m_scripts.size() > 0)
 	{
 		ImGui::Columns(2);
+		if (m_initColumnWidth < 2)
+			ImGui::SetColumnWidth(0, 200);
+		else
+			m_initColumnWidth++;
 		ImGui::Separator();
 		ImGui::Text("Name %c", m_sortByName ? '^' : ' '); ImGui::NextColumn();
 		ImGui::Text("Handle %c", m_sortByName ? ' ' : '^'); ImGui::NextColumn();
