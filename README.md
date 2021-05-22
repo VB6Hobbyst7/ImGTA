@@ -1,5 +1,5 @@
 # ImGTA
-This mod helps you debug GTA V scripts by watching and interacting with internal global variables.<br />
+This mod helps you debug GTA V scripts by watching and interacting with internal local and global variables.<br />
 Some of the functionalities are only available to GTA V build version 372 (online 1.27) because they use global addresses directly and these are dependent on version.<br />
 As the information based on globals is reverse engineered, it is sometimes without useful description or it can be wrongly described. Please let us know if you have any correction.
 
@@ -31,16 +31,18 @@ Note:
 * Scripts
   * List running scripts (name, handle)
   * Start script
-* Global watcch
-  * Watch address (int, float, string, vector, bitfield)
-  * Watch address in game
+* Memory watcher
+  * Variable types (int, float, string, vector, bitfield)
+  * Watch local (script) variable from index
+  * Watch global variable from index
+  * Watch addresses in game
 * Handle helper
   * List nearby pedestrians id
   * List nearby vehicles id
   * Show pedestrians and vehicles in game (id, life)
   * Entity list of variables (type, health, injured, model, position, is mission entity)
 * Lua console
-  * Haven't looked at it but it should be able to call natives...
+  * Can call all natives directly within the game
 * Area
   * Draw box in game
   * Check if ped in angled are
@@ -53,6 +55,8 @@ Note:
 * Player switch (in development)
   * Switch variables (in progress, type, state)
   * Player switch locations list of variables
+* Comms
+  * A stub at the moment
 * Synchronized Scene
   * Synchronized scene (loop, set phase, set rate, set hold last frame)
   * List running synchronized scene
