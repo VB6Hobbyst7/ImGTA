@@ -195,6 +195,7 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClCompile Include="script.cpp" />
     <ClCompile Include="audio_mod.cpp" />
     <ClCompile Include="scripts_mod.cpp" />
+    <ClCompile Include="strangers_and_freaks_names.cpp" />
     <ClCompile Include="sync_scene_mod.cpp" />
     <ClCompile Include="test_mod.cpp" />
     <ClCompile Include="utils.cpp" />
@@ -234,6 +235,7 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
     <ClInclude Include="script.h" />
     <ClInclude Include="audio_mod.h" />
     <ClInclude Include="script_names.h" />
+    <ClInclude Include="strangers_and_freaks_names.h" />
     <ClInclude Include="sync_scene_mod.h" />
     <ClInclude Include="test_mod.h" />
     <ClInclude Include="utils.h" />

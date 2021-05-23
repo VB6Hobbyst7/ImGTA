@@ -119,6 +119,7 @@ void MemWatcherMod::ShowAddAddress(bool isGlobal)
 				m_watches.push_back(WatchEntry(m_inputAddressIndex, (WatchType)m_inputType, "Global", 0, m_watchInfo));
 			else
 				m_watches.push_back(WatchEntry(m_inputAddressIndex, (WatchType)m_inputType, m_scriptName, m_scriptHash, m_watchInfo));
+			m_autoScrollDown = true;
 		}
 
 		if (m_addressUnavailable)
@@ -278,9 +279,10 @@ bool MemWatcherMod::Draw()
 	ImGui::Text("Info"); ImGui::NextColumn();
 	ImGui::Text("Value"); ImGui::NextColumn();
 	ImGui::Separator();
+
+	std::lock_guard<std::mutex> lock(m_watchesMutex);
 	if (m_watches.size() > 0)
 	{
-		std::lock_guard<std::mutex> lock(m_watchesMutex);
 		for (auto &w : m_watches)
 		{
 			sprintf_s(buf, "%d (0x%x)", w.m_addressIndex, w.m_addressIndex);
@@ -299,6 +301,12 @@ bool MemWatcherMod::Draw()
 		}
 		ImGui::Columns(1);
 		ImGui::Separator();
+	}
+
+	if (m_autoScrollDown)
+	{
+		ImGui::SetScrollHereY(0.999f);
+		m_autoScrollDown = false;
 	}
 
 	ShowSelectedPopup();

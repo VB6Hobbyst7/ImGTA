@@ -58,6 +58,15 @@ void MissionMod::UpdateMissionData()
 	int missionArray2Offset = m_missionArray2StartAddr + m_missionID * sizeof(MissionArray2) / 8;
 	m_currentMission2 = *(MissionArray2 *)getGlobalPtr(missionArray2Offset);
 
+	if (m_updateSafArray)
+	{
+		GetStrangersAndFreaksArray(m_safID, m_safArray);
+		m_updateSafArray = false;
+	}
+	int safArray2Offset = m_safArray2StartAddr + m_safID * sizeof(StrangersAndFreaksArray2) / 8;
+	m_safCount = *(int *)getGlobalPtr(m_safArray2SizeAddr);
+	m_safArray2 = *(StrangersAndFreaksArray2 *)getGlobalPtr(safArray2Offset);
+
 	int missionArray3Offset = m_missionArray3StartAddr + m_missionID3 * sizeof(MissionArray3) / 8;
 	m_mission3Size = *(int *)getGlobalPtr(m_missionArray3SizeAddr);
 	m_mission3 = *(MissionArray3 *)getGlobalPtr(missionArray3Offset);
@@ -315,6 +324,52 @@ bool MissionMod::Draw()
 		}
 		ImGui::Text("Mission array 6 ID min?: %d", m_mission8.missionArray6IDMin);
 		ImGui::Text("Mission array 6 ID max?: %d", m_mission8.missionArray6IDMax);
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+	if (ImGui::TreeNode("Strangers And Freaks Array"))
+	{
+		if (ImGui::InputInt("Strangers And Freaks ID", &m_safID)) {
+			ClipInt(m_safID, 0, m_safCount - 1);
+			m_wantsUpdate = true;
+			m_updateSafArray = true;
+		}
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "This data is not updated by the game, it's taken from the game files!");
+		ImGui::Text("Field 0: %s", m_safArray.f_0.str);
+		ImGui::Text("Field 1: %s", m_safArray.f_1.str);
+		ImGui::Text("Field 3: %d", m_safArray.f_3);
+		ImGui::Text("Field 4: %d", m_safArray.f_4);
+		ImGui::Text("Field 5: %d", m_safArray.f_5);
+		ImGui::Text("Field 6: (%.4f, %.4f, %.4f)", m_safArray.f_6[0], m_safArray.f_6[1], m_safArray.f_6[2]);
+		ImGui::Text("Field 9: %d", m_safArray.f_9);
+		ImGui::Text("Field 10: %s", m_safArray.f_10.str);
+		ImGui::Text("Field 14: %d", m_safArray.f_14);
+		ImGui::Text("Field 15: %d", m_safArray.f_15);
+		ImGui::Text("Field 16: %s", m_safArray.f_16.str);
+		ImGui::Text("Field 22: %d", m_safArray.f_22);
+		ImGui::Text("Field 23: %d", m_safArray.f_23);
+		ImGui::Text("Field 24: %d", m_safArray.f_24);
+		ImGui::Text("Field 25: %d", m_safArray.f_25);
+		ImGui::Text("Field 26: %d", m_safArray.f_26);
+		ImGui::Text("Field 27: %d", m_safArray.f_27);
+		ImGui::Text("Field 28: %d", m_safArray.f_28);
+		ImGui::Text("Field 29: %d", m_safArray.f_29);
+		ImGui::Text("Field 30: %d", m_safArray.f_30);
+		ImGui::Text("Field 31: %d", m_safArray.f_31);
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+	if (ImGui::TreeNode("Strangers And Freaks Array 2"))
+	{
+		ImGui::Text("Same ID as strangers and freaks ID: %d", m_safID);
+		ImGui::Text("Field 0: %s", m_safArray2.f_0.to_string().c_str());
+		ImGui::Text("Field 1: %d", m_safArray2.f_1);
+		ImGui::Text("Field 2: %d", m_safArray2.f_2);
+		ImGui::Text("Field 3: %d", m_safArray2.f_3);
+		ImGui::Text("Field 4: %d", m_safArray2.f_4);
+		ImGui::Text("Field 5: %f", m_safArray2.f_5);
 		ImGui::TreePop();
 	}
 

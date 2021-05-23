@@ -2,6 +2,7 @@
 #include "mod.h"
 #include "types.h"
 #include "global_id.h"
+#include "strangers_and_freaks_names.h"
 
 #include <bitset>
 #include <string>
@@ -49,6 +50,10 @@ struct MissionArray {
 	DWORD _paddings17;
 	PaddedInt field_17[16]; // 17 // Fixed size
 }; // Size 34 * 8 bytes
+
+struct StrangerAndFreaksArray {
+	// Global_104696 -> Global_97353.f_7341.f_2
+};
 
 struct MissionArray2 {
 	// Global_84352
@@ -161,6 +166,21 @@ struct MissionArray8 {
 	DWORD _padding1;
 };
 
+struct StrangersAndFreaksArray2 {
+	// Global_114181 -> Global_97353.f_16828
+	std::bitset<64> f_0;
+	int f_1; // Bool values
+	DWORD _padding1;
+	int f_2;
+	DWORD _padding2;
+	int f_3;
+	DWORD _padding3;
+	int f_4;
+	DWORD _padding4;
+	float f_5;
+	DWORD _padding5;
+};
+
 
 
 class MissionMod : public Mod
@@ -218,6 +238,16 @@ private:
 	int m_missionUnk0 = 0;
 	int m_missionUnk68523 = 0;
 	int m_missionUnk87298 = 0;
+
+
+	StrangersAndFreaksArray m_safArray;
+	StrangersAndFreaksArray2 m_safArray2;
+	int m_safArray2SizeAddr = GlobalID::_114181;
+	int m_safArray2StartAddr = m_safArray2SizeAddr + 1;
+	int m_safID = 0;
+	int m_safCount = 63;
+	bool m_updateSafArray;
+
 
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

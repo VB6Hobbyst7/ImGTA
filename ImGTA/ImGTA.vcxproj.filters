@@ -152,6 +152,9 @@
     <ClCompile Include="comms_mod.cpp">
       <Filter>Mods\Comms</Filter>
     </ClCompile>
+    <ClCompile Include="strangers_and_freaks_names.cpp">
+      <Filter>Mods\Mission</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h">
@@ -264,6 +267,9 @@
     </ClInclude>
     <ClInclude Include="comms_mod.h">
       <Filter>Mods\Comms</Filter>
+    </ClInclude>
+    <ClInclude Include="strangers_and_freaks_names.h">
+      <Filter>Mods\Mission</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
