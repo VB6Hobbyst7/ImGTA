@@ -196,19 +196,19 @@ bool ScriptsMod::Draw()
 
 	ImGui::Text("Set no loading screen: %s", BoolToStr(m_noLoadingScreen));
 
+	ImGui::Columns(2);
+	if (m_initColumnWidth < 2)
+		ImGui::SetColumnWidth(0, 200);
+	else
+		m_initColumnWidth++;
+	ImGui::Separator();
+	ImGui::Text("Name %c", m_sortByName ? '^' : ' '); ImGui::NextColumn();
+	ImGui::Text("Handle %c", m_sortByName ? ' ' : '^'); ImGui::NextColumn();
+	ImGui::Separator();
+
+	std::lock_guard<std::mutex> lock(m_scriptsMutex);
 	if (m_scripts.size() > 0)
 	{
-		ImGui::Columns(2);
-		if (m_initColumnWidth < 2)
-			ImGui::SetColumnWidth(0, 200);
-		else
-			m_initColumnWidth++;
-		ImGui::Separator();
-		ImGui::Text("Name %c", m_sortByName ? '^' : ' '); ImGui::NextColumn();
-		ImGui::Text("Handle %c", m_sortByName ? ' ' : '^'); ImGui::NextColumn();
-		ImGui::Separator();
-
-		std::lock_guard<std::mutex> lock(m_scriptsMutex);
 		for (auto &s : m_scripts)
 		{
 			if (ImGui::Selectable(s.m_scriptName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))

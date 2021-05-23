@@ -46,7 +46,7 @@ void PlayerSwitchMod::UpdateLocationData()
 	if (m_supportGlobals)
 	{
 		m_currentCharacterID = *(int *)getGlobalPtr(GlobalID::_102834); 
-		m_previousCharacterID = *(int *)getGlobalPtr(GlobalID::_6580);
+		m_previousCharacterID = *(int *)getGlobalPtr(GlobalID::_102835);
 	}
 }
 
@@ -115,11 +115,11 @@ bool PlayerSwitchMod::Draw()
 			}
 
 			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_locationArray.field_0.x, m_locationArray.field_0.y, m_locationArray.field_0.z);
-			ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_locationArray.field_1.x, m_locationArray.field_1.y, m_locationArray.field_1.z);
-			ImGui::Text("Field 2: %f", m_locationArray.field_2);
-			ImGui::Text("Field 3: %d", m_locationArray.field_3);
-			ImGui::Text("Field 4: %d", m_locationArray.field_4);
-			ImGui::Text("Character ID: %d (%s)", m_locationArray.field_5, CharacterIDStr((CharacterID)m_locationArray.field_5));
+			ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_locationArray.field_3.x, m_locationArray.field_3.y, m_locationArray.field_3.z);
+			ImGui::Text("Field 2: %f", m_locationArray.field_6);
+			ImGui::Text("Field 3: %d", m_locationArray.field_7);
+			ImGui::Text("Field 4: %d", m_locationArray.field_8);
+			ImGui::Text("Character ID: %d (%s)", m_locationArray.field_9, CharacterIDStr((CharacterID)m_locationArray.field_9));
 			ImGui::TreePop();
 		}
 	}

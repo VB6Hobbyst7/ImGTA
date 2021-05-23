@@ -17,15 +17,15 @@ struct LocationArray
 {
 	// Global_85405
 	Vector3 field_0 = { 0 }; // 0
-	Vector3 field_1 = { 0 }; // 3
-	float field_2 = 0; // 6
-	DWORD _padding2;
-	int field_3 = 0; // 7
-	DWORD _padding3;
-	int field_4 = 0; // 8
-	DWORD _padding4;
-	int field_5 = 0; // 9
-	DWORD _padding5;
+	Vector3 field_3 = { 0 }; // 3
+	float field_6 = 0; // 6
+	DWORD _padding6;
+	int field_7 = 0; // 7
+	DWORD _padding7;
+	int field_8 = 0; // 8
+	DWORD _padding8;
+	int field_9 = 0; // 9
+	DWORD _padding9;
 }; // Size 10 * 8 bytes
 
 std::string SwitchTypeStr(SwitchType type);

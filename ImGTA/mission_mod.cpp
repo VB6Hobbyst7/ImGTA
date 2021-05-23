@@ -36,10 +36,10 @@ void MissionMod::ResetData()
 	m_currentMission.acronym[0] = '\0';
 	m_currentMission.trigger_id = 0;
 	m_currentMission.characterSetID = 0;
-	m_currentMission.field_5 = 0;
+	m_currentMission.field_12 = 0;
 	m_currentMission.timeframeStart = 0;
 	m_currentMission.timeframeEnd = 0;
-	m_currentMission.field_8 = 0;
+	m_currentMission.field_15 = 0;
 
 	m_currentMission2.field_1 = 0;
 	m_currentMission2.field_2 = 0;
@@ -78,11 +78,16 @@ void MissionMod::UpdateMissionData()
 	m_mission7Size = *(int *)getGlobalPtr(m_missionArray7SizeAddr);
 	m_mission7 = *(MissionArray7 *)getGlobalPtr(missionArray7Offset);
 
+	int missionArray8Offset = m_missionArray8StartAddr + m_missionID8 * sizeof(MissionArray8) / 8;
+	m_mission8Size = *(int *)getGlobalPtr(m_missionArray8SizeAddr);
+	m_mission8 = *(MissionArray8 *)getGlobalPtr(missionArray8Offset);
+
 	m_availableMissionCount = *(int *)getGlobalPtr(GlobalID::_87299);
 	m_missionState = *(int *)getGlobalPtr(GlobalID::_89962);
 	m_deathName = std::string((char *)getGlobalPtr(GlobalID::_68477));
 	m_missionUnk0 = *(int *)getGlobalPtr(GlobalID::_68507);
-	m_missionUnk1 = *(int *)getGlobalPtr(GlobalID::_68523);
+	m_missionUnk68523 = *(int *)getGlobalPtr(GlobalID::_68523);
+	m_missionUnk87298 = *(int *)getGlobalPtr(GlobalID::_87299);
 }
 
 void MissionMod::DrawMenuBar()
@@ -115,6 +120,8 @@ bool MissionMod::Draw()
 	ImGui::Text("Mission state: %d", m_missionState);
 	ImGui::Text("Death name: %s", m_deathName.c_str());
 	ImGui::Text("Unknown0: %d", m_missionUnk0);
+	ImGui::Text("Global_68523: %d", m_missionUnk68523);
+	ImGui::Text("Global_87298: %d", m_missionUnk87298);
 	ImGui::Text("Mission count: %d", m_missionCount);
 
 	ImGui::Separator();
@@ -126,22 +133,28 @@ bool MissionMod::Draw()
 
 		ImGui::Text("Name: %s", m_currentMission.name);
 		ImGui::Text("Hash: %u", m_currentMission.hash);
-		ImGui::Text("Field 2: %d", m_currentMission.field_2);
+		ImGui::Text("Field 2: %d", m_currentMission.field_7);
 		ImGui::Text("Acronym: %s", m_currentMission.acronym);
 		ImGui::Text("Cutscene trigger ID: %d", m_currentMission.trigger_id);
+		ImGui::SameLine();
+		if (ImGui::Button("View"))
+		{
+			if (m_currentMission.trigger_id >= 0)
+				m_missionID3 = m_currentMission.trigger_id;
+		}
 		ImGui::Text("Character List: %d (%s)", m_currentMission.characterSetID,
 			CharacterSetIDStr(m_currentMission.characterSetID).c_str());
-		ImGui::Text("Field 4b: %d", m_currentMission.field_4b);
-		ImGui::Text("Field 5: %d", m_currentMission.field_5);
+		ImGui::Text("Field 4b: %d", m_currentMission.field_11b);
+		ImGui::Text("Field 5: %d", m_currentMission.field_12);
 		ImGui::Text("Timeframe start: %d", m_currentMission.timeframeStart);
 		ImGui::Text("Timeframe end: %d", m_currentMission.timeframeEnd);
-		ImGui::Text("Field 8: %s", m_currentMission.field_8.to_string().c_str());
-		ImGui::Text("Field 9: %d", m_currentMission.field_9);
+		ImGui::Text("Field 8: %s", m_currentMission.field_15.to_string().c_str());
+		ImGui::Text("Field 9: %d", m_currentMission.field_16);
 
-		ImGui::Text("Field 11 size: %d", m_currentMission.field_11_size);
+		ImGui::Text("Field 11 size: %d", m_currentMission.field_17_size);
 		std::string field_11 = "Field 11: ";
-		for (int i = 0; i < m_currentMission.field_11_size; ++i)
-			field_11 += std::to_string(m_currentMission.field_11[i].val) + ", ";
+		for (int i = 0; i < m_currentMission.field_17_size; ++i)
+			field_11 += std::to_string(m_currentMission.field_17[i].val) + ", ";
 		ImGui::Text(field_11.c_str());
 		ImGui::TreePop();
 	}
@@ -149,6 +162,7 @@ bool MissionMod::Draw()
 	ImGui::Separator();
 	if (ImGui::TreeNode("Mission Array 2"))
 	{
+		ImGui::Text("Same ID as mission ID: %d", m_missionID);
 		ImGui::Text("Field 1: %d", m_currentMission2.field_1);
 		ImGui::Text("Field 2: %.2f", m_currentMission2.field_2);
 		ImGui::TreePop();
@@ -165,17 +179,17 @@ bool MissionMod::Draw()
 		ImGui::Text("Field 0 Size: %d", m_mission3.field_0_size);
 		for (int i = 0; i < m_mission3.field_0_size; ++i)
 			ImGui::Text("Field 0[%d]: (%.4f, %.4f, %.4f)", i, m_mission3.positions[i].x, m_mission3.positions[i].y, m_mission3.positions[i].z);
-		ImGui::Text("Field A: %f", m_mission3.field_A);
-		ImGui::Text("Field B: %s", m_mission3.field_B.to_string().c_str());
+		ImGui::Text("Field A: %f", m_mission3.field_10);
+		ImGui::Text("Field B: %s", m_mission3.field_11.to_string().c_str());
 		ImGui::Text("Sprite id size: %d", m_mission3.sprite_id_size);
 		for (int i = 0; i < m_mission3.sprite_id_size; ++i)
 			ImGui::Text("Sprite %d: %d", i, m_mission3.sprite_id[i]);
-		ImGui::Text("Field 10: %d", m_mission3.field_10);
-		ImGui::Text("Field 11: %d", m_mission3.field_11);
-		ImGui::Text("Field 12: %d", m_mission3.field_12);
-		ImGui::Text("Blip ref: %d", m_mission3.field_13);
-		ImGui::Text("Text file: %s", m_mission3.field_14);
-		ImGui::Text("Field 16: %d", m_mission3.field_16);
+		ImGui::Text("Field 10: %d", m_mission3.field_13);
+		ImGui::Text("Field 11: %d", m_mission3.field_14);
+		ImGui::Text("Field 12: %d", m_mission3.field_15);
+		ImGui::Text("Blip ref: %d", m_mission3.field_16);
+		ImGui::Text("Text file: %s", m_mission3.field_17);
+		ImGui::Text("Field 16: %d", m_mission3.field_18);
 		ImGui::TreePop();
 	}
 
@@ -195,18 +209,41 @@ bool MissionMod::Draw()
 		ImGui::Text("Field 3: %d", m_mission4.field_3);
 		ImGui::Text("Field 4: %d", m_mission4.field_4);
 		ImGui::Text("Mission ID: %d", m_mission4.missionID);
-		ImGui::Text("Field 6: %d", m_mission4.field_6);
+		ImGui::SameLine();
+		if (ImGui::Button("View##1"))
+		{
+			if (m_mission4.missionID >= 0)
+				m_missionID = m_mission4.missionID;
+		}
+		ImGui::Text("Mission array 7 ID: %d", m_mission4.missionArray7ID);
+		ImGui::SameLine();
+		if (ImGui::Button("View##2"))
+		{
+			if (m_mission4.missionArray7ID >= 0)
+				m_missionID7 = m_mission4.missionArray7ID;
+		}
 		ImGui::Text("Field 7: %d", m_mission4.field_7);
 		ImGui::Text("Character List: %d, (%s)", m_mission4.field_8, CharacterSetIDStr(m_mission4.field_8).c_str());
 		ImGui::Text("Cutscene Trigger ID: %d", m_mission4.triggerID);
-
-		ImGui::Text("Field A_0: %d", m_mission4.field_A.field_0);
-		ImGui::Text("Field A_1: %s", m_mission4.field_A.field_1.to_string().c_str());
-		ImGui::Text("Field A_2: %f", m_mission4.field_A.field_2);
-		ImGui::Text("Field A_3: %f", m_mission4.field_A.field_3);
-		ImGui::Text("Field A_4: %f", m_mission4.field_A.field_4);
-		ImGui::Text("Field A_5: %f", m_mission4.field_A.field_5);
-		ImGui::Text("Field A_6: %s", m_mission4.field_A.field_6.to_string().c_str());
+		ImGui::SameLine();
+		if (ImGui::Button("View##3"))
+		{
+			if (m_mission4.triggerID >= 0)
+				m_missionID3 = m_mission4.triggerID;
+		}
+		ImGui::Text("Mission ID: %d", m_mission4.field_10.missionID);
+		ImGui::SameLine();
+		if (ImGui::Button("View##4"))
+		{
+			if (m_mission4.field_10.missionID >= 0)
+				m_missionID = m_mission4.field_10.missionID;
+		}
+		ImGui::Text("Field A_1: %s", m_mission4.field_10.field_1.to_string().c_str());
+		ImGui::Text("Distance squared: %f", m_mission4.field_10.distanceSq);
+		ImGui::Text("Distance squared 2: %f", m_mission4.field_10.distanceSq2);
+		ImGui::Text("Distance squared 3: %f", m_mission4.field_10.distanceSq3);
+		ImGui::Text("Distance squared 4: %f", m_mission4.field_10.distanceSq4);
+		ImGui::Text("Field A_6: %s", m_mission4.field_10.field_6.to_string().c_str());
 		ImGui::TreePop();
 	}
 
@@ -218,10 +255,16 @@ bool MissionMod::Draw()
 			m_wantsUpdate = true;
 		}
 
-		ImGui::Text("Field 0: %d", m_mission5.missionArrayID);
+		ImGui::Text("Mission array ID: %d", m_mission5.missionArrayID);
+		ImGui::SameLine();
+		if (ImGui::Button("View"))
+		{
+			if (m_mission5.missionArrayID >= 0)
+				m_missionID = m_mission5.missionArrayID;
+		}
 		ImGui::Text("Field 1: %d", m_mission5.field_1);
 		ImGui::Text("Field 2: %d", m_mission5.field_2);
-		ImGui::Text("Field 3: %d", m_mission5.field_3);
+		ImGui::Text("Money spent?: %d", m_mission5.moneySpent);
 		ImGui::TreePop();
 	}
 
@@ -234,7 +277,13 @@ bool MissionMod::Draw()
 		}
 		ImGui::Text("Hash: %d", m_mission6.hash);
 		ImGui::Text("Field 1: %d", m_mission6.field_1);
-		ImGui::Text("Field 2: %d", m_mission6.field_2);
+		ImGui::Text("Mission array 5 ID: %d", m_mission6.missionArray5ID);
+		ImGui::SameLine();
+		if (ImGui::Button("View"))
+		{
+			if (m_mission6.missionArray5ID >= 0)
+				m_missionID5 = m_mission6.missionArray5ID;
+		}
 		ImGui::TreePop();
 	}
 
@@ -246,8 +295,26 @@ bool MissionMod::Draw()
 			m_wantsUpdate = true;
 		}
 		ImGui::Text("Field 0: %s", m_mission7.field_0.to_string().c_str());
-		ImGui::Text("Field 1: %d", m_mission7.field_1);
-		ImGui::Text("Field 2: %d", m_mission7.field_2);
+		ImGui::Text("Mission array 6 ID: %d", m_mission7.missionArray6ID);
+		ImGui::SameLine();
+		if (ImGui::Button("View"))
+		{
+			if (m_mission7.missionArray6ID >= 0)
+				m_missionID6 = m_mission7.missionArray6ID;
+		}
+		ImGui::Text("Hash: %d", m_mission7.hash);
+		ImGui::TreePop();
+	}
+
+	ImGui::Separator();
+	if (ImGui::TreeNode("Array 8"))
+	{
+		if (ImGui::InputInt("Array 8 ID", &m_missionID8)) {
+			ClipInt(m_missionID8, 0, m_mission8Size - 1);
+			m_wantsUpdate = true;
+		}
+		ImGui::Text("Mission array 6 ID min?: %d", m_mission8.missionArray6IDMin);
+		ImGui::Text("Mission array 6 ID max?: %d", m_mission8.missionArray6IDMax);
 		ImGui::TreePop();
 	}
 

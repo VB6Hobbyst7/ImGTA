@@ -66,7 +66,7 @@ bool CommsMod::Draw()
 
 	if (m_supportGlobals)
 	{
-		if (ImGui::TreeNode("Messages"))
+		if (ImGui::TreeNode("Messages?"))
 		{
 			if (ImGui::InputInt("Message ID", &m_characterID))
 			{
@@ -79,23 +79,23 @@ bool CommsMod::Draw()
 			ImGui::Text("Field 2: %d", m_characterArray.field_2);
 			ImGui::Text("Field 3: %s", m_characterArray.field_3);
 			ImGui::Text("Field 7: %s", m_characterArray.field_7);
-			ImGui::Text("Field B: %d", m_characterArray.field_B);
-			ImGui::Text("Field C: %d", m_characterArray.field_C_size);
+			ImGui::Text("Field B: %d", m_characterArray.field_11);
+			ImGui::Text("Field C: %d", m_characterArray.field_12_size);
 			std::string field_C = "Field C: ";
-			for (int i = 0; i < m_characterArray.field_C_size; ++i)
-				field_C += std::to_string(m_characterArray.field_C[i].val) + ", ";
+			for (int i = 0; i < m_characterArray.field_12_size; ++i)
+				field_C += std::to_string(m_characterArray.field_12[i].val) + ", ";
 			ImGui::Text(field_C.c_str());
-			ImGui::Text("Field 11: %d", m_characterArray.field_11);
-			ImGui::Text("Field 12: %d", m_characterArray.field_12);
-			ImGui::Text("Field 13: %d", m_characterArray.field_13_size);
+			ImGui::Text("Field 11: %d", m_characterArray.field_17);
+			ImGui::Text("Field 12: %d", m_characterArray.field_18);
+			ImGui::Text("Field 13: %d", m_characterArray.field_20_size);
 			std::string field_13 = "Field 13: ";
-			for (int i = 0; i < m_characterArray.field_13_size; ++i)
-				field_13 += std::to_string(m_characterArray.field_13[i].val) + ", ";
+			for (int i = 0; i < m_characterArray.field_20_size; ++i)
+				field_13 += std::to_string(m_characterArray.field_20[i].val) + ", ";
 			ImGui::Text(field_13.c_str());
-			ImGui::Text("Field 18: %d", m_characterArray.field_18_size);
+			ImGui::Text("Field 18: %d", m_characterArray.field_25_size);
 			std::string field_18 = "Field 18: ";
-			for (int i = 0; i < m_characterArray.field_18_size; ++i)
-				field_18 += std::to_string(m_characterArray.field_18[i].val) + ", ";
+			for (int i = 0; i < m_characterArray.field_25_size; ++i)
+				field_18 += std::to_string(m_characterArray.field_25[i].val) + ", ";
 			ImGui::Text(field_18.c_str());
 			ImGui::TreePop();
 		}

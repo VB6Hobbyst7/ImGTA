@@ -6,7 +6,7 @@
 
 struct MessageArray
 {
-	// Global_127127 Global_17C49.f_744E
+	// Global_127127 -> Global_97353.f_29774
 	int field_0; // Hash example 'ig_devin' -> Look in standard_global_reg for correspondance
 	DWORD _padding0;
 	int field_1;
@@ -15,21 +15,21 @@ struct MessageArray
 	DWORD _padding2;
 	char field_3[32];
 	char field_7[32];
-	int field_B;
-	DWORD _paddingB;
-	int field_C_size; // 4?
-	DWORD _paddingC;
-	PaddedInt field_C[4];
-	int field_11;
+	int field_11; // 11
 	DWORD _padding11;
-	int field_12;
+	int field_12_size; // 12 // size 4?
 	DWORD _padding12;
-	int field_13_size = 4;
-	DWORD _padding13;
-	PaddedInt field_13[4];
-	int field_18_size; // 4?
+	PaddedInt field_12[4];
+	int field_17; // 17
+	DWORD _padding17;
+	int field_18; // 18
 	DWORD _padding18;
-	PaddedInt field_18[4];
+	int field_20_size = 4; // 19
+	DWORD _padding20;
+	PaddedInt field_20[4]; // 20
+	int field_25_size; // 25 // 4?
+	DWORD _padding25;
+	PaddedInt field_25[4];
 }; // Size 29 * 8 bytes
 
 // TODO
