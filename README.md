@@ -42,7 +42,7 @@ Note:
   * Show pedestrians and vehicles in game (id, life)
   * Entity list of variables (type, health, injured, model, position, is mission entity)
 * Lua console
-  * Can call all natives directly within the game
+  * Call all natives directly within the game
 * Area
   * Draw box in game
   * Check if ped in angled are
@@ -60,3 +60,10 @@ Note:
 * Synchronized Scene
   * Synchronized scene (loop, set phase, set rate, set hold last frame)
   * List running synchronized scene
+
+# Indirect contributors
+Thank you to everyone that indirectly contributed to this mod's functionalities:
+* GTA V Speedruns discord members (https://www.speedrun.com/gtav):  All its coding community and special mentions to: Parik, Gogsi123, Justice
+* Script research: https://github.com/drunderscore/GTA-Research
+* Native DB 1: http://www.dev-c.com/nativedb/
+* Native DB 2: https://alloc8or.re/gta5/nativedb/
