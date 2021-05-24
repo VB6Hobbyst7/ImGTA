@@ -27,15 +27,20 @@ struct MessageArray
 	int field_20_size = 4; // 19
 	DWORD _padding20;
 	PaddedInt field_20[4]; // 20
-	int field_25_size; // 25 // 4?
+	int field_25_size; // 25 // size 4?
 	DWORD _padding25;
 	PaddedInt field_25[4];
 }; // Size 29 * 8 bytes
 
-// TODO
-/*struct MessageArray2 {
+struct MessageArray2 {
 	// Global_97
-};*/ // Size 
+	char f_0[32]; // 0
+	char f_4[32]; // 3
+	int f_8; // 8
+	DWORD _padding8;
+	int f_9; // 9
+	DWORD _padding9;
+}; // Size 10 * 8 bytes
 
 
 class CommsMod : public Mod
@@ -56,10 +61,18 @@ private:
 	void UpdateLocationData();
 		
 	MessageArray m_characterArray;
+	MessageArray2 m_messageArray2;
 	int m_characterID = 0;
+	int m_messageArrayID2 = 0;
 	int m_characterCount = 0;
+	int m_messageArray2Count = 0;
 	int m_characterArraySizeAddr = GlobalID::_127127;
 	int m_characterArrayStartAddr = m_characterArraySizeAddr + 1;
+	int m_messageArray2SizeAddr = GlobalID::_97;
+	int m_messageArray2StartAddr = m_messageArray2SizeAddr + 1;
+
+	std::string m_unk15750 = "";
+	std::string m_unk15756 = "";
 
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

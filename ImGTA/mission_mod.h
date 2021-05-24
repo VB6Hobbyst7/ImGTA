@@ -33,7 +33,7 @@ struct MissionArray {
 	int field_7 = 0; // 7
 	DWORD _paddings7;
 	char acronym[16] = { '\0' }; // 8
-	int trigger_id = 0; // 10
+	int triggerId = 0; // 10
 	DWORD _paddings10;
 	int characterSetID = 0; // 11 or set of character (bit0: michael, bit1: franklin, bit2: trevor)
 	int field_11b = 0;
@@ -139,13 +139,58 @@ struct MissionArray5 {
 	DWORD _padding3;
 }; // Size 4 * 8 bytes
 
+struct MissionArray5Bis {
+	// Global_75198 -> Global_68514.f_6684
+	int f_0;
+	DWORD _padding0;
+	int f_1;
+	DWORD _padding1;
+	int f_2;
+	DWORD _padding2;
+	int f_3;
+	DWORD _padding3;
+	int f_4;
+	DWORD _padding4;
+	int f_5;
+	DWORD _padding5;
+	int f_6;
+	DWORD _padding6;
+	int f_7;
+	DWORD _padding7;
+	int f_8;
+	DWORD _padding8;
+	int f_9;
+	DWORD _padding9;
+	int f_10;
+	DWORD _padding10;
+	int f_11;
+	DWORD _padding11;
+	int f_12;
+	DWORD _padding12;
+	int f_13;
+	DWORD _padding13;
+}; // Size 14 * 8 bytes
+
+struct MissionArray5Bis2 {
+	// Global_72674 -> Global_68514.f_4160
+	char scriptName[64];
+	int stackSize;
+	DWORD _padding8;
+	int f_9;
+	DWORD _padding9;
+	int f_10;
+	DWORD _padding10;
+	int f_11;
+	DWORD _padding11;
+}; // Size 12 * 8 bytes
+
 struct MissionArray6 {
 	// Global_75339 -> Global_68514.f_6825
 	int hash; // 0
 	DWORD _padding0;
-	int field_1;
+	int missionArray10ID; // Index of Array10
 	DWORD _padding1;
-	int missionArray5ID; // 2
+	int missionArray5ID; // 2 // Sometimes a weird multiple of 1000000 is added
 	DWORD _padding2;
 }; // Size 3 * 8 bytes
 
@@ -164,6 +209,25 @@ struct MissionArray8 {
 	DWORD _padding0;
 	int missionArray6IDMax;
 	DWORD _padding1;
+};
+
+struct MissionArray9 {
+	// Global_81119
+	int missionArray5ID; // 0 
+	DWORD _padding0;
+	std::bitset<64> f_1;
+	int f_2;
+	DWORD _padding2;
+	int f_3; // 3
+	DWORD _padding3;
+	int threadId; // 4
+	DWORD _padding4;
+}; // Size 5 * 8 bytes
+
+struct MissionArray10 {
+	// Global_81106 -> Global_68514.f_12592
+	int missionArray5ID; // 0
+	DWORD _padding0;
 };
 
 struct StrangersAndFreaksArray2 {
@@ -206,46 +270,69 @@ private:
 	MissionArray3 m_mission3;
 	MissionArray4 m_mission4;
 	MissionArray5 m_mission5;
+	MissionArray5Bis m_mission5Bis;
+	MissionArray5Bis2 m_mission5Bis2;
 	MissionArray6 m_mission6;
 	MissionArray7 m_mission7;
 	MissionArray8 m_mission8;
+	MissionArray9 m_mission9;
+	MissionArray10 m_mission10;
 	int m_missionCount = 0;
+	int m_mission2Size = 0;
 	int m_mission3Size = 0;
 	int m_mission4Size = 0;
 	int m_mission5Size = 0;
+	int m_mission5BisSize = 0;
+	int m_mission5Bis2Size = 0;
 	int m_mission6Size = 0;
 	int m_mission7Size = 0;
 	int m_mission8Size = 0;
+	int m_mission9Size = 0;
+	int m_mission10Size = 0;
 	int m_missionArraySizeAddr = GlobalID::_81155;
 	int m_missionArrayStartAddr = m_missionArraySizeAddr + 1;
-	int m_missionArray2StartAddr = GlobalID::_84353;
+	int m_missionArray2SizeAddr = GlobalID::_84352;
+	int m_missionArray2StartAddr = m_missionArray2SizeAddr + 1;
 	int m_missionArray3SizeAddr = GlobalID::_24748;
 	int m_missionArray3StartAddr = m_missionArray3SizeAddr + 1;
 	int m_missionArray4SizeAddr = GlobalID::_87300;
 	int m_missionArray4StartAddr = m_missionArray4SizeAddr + 1;
 	int m_missionArray5SizeAddr = GlobalID::_68623;
 	int m_missionArray5StartAddr = m_missionArray5SizeAddr + 1;
+	int m_missionArray5BisSizeAddr = GlobalID::_75198;
+	int m_missionArray5BisStartAddr = m_missionArray5BisSizeAddr + 1;
+	int m_missionArray5Bis2SizeAddr = GlobalID::_72674;
+	int m_missionArray5Bis2StartAddr = m_missionArray5Bis2SizeAddr + 1;
 	int m_missionArray6SizeAddr = GlobalID::_75339;
 	int m_missionArray6StartAddr = m_missionArray6SizeAddr + 1;
 	int m_missionArray7SizeAddr = GlobalID::_104696;
 	int m_missionArray7StartAddr = m_missionArray7SizeAddr + 1;
 	int m_missionArray8SizeAddr = GlobalID::_81040;
 	int m_missionArray8StartAddr = m_missionArray8SizeAddr + 1;
+	int m_missionArray9SizeAddr = GlobalID::_81119;
+	int m_missionArray9StartAddr = m_missionArray9SizeAddr + 1;
+	int m_missionArray10SizeAddr = GlobalID::_81106;
+	int m_missionArray10StartAddr = m_missionArray10SizeAddr + 1;
+
 
 	int m_availableMissionCount = 0;
 	int m_missionState = 0;
 	std::string m_deathName = "";
 	int m_missionUnk0 = 0;
 	int m_missionUnk68523 = 0;
+	int m_missionUnk87289 = 0; // Mission ID used to check the available mission number by mission_triggerer
+	int m_missionUnk87290 = 0; // Similar to Global_87290
 	int m_missionUnk87298 = 0;
+	int m_missionUnk81105 = 0; // An array 6 ID
 
 
 	StrangersAndFreaksArray m_safArray;
 	StrangersAndFreaksArray2 m_safArray2;
 	int m_safArray2SizeAddr = GlobalID::_114181;
 	int m_safArray2StartAddr = m_safArray2SizeAddr + 1;
+	int m_safCount = 63; // Hardcoded, taken from script: Max case in strangers_and_freaks_names
+	int m_saf2Size = 0;
 	int m_safID = 0;
-	int m_safCount = 63;
 	bool m_updateSafArray;
 
 
@@ -258,6 +345,8 @@ private:
 	int m_missionID6 = 0;
 	int m_missionID7 = 0;
 	int m_missionID8 = 0;
+	int m_missionID9 = 0;
+	int m_missionID10 = 0;
 	bool m_constantUpdate = true;
 	char m_animDictInput[256] = "";
 	char m_animNameInput[256] = "";

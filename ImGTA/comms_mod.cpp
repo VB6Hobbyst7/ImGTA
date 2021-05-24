@@ -35,6 +35,13 @@ void CommsMod::UpdateLocationData()
 		int characterArrayOffset = m_characterArrayStartAddr + m_characterID * sizeof(MessageArray) / 8;
 		m_characterCount = *(int *)getGlobalPtr(m_characterArraySizeAddr);
 		m_characterArray = *(MessageArray *)getGlobalPtr(characterArrayOffset);
+
+		int messageArray2Offset = m_messageArray2StartAddr + m_characterID * sizeof(MessageArray2) / 8;
+		m_messageArray2Count = *(int *)getGlobalPtr(m_messageArray2SizeAddr);
+		m_messageArray2 = *(MessageArray2 *)getGlobalPtr(messageArray2Offset);
+
+		m_unk15750 = std::string((char *)getGlobalPtr(GlobalID::_15750));
+		m_unk15756 = std::string((char *)getGlobalPtr(GlobalID::_15756));
 	}
 }
 
@@ -64,8 +71,13 @@ bool CommsMod::Draw()
 		if (ImGui::Button("Update"))
 			m_wantsUpdate = true;
 
+	ImGui::Separator();
+	ImGui::Text("Unk15750: %s", m_unk15750.c_str());
+	ImGui::Text("Unk15756: %s", m_unk15756.c_str());
+
 	if (m_supportGlobals)
 	{
+		ImGui::Separator();
 		if (ImGui::TreeNode("Messages?"))
 		{
 			if (ImGui::InputInt("Message ID", &m_characterID))
@@ -73,6 +85,8 @@ bool CommsMod::Draw()
 				ClipInt(m_characterID, 0, m_characterCount - 1);
 				m_wantsUpdate = true;
 			}
+			ImGui::SameLine();
+			ImGui::Text("< %d", m_characterCount);
 
 			ImGui::Text("Hash: %d", m_characterArray.field_0);
 			ImGui::Text("Field 1: %d", m_characterArray.field_1);
@@ -97,6 +111,19 @@ bool CommsMod::Draw()
 			for (int i = 0; i < m_characterArray.field_25_size; ++i)
 				field_18 += std::to_string(m_characterArray.field_25[i].val) + ", ";
 			ImGui::Text(field_18.c_str());
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNode("Call numbers?"))
+		{
+			ImGui::Text("Same ID as mission ID: %d", m_characterID);
+			ImGui::SameLine();
+			ImGui::Text("< %d", m_messageArray2Count);
+			ImGui::Text("Field 0: %s", m_messageArray2.f_0);
+			ImGui::Text("Field 4: %s", m_messageArray2.f_4);
+			ImGui::Text("Field 8: %d", m_messageArray2.f_8);
+			ImGui::Text("Field 9: %d", m_messageArray2.f_9);
 			ImGui::TreePop();
 		}
 	}
