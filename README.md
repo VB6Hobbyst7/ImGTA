@@ -3,34 +3,36 @@ This mod helps you debug GTA V scripts by watching and interacting with internal
 Some of the functionalities are only available to GTA V build version 372 (online 1.27) because they use global addresses directly and these are dependent on version.<br />
 As the information based on globals is reverse engineered, it is sometimes without useful description or it can be wrongly described. Please let us know if you have any correction.
 
-# Mod menu (V1.0)
-![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameMenu.jpg?raw=true)
+# Mod menu (V1.2)
 ![Mod Menu Detail](https://github.com/Rayope/ImGTA/blob/master/Images/InGameMenuDetail.jpg?raw=true)
 
-# Mod in-game displays (V1.0)
-Note:
-* It shows nearby animals as well (e.g., Ped 24834)<br />
-* The nearby pedestrians and vehicles that are not in the field of view have their information displayed on the sides
-![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameDisplay.jpg?raw=true)
+# Mod in-game displays (V1.2)
+![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameHUD.jpg?raw=true)
+Notes:
+* It shows nearby animals as well<br />
 
-# List of all modules
+# List of all modules (V1.2)
 * Cheats (main menu):
   * Player modifications (heal, kill, teleport, add weapon)
   * Vehicle (repair, destroy)
   * World (spawn vehicle)
-  * HUD (font sizes)
+  * HUD (font sizes/color, km/h - m/s, show available inputs)
   * Player debug variables (handle, position, health, armour, speed, speed vector, game time)
 * Audio
   * Conversation (restart, stop, pause, skip to next line, start preloaded conversation)
   * Audio scenes (start, set variable, stop)
   * Music events (prepare, trigger, cancel)
-  * Audio list of variables ((new) name/source of current conversation)
+  * Audio list of variables (name/source of current conversation)
 * Cutscene
-  * Cutscene (request (new list with names), list loaded cutscene, unload, start, stop, set variable)
-  * Cutscene list of variables
+  * Cutscene (request (list with names), unload, start, stop, set variable, set thread owner)
+  * Cutscene list of variables for the currently loaded one
 * Scripts
   * List running scripts (name, handle)
-  * Start script
+  * Display in game
+  * Pin a script to the top of display
+  * Order scripts by name/handle
+  * Start/Terminate script
+  * Loading screen (toggle)
 * Memory watcher
   * Variable types (int, float, string, vector, bitfield)
   * Watch local (script) variable from index
@@ -43,6 +45,8 @@ Note:
   * Entity list of variables (type, health, injured, model, position, is mission entity)
 * Lua console
   * Call all natives directly within the game
+  * Autocompletion for natives
+  * Command history
 * Area
   * Draw box in game
   * Check if ped in angled are
@@ -55,11 +59,12 @@ Note:
 * Player switch (in development)
   * Switch variables (in progress, type, state)
   * Player switch locations list of variables
-* Comms
+* Comms (in development)
   * A stub at the moment
 * Synchronized Scene
   * Synchronized scene (loop, set phase, set rate, set hold last frame)
   * List running synchronized scene
+* User settings
 
 # Indirect contributors
 Thank you to everyone that indirectly contributed to this mod's functionalities:
