@@ -1,6 +1,14 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "cutscene_mod.h"
 #include "natives.h"
 #include "script.h"
+#include "utils.h"
 #include "imgui_extras.h"
 #include "cutscene_names.h"
 
@@ -9,12 +17,14 @@
 
 void CutsceneMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().cutscene;
 }
 
 void CutsceneMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().cutscene = m_settings;
 }
 
 void CutsceneMod::Think()
@@ -29,8 +39,22 @@ void CutsceneMod::Think()
 	m_cutsceneTotalDuration = CUTSCENE::GET_CUTSCENE_TOTAL_DURATION();
 	m_cutsceneSectionPlaying = CUTSCENE::GET_CUTSCENE_SECTION_PLAYING();
 
-	m_canRequestAssetsForCutsceneEntity = CUTSCENE::CAN_REQUEST_ASSETS_FOR_CUTSCENE_ENTITY(); // CAN_REQUEST_ASSETS_FOR_CUTSCENE_ENTITY
-	m_hasCutsceneCutThisFrame = CUTSCENE::_HAS_CUTSCENE_CUT_THIS_FRAME(); // HAS_CUTSCENE_CUT_THIS_FRAME
+	m_canRequestAssetsForCutsceneEntity = CUTSCENE::CAN_REQUEST_ASSETS_FOR_CUTSCENE_ENTITY();
+	m_hasCutsceneCutThisFrame = CUTSCENE::_HAS_CUTSCENE_CUT_THIS_FRAME();
+
+	bool found = false;
+	for (int i = 0; i < IM_ARRAYSIZE(cutsceneNames); i++)
+	{
+		// There should only be one loaded cutscene
+		if (CUTSCENE::HAS_THIS_CUTSCENE_LOADED((char *)cutsceneNames[i]))
+		{
+			m_loadedCutsceneId = i;
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+		m_loadedCutsceneId = -1;
 }
 
 void CutsceneMod::DrawMenuBar()
@@ -51,7 +75,7 @@ void CutsceneMod::DrawMenuBar()
 					{
 						if (ImGui::MenuItem(cutsceneNames[i]))
 						{
-							RunOnNativeThread([=]
+							m_dllObject.RunOnNativeThread([=]
 							{
 								CUTSCENE::REQUEST_CUTSCENE((char *)cutsceneNames[i], m_cutsceneId);
 							});
@@ -62,36 +86,27 @@ void CutsceneMod::DrawMenuBar()
 				ImGui::EndMenu();
 			}
 
-			if (ImGui::BeginMenu("Loaded Cutscene"))
-			{
-				RunOnNativeThread([=]
-				{
-					bool found = false;
-					for (int i = 0; i < IM_ARRAYSIZE(cutsceneNames); i++)
-					{
-						// There should only be one loaded cutscene maximum
-						if (CUTSCENE::HAS_THIS_CUTSCENE_LOADED((char *)cutsceneNames[i]))
-						{
-							m_loadedCutsceneId = i;
-							found = true;
-						}
-					}
-					if (!found)
-						m_loadedCutsceneId = -1;
-				});
-				if (m_loadedCutsceneId != -1)
-					ImGui::Text(cutsceneNames[m_loadedCutsceneId]);
-				else
-					ImGui::Text("None loaded.");
-				ImGui::EndMenu();
-			}
-
 			if (ImGui::MenuItem("Unload"))
 			{
-				RunOnNativeThread([]
+				m_dllObject.RunOnNativeThread([]
 				{
 					CUTSCENE::REMOVE_CUTSCENE();
 				});
+			}
+
+			if (ImGui::BeginMenu("Set cutscene owner"))
+			{
+				ImGui::InputInt("Thread ID", &m_threadId);
+				// Should Check the min/max IDs from thread list
+				ClipInt(m_threadId, 0, 1000);
+				if (ImGui::Button("Set"))
+				{
+					m_dllObject.RunOnNativeThread([=]
+					{
+						CUTSCENE::_0x8D9DF6ECA8768583(m_threadId);
+					});
+				}
+				ImGui::EndMenu();
 			}
 
 			ImGui::Separator();
@@ -102,7 +117,7 @@ void CutsceneMod::DrawMenuBar()
 
 				if (ImGui::MenuItem("Start##CutsceneStart"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						CUTSCENE::START_CUTSCENE(m_cutsceneStartFlags);
 					});
@@ -113,7 +128,7 @@ void CutsceneMod::DrawMenuBar()
 					ImGuiExtras::InputVector3("CutsceneStartPosition", &m_startPos);
 					if (ImGui::Button("Set to current position"))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							m_startPos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
 						});
@@ -121,7 +136,7 @@ void CutsceneMod::DrawMenuBar()
 
 					if (ImGui::Button("Start##CutsceneStartAtPosition"))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							CUTSCENE::START_CUTSCENE_AT_COORDS(m_startPos.x, m_startPos.y, m_startPos.z, m_cutsceneStartFlags);
 						});
@@ -137,7 +152,7 @@ void CutsceneMod::DrawMenuBar()
 			{
 				if (ImGui::MenuItem("Stop##StopCutsceneDefault"))
 				{
-					RunOnNativeThread([]
+					m_dllObject.RunOnNativeThread([]
 					{
 						CUTSCENE::STOP_CUTSCENE(TRUE);
 					});
@@ -145,7 +160,7 @@ void CutsceneMod::DrawMenuBar()
 
 				if (ImGui::MenuItem("Stop Immediately"))
 				{
-					RunOnNativeThread([]
+					m_dllObject.RunOnNativeThread([]
 					{
 						CUTSCENE::STOP_CUTSCENE_IMMEDIATELY();
 					});
@@ -160,7 +175,7 @@ void CutsceneMod::DrawMenuBar()
 				ImGui::InputFloat("Value", &m_audioVariableValue);
 				if (ImGui::MenuItem("Set"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						AUDIO::_SET_VARIABLE_ON_CUTSCENE_AUDIO(m_audioVariableName, m_audioVariableValue);
 					});
@@ -174,7 +189,7 @@ void CutsceneMod::DrawMenuBar()
 				ImGui::InputInt("Param1", &m_param1);
 				if (ImGui::MenuItem("Run"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						CUTSCENE::_0x20746F7B1032A3C7(m_param0, m_param1, true, false);
 					});
@@ -191,10 +206,15 @@ void CutsceneMod::DrawMenuBar()
 
 bool CutsceneMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+
+	if (m_loadedCutsceneId != -1)
+		ImGui::Text("Loaded Cutscene Name: %s", cutsceneNames[m_loadedCutsceneId]);
+	else
+		ImGui::Text("Loaded Cutscene Name: None loaded.");
 	ImGui::Text("Has Loaded: %d", m_hasCutsceneLoaded);
 	ImGui::Text("Has Finished: %d", m_hasCutsceneFinished);
 	ImGui::Text("Was Skipped: %d", m_wasCutsceneSkipped);

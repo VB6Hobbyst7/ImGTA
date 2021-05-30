@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
-#include "types.h"
+
+struct AudioSettings;
 
 class AudioMod : public Mod
 {
 public:
-	AudioMod(bool supportGlobals) : Mod("Audio", true, supportGlobals)
+	AudioMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Audio", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
@@ -18,6 +26,7 @@ public:
 private:
 	void DrawMenuBar();
 
+	AudioSettings m_settings;
 	bool m_isRingtonePlaying = false;
 	bool m_isCallOngoing = false;
 

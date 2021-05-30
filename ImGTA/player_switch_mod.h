@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
-#include "lua_engine.h"
 #include "types.h"
-#include "mission_mod.h"
+#include "utils.h"
 
+struct PlayerSwitchSettings;
 
 enum class SwitchType
 {
@@ -13,19 +19,19 @@ enum class SwitchType
 	SWITCH_TYPE_SHORT = 3
 };
 
-struct LocationArray
+struct SwitchArray
 {
 	// Global_85405
 	Vector3 field_0 = { 0 }; // 0
-	Vector3 field_1 = { 0 }; // 3
-	float field_2 = 0; // 6
-	DWORD _padding2;
-	int field_3 = 0; // 7
-	DWORD _padding3;
-	int field_4 = 0; // 8
-	DWORD _padding4;
-	int field_5 = 0; // 9
-	DWORD _padding5;
+	Vector3 field_3 = { 0 }; // 3
+	float field_6 = 0; // 6
+	DWORD _padding6;
+	int field_7 = 0; // 7
+	DWORD _padding7;
+	int field_8 = 0; // 8
+	DWORD _padding8;
+	int field_9 = 0; // 9
+	DWORD _padding9;
 }; // Size 10 * 8 bytes
 
 std::string SwitchTypeStr(SwitchType type);
@@ -33,10 +39,7 @@ std::string SwitchTypeStr(SwitchType type);
 class PlayerSwitchMod : public Mod
 {
 public:
-	PlayerSwitchMod(bool supportGlobals) : Mod("Player Switch", true, supportGlobals)
-	{
-		m_windowFlags = ImGuiWindowFlags_MenuBar;
-	}
+	PlayerSwitchMod(DLLObject & dllObject, bool supportGlobals);
 
 	bool Draw() override;
 	void Think() override;
@@ -47,6 +50,7 @@ private:
 	void DrawMenuBar();
 	void UpdateLocationData();
 
+	PlayerSwitchSettings m_settings;
 	bool m_switchInProgress = false;
 	int m_switchType = 0;
 	int m_switchState = 0;
@@ -55,10 +59,7 @@ private:
 	int m_currentCharacterID = 0;
 	int m_previousCharacterID = 0;
 
-	LocationArray m_locationArray;
-	int m_locationCount = 0;
-	int m_locationArraySizeAddr = GlobalID::_85405;
-	int m_locationArrayStartAddr = m_locationArraySizeAddr + 1;
+	GlobalArray<SwitchArray> m_gSwitch1;
 	
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

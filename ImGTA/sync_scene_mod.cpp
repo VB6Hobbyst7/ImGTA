@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "sync_scene_mod.h"
 #include "natives.h"
 #include "script.h"
@@ -7,12 +13,14 @@
 
 void SyncSceneMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().syncScene;
 }
 
 void SyncSceneMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().syncScene = m_settings;
 }
 
 void SyncSceneMod::Think()
@@ -36,6 +44,7 @@ void SyncSceneMod::ResetData()
 
 void SyncSceneMod::ListRunning()
 {
+	std::lock_guard<std::mutex> lock(m_runningListMutex);
 	m_runningList = "";
 	for (int i = 0; i < 500; i++)
 	{
@@ -61,7 +70,7 @@ void SyncSceneMod::DrawMenuBar()
 		{
 			if (ImGui::MenuItem("Loop"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					PED::SET_SYNCHRONIZED_SCENE_LOOPED(m_handleInput, !m_looped);
 				});
@@ -72,7 +81,7 @@ void SyncSceneMod::DrawMenuBar()
 				ImGui::InputFloat("Phase", &m_phaseInput);
 				if (ImGui::Button("Set"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						if (m_phaseInput >= 0 && m_phaseInput <= 1)
 							PED::SET_SYNCHRONIZED_SCENE_PHASE(m_handleInput, m_phaseInput);
@@ -86,7 +95,7 @@ void SyncSceneMod::DrawMenuBar()
 				ImGui::InputFloat("Rate", &m_rateInput);
 				if (ImGui::Button("Set"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						if (m_rateInput >= 0 && m_rateInput <= 2)
 							PED::SET_SYNCHRONIZED_SCENE_RATE(m_handleInput, m_rateInput);
@@ -97,7 +106,7 @@ void SyncSceneMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Set hold last frame"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					PED::SET_SYNCHRONIZED_SCENE_HOLD_LAST_FRAME(m_handleInput, !m_holdLastFrame);
 				});
@@ -113,10 +122,10 @@ void SyncSceneMod::DrawMenuBar()
 
 bool SyncSceneMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -125,9 +134,10 @@ bool SyncSceneMod::Draw()
 
 
 	ImGui::Separator();
-	if (ImGui::TreeNode("Synchronized scene"))
+	if (ImGui::TreeNodeEx("Synchronized scene", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
-		if (ImGui::InputInt("Handle", &m_handleInput))
+		ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+		if (ImGui::InputInt("ID", &m_handleInput))
 		{
 			if (m_handleInput < 0)
 				m_handleInput = 0;
@@ -143,6 +153,7 @@ bool SyncSceneMod::Draw()
 	}
 
 	ImGui::Separator();
+	std::lock_guard<std::mutex> lock(m_runningListMutex);
 	ImGui::Text("Running scene list: %s", m_runningList.c_str());
 
 	return true;

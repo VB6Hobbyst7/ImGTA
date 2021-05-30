@@ -1,12 +1,19 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
+#include <mutex>
 #include "mod.h"
-#include "lua_engine.h"
-#include "types.h"
+
+struct SyncSceneSettings;
 
 class SyncSceneMod : public Mod
 {
 public:
-	SyncSceneMod(bool supportGlobals) : Mod("Synchronized Scene", true, supportGlobals)
+	SyncSceneMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Synchronized Scene", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
@@ -22,12 +29,14 @@ private:
 	void ResetData();
 	void ListRunning();
 
+	SyncSceneSettings m_settings;
 	float m_phase = 0;
 	float m_rate = 0;
 	int m_looped = 0;
 	bool m_running = 0;
 	bool m_holdLastFrame = false;
 	std::string m_runningList = "";
+	std::mutex m_runningListMutex;
 
 	float m_phaseInput = 0;
 	float m_rateInput = 0;

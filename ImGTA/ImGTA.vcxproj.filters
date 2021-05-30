@@ -9,52 +9,52 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Mods">
-      <UniqueIdentifier>{be26e139-5060-494e-9460-713983f2ded4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ImGui">
       <UniqueIdentifier>{428fc954-c067-4292-877f-75e68df3061d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mods\Cheats">
-      <UniqueIdentifier>{b2db65e6-29cc-4eec-9083-d3f6885a62f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mods\Cutscene">
-      <UniqueIdentifier>{294114b7-0dd7-49bb-b29d-e3875e673358}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mods\Audio">
-      <UniqueIdentifier>{7564534f-44ac-4002-925a-6c74ce9b7e05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mods\Handle Helper">
-      <UniqueIdentifier>{f8f56920-70bb-41e1-a4ef-93ce88fabecc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mods\Scripts">
-      <UniqueIdentifier>{7bc33f28-37af-4613-972f-60eb1ea47809}</UniqueIdentifier>
     </Filter>
     <Filter Include="Requestables">
       <UniqueIdentifier>{ea698fb8-29d3-4524-808d-5d109ddafde4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Lua Console">
+    <Filter Include="Modules">
+      <UniqueIdentifier>{be26e139-5060-494e-9460-713983f2ded4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Cheats">
+      <UniqueIdentifier>{b2db65e6-29cc-4eec-9083-d3f6885a62f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Cutscene">
+      <UniqueIdentifier>{294114b7-0dd7-49bb-b29d-e3875e673358}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Audio">
+      <UniqueIdentifier>{7564534f-44ac-4002-925a-6c74ce9b7e05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Handle Helper">
+      <UniqueIdentifier>{f8f56920-70bb-41e1-a4ef-93ce88fabecc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Scripts">
+      <UniqueIdentifier>{7bc33f28-37af-4613-972f-60eb1ea47809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Modules\Lua Console">
       <UniqueIdentifier>{e9d83fc9-b896-4055-b615-dd54bbdc9d32}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Switch">
+    <Filter Include="Modules\Switch">
       <UniqueIdentifier>{970081f7-4787-4f23-8afe-a7d85cf28caf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Synchronized Scene">
+    <Filter Include="Modules\Synchronized Scene">
       <UniqueIdentifier>{3db4fc1f-8a83-4b40-a3a8-f72e1897f188}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Test">
+    <Filter Include="Modules\Test">
       <UniqueIdentifier>{be531a32-803d-4b9d-a264-0f9e44583bfa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Mission">
+    <Filter Include="Modules\Mission">
       <UniqueIdentifier>{a282b88b-d789-4f69-abb6-96a8d521b600}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Area">
+    <Filter Include="Modules\Area">
       <UniqueIdentifier>{e1967f6c-73e3-450c-ae1f-2cf74d20cdca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Memory Watcher">
+    <Filter Include="Modules\Memory Watcher">
       <UniqueIdentifier>{a8778da9-053a-49cd-9aef-c68360d37fbc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mods\Comms">
+    <Filter Include="Modules\Comms">
       <UniqueIdentifier>{4659fcf2-47a9-42f1-9f30-8eeaa7a1f23c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -66,25 +66,25 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mod.cpp">
-      <Filter>Mods</Filter>
+      <Filter>Modules</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cheats_mod.cpp">
-      <Filter>Mods\Cheats</Filter>
+      <Filter>Modules\Cheats</Filter>
     </ClCompile>
     <ClCompile Include="cutscene_mod.cpp">
-      <Filter>Mods\Cutscene</Filter>
+      <Filter>Modules\Cutscene</Filter>
     </ClCompile>
     <ClCompile Include="audio_mod.cpp">
-      <Filter>Mods\Audio</Filter>
+      <Filter>Modules\Audio</Filter>
     </ClCompile>
     <ClCompile Include="handle_helper_mod.cpp">
-      <Filter>Mods\Handle Helper</Filter>
+      <Filter>Modules\Handle Helper</Filter>
     </ClCompile>
     <ClCompile Include="scripts_mod.cpp">
-      <Filter>Mods\Scripts</Filter>
+      <Filter>Modules\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="gta_script.cpp">
       <Filter>Requestables</Filter>
@@ -96,61 +96,64 @@
       <Filter>Requestables</Filter>
     </ClCompile>
     <ClCompile Include="lua_console_mod.cpp">
-      <Filter>Mods\Lua Console</Filter>
+      <Filter>Modules\Lua Console</Filter>
     </ClCompile>
     <ClCompile Include="lua_engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sync_scene_mod.cpp">
-      <Filter>Mods\Synchronized Scene</Filter>
+      <Filter>Modules\Synchronized Scene</Filter>
     </ClCompile>
     <ClCompile Include="player_switch_mod.cpp">
-      <Filter>Mods\Switch</Filter>
+      <Filter>Modules\Switch</Filter>
     </ClCompile>
     <ClCompile Include="test_mod.cpp">
-      <Filter>Mods\Test</Filter>
+      <Filter>Modules\Test</Filter>
     </ClCompile>
     <ClCompile Include="mission_mod.cpp">
-      <Filter>Mods\Mission</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\imgui.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_extras.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Modules\Mission</Filter>
     </ClCompile>
     <ClCompile Include="mission_helper.cpp">
-      <Filter>Mods\Cheats</Filter>
+      <Filter>Modules\Cheats</Filter>
     </ClCompile>
     <ClCompile Include="area_mod.cpp">
-      <Filter>Mods\Area</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\backends\imgui_impl_dx11.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\imgui\backends\imgui_impl_win32.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Modules\Area</Filter>
     </ClCompile>
     <ClCompile Include="watch_entry.cpp">
-      <Filter>Mods\Memory Watcher</Filter>
+      <Filter>Modules\Memory Watcher</Filter>
     </ClCompile>
     <ClCompile Include="mem_watcher_mod.cpp">
-      <Filter>Mods\Memory Watcher</Filter>
+      <Filter>Modules\Memory Watcher</Filter>
     </ClCompile>
     <ClCompile Include="comms_mod.cpp">
-      <Filter>Mods\Comms</Filter>
+      <Filter>Modules\Comms</Filter>
+    </ClCompile>
+    <ClCompile Include="strangers_and_freaks_names.cpp">
+      <Filter>Modules\Mission</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_extras.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\imgui_draw.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\imgui.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Librairies\imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="user_settings.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -158,25 +161,25 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mod.h">
-      <Filter>Mods</Filter>
+      <Filter>Modules</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cheats_mod.h">
-      <Filter>Mods\Cheats</Filter>
+      <Filter>Modules\Cheats</Filter>
     </ClInclude>
     <ClInclude Include="cutscene_mod.h">
-      <Filter>Mods\Cutscene</Filter>
+      <Filter>Modules\Cutscene</Filter>
     </ClInclude>
     <ClInclude Include="audio_mod.h">
-      <Filter>Mods\Audio</Filter>
+      <Filter>Modules\Audio</Filter>
     </ClInclude>
     <ClInclude Include="handle_helper_mod.h">
-      <Filter>Mods\Handle Helper</Filter>
+      <Filter>Modules\Handle Helper</Filter>
     </ClInclude>
     <ClInclude Include="scripts_mod.h">
-      <Filter>Mods\Scripts</Filter>
+      <Filter>Modules\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="gta_script.h">
       <Filter>Requestables</Filter>
@@ -188,82 +191,88 @@
       <Filter>Requestables</Filter>
     </ClInclude>
     <ClInclude Include="lua_console_mod.h">
-      <Filter>Mods\Lua Console</Filter>
+      <Filter>Modules\Lua Console</Filter>
     </ClInclude>
     <ClInclude Include="audio_scenes.h">
-      <Filter>Mods\Audio</Filter>
+      <Filter>Modules\Audio</Filter>
     </ClInclude>
     <ClInclude Include="music_events.h">
-      <Filter>Mods\Audio</Filter>
+      <Filter>Modules\Audio</Filter>
     </ClInclude>
     <ClInclude Include="cutscene_names.h">
-      <Filter>Mods\Cutscene</Filter>
+      <Filter>Modules\Cutscene</Filter>
     </ClInclude>
     <ClInclude Include="sync_scene_mod.h">
-      <Filter>Mods\Synchronized Scene</Filter>
+      <Filter>Modules\Synchronized Scene</Filter>
     </ClInclude>
     <ClInclude Include="player_switch_mod.h">
-      <Filter>Mods\Switch</Filter>
+      <Filter>Modules\Switch</Filter>
     </ClInclude>
     <ClInclude Include="test_mod.h">
-      <Filter>Mods\Test</Filter>
+      <Filter>Modules\Test</Filter>
     </ClInclude>
     <ClInclude Include="mission_mod.h">
-      <Filter>Mods\Mission</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imconfig.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imgui.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imgui_internal.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imstb_textedit.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\imstb_truetype.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_extras.h">
-      <Filter>ImGui</Filter>
+      <Filter>Modules\Mission</Filter>
     </ClInclude>
     <ClInclude Include="mission_helper.h">
-      <Filter>Mods\Cheats</Filter>
+      <Filter>Modules\Cheats</Filter>
     </ClInclude>
     <ClInclude Include="input_controls.h">
-      <Filter>Mods\Cheats</Filter>
+      <Filter>Modules\Cheats</Filter>
     </ClInclude>
     <ClInclude Include="area_mod.h">
-      <Filter>Mods\Area</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\backends\imgui_impl_dx11.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\imgui\backends\imgui_impl_win32.h">
-      <Filter>ImGui</Filter>
+      <Filter>Modules\Area</Filter>
     </ClInclude>
     <ClInclude Include="script_infos.h">
-      <Filter>Mods\Scripts</Filter>
+      <Filter>Modules\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="script_names.h">
-      <Filter>Mods\Scripts</Filter>
+      <Filter>Modules\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="global_id.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="watch_entry.h">
-      <Filter>Mods\Memory Watcher</Filter>
+      <Filter>Modules\Memory Watcher</Filter>
     </ClInclude>
     <ClInclude Include="mem_watcher_mod.h">
-      <Filter>Mods\Memory Watcher</Filter>
+      <Filter>Modules\Memory Watcher</Filter>
     </ClInclude>
     <ClInclude Include="comms_mod.h">
-      <Filter>Mods\Comms</Filter>
+      <Filter>Modules\Comms</Filter>
+    </ClInclude>
+    <ClInclude Include="strangers_and_freaks_names.h">
+      <Filter>Modules\Mission</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_extras.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imgui_internal.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imstb_rectpack.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imstb_textedit.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imstb_truetype.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imconfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\imgui.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\backends\imgui_impl_dx11.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Librairies\imgui\backends\imgui_impl_win32.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="user_settings.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

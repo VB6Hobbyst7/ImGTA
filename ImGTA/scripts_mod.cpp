@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "scripts_mod.h"
 #include <algorithm>
+
 #include "natives.h"
 #include "imgui.h"
 #include "imgui_extras.h"
@@ -20,12 +28,14 @@ bool CompareScriptByName(ScriptObject a, ScriptObject b)
 
 void ScriptsMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().scripts;
 }
 
 void ScriptsMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().scripts = m_settings;
 }
 
 void ScriptsMod::Think()
@@ -39,30 +49,61 @@ void ScriptsMod::Think()
 		while ((id = SCRIPT::SCRIPT_THREAD_ITERATOR_GET_NEXT_THREAD_ID()) != 0)
 			m_scripts.push_back(ScriptObject(SCRIPT::_GET_NAME_OF_THREAD(id), id));
 
-		if (m_sortByName)
+		if (m_settings.sortByName)
 			std::sort(m_scripts.begin(), m_scripts.end(), CompareScriptByName);
 		else
 			std::sort(m_scripts.begin(), m_scripts.end(), CompareScriptByHandle);
+
+		// Update pinned script
+		if (!m_pinnedScriptName.empty())
+		{
+			m_enablePinnedScript = false;
+			for (const auto & script : m_scripts)
+			{
+				if (script.m_scriptName == m_pinnedScriptName)
+				{
+					m_pinnedScript = script;
+					m_enablePinnedScript = true;
+				}
+			}
+		}
 
 		m_noLoadingScreen = SCRIPT::GET_NO_LOADING_SCREEN();
 		m_wantsUpdate = false;
 	}
 
-	if (m_drawInGame) {
+	if (m_settings.drawInGame) {
 		std::lock_guard<std::mutex> lock(m_scriptsMutex);
 		char buf[128] = "";
-		float yOff = m_inGameOffsetY;
+		float yOff = m_settings.inGameOffsetY;
+		const float step = 0.02f;
 		eFont font = eFont::FontChaletLondon;
 
 		sprintf_s(buf, "Constant updates: %s", BoolToStr(m_constantUpdate));
-		DrawTextToScreen(buf, m_inGameOffsetX, yOff, m_inGameFontSize, font);
-		yOff += 0.02f;
+		DrawTextToScreen(buf, m_settings.inGameOffsetX, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		yOff += step;
 
+		// Pin
+		if (m_enablePinnedScript)
+		{
+			sprintf_s(buf, "%s", m_pinnedScript.m_scriptName.c_str());
+			DrawTextToScreen(buf, m_settings.inGameOffsetX, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			yOff += step * 1.5f;
+		}
+
+		float xOff = m_settings.inGameOffsetX;
+		int i = 0;
 		for (const auto & script : m_scripts)
 		{
+			if (i % 28 == 27)
+			{
+				xOff -= 0.15f;
+				yOff -= step * 28;
+			}
 			sprintf_s(buf, "%s", script.m_scriptName.c_str());
-			DrawTextToScreen(buf, m_inGameOffsetX, yOff, m_inGameFontSize, font);
-			yOff += 0.02f;
+			DrawTextToScreen(buf, xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			yOff += step;
+			i++;
 		}
 	}
 }
@@ -82,7 +123,7 @@ void ScriptsMod::DrawMenuBar()
 				ImGuiExtras::BitField("Flags", &m_startFlags, nullptr);
 				if (ImGui::InputText("Custom name", m_startScriptName, sizeof(m_startScriptName), ImGuiInputTextFlags_EnterReturnsTrue))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						GTAScript script(m_startScriptName);
 						if (script.IsValid())
@@ -97,7 +138,7 @@ void ScriptsMod::DrawMenuBar()
 					{
 						if (ImGui::MenuItem(scriptNames[i]))
 						{
-							RunOnNativeThread([=]
+							m_dllObject.RunOnNativeThread([=]
 							{
 								GTAScript script(scriptNames[i]);
 								if (script.IsValid())
@@ -118,7 +159,7 @@ void ScriptsMod::DrawMenuBar()
 		{
 			if (ImGui::MenuItem("Stop loading screen"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					SCRIPT::SHUTDOWN_LOADING_SCREEN();
 				});
@@ -128,7 +169,7 @@ void ScriptsMod::DrawMenuBar()
 				ImGui::Checkbox("Toggle", &m_noLoadingScreenOption);
 				if (ImGui::MenuItem("Set no loading screen"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						SCRIPT::SET_NO_LOADING_SCREEN(m_noLoadingScreenOption);
 					});
@@ -140,19 +181,19 @@ void ScriptsMod::DrawMenuBar()
 
 		if (ImGui::BeginMenu("Options"))
 		{
-			ImGui::MenuItem("Sort by name", NULL, &m_sortByName);
+			ImGui::MenuItem("Sort by name", NULL, &m_settings.sortByName);
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("HUD"))
 		{
-			ImGui::MenuItem("Show in game", NULL, &m_drawInGame);
+			ImGui::MenuItem("Show in game", NULL, &m_settings.drawInGame);
 			if (ImGui::BeginMenu("Offsets"))
 			{
-				if (ImGui::InputFloat("X offset", &m_inGameOffsetX, 0.01f))
-					ClipFloat(m_inGameOffsetX, 0.0f, 0.95f);
-				if (ImGui::InputFloat("Y offset", &m_inGameOffsetY, 0.01f))
-					ClipFloat(m_inGameOffsetY, 0.0f, 0.95f);
+				if (ImGui::InputFloat("X offset", &m_settings.inGameOffsetX, 0.01f))
+					ClipFloat(m_settings.inGameOffsetX, 0.0f, 0.95f);
+				if (ImGui::InputFloat("Y offset", &m_settings.inGameOffsetY, 0.01f))
+					ClipFloat(m_settings.inGameOffsetY, 0.0f, 0.95f);
 
 				ImGui::EndMenu();
 			}
@@ -167,9 +208,25 @@ void ScriptsMod::ShowSelectedPopup()
 {
 	if (ImGui::BeginPopup("ScriptPropertiesPopup"))
 	{
+		if (ImGui::MenuItem("Pin"))
+		{
+			m_pinnedScriptName = m_selected->m_scriptName;
+			m_wantsUpdate = true;
+			m_enablePinnedScript = true;
+			ImGui::CloseCurrentPopup();
+		}
+		if (m_enablePinnedScript && m_pinnedScriptName == m_selected->m_scriptName)
+		{
+			if (ImGui::MenuItem("Unpin"))
+			{
+				m_pinnedScriptName = "";
+				m_enablePinnedScript = false;
+				ImGui::CloseCurrentPopup();
+			}
+		}
 		if (ImGui::MenuItem("Terminate"))
 		{
-			RunOnNativeThread([=]
+			m_dllObject.RunOnNativeThread([=]
 			{
 				SCRIPT::TERMINATE_THREAD(m_selected->m_handle);
 				m_wantsUpdate = true; // ask for the update only after this has actually been terminated.
@@ -184,10 +241,10 @@ void ScriptsMod::ShowSelectedPopup()
 
 bool ScriptsMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -196,19 +253,33 @@ bool ScriptsMod::Draw()
 
 	ImGui::Text("Set no loading screen: %s", BoolToStr(m_noLoadingScreen));
 
+	ImGui::Columns(2);
+	ImGui::Separator();
+	if (m_initColumnWidth)
+	{
+		ImGui::SetColumnWidth(-1, 200);
+		m_initColumnWidth = false;
+	}
+	ImGui::Text("Name %c", m_settings.sortByName ? '^' : ' '); ImGui::NextColumn();
+	ImGui::Text("Handle %c", m_settings.sortByName ? ' ' : '^'); ImGui::NextColumn();
+	ImGui::Separator();
+
+	std::lock_guard<std::mutex> lock(m_scriptsMutex);
+	if (m_enablePinnedScript)
+	{
+		if (ImGui::Selectable(m_pinnedScript.m_scriptName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))
+		{
+			m_selected = &m_pinnedScript;
+			ImGui::OpenPopup("ScriptPropertiesPopup");
+		}
+		ImGui::NextColumn();
+		ImGui::Text("%d (0x%x)", m_pinnedScript.m_handle, m_pinnedScript.m_handle);
+		ImGui::NextColumn();
+		ImGui::Separator();
+	}
+
 	if (m_scripts.size() > 0)
 	{
-		ImGui::Columns(2);
-		if (m_initColumnWidth < 2)
-			ImGui::SetColumnWidth(0, 200);
-		else
-			m_initColumnWidth++;
-		ImGui::Separator();
-		ImGui::Text("Name %c", m_sortByName ? '^' : ' '); ImGui::NextColumn();
-		ImGui::Text("Handle %c", m_sortByName ? ' ' : '^'); ImGui::NextColumn();
-		ImGui::Separator();
-
-		std::lock_guard<std::mutex> lock(m_scriptsMutex);
 		for (auto &s : m_scripts)
 		{
 			if (ImGui::Selectable(s.m_scriptName.c_str(), false, ImGuiSelectableFlags_SpanAllColumns))

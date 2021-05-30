@@ -1,19 +1,27 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "area_mod.h"
 #include "natives.h"
+#include "imgui_extras.h"
 #include "script.h"
 #include "anim_dict.h"
 #include "utils.h"
-#include "imgui_extras.h"
 
 
 void AreaMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().area;
 }
 
 void AreaMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().area = m_settings;
 }
 
 void AreaMod::Think()
@@ -41,7 +49,7 @@ void AreaMod::Think()
 				m_coordUnk0, m_coordUnk1, m_coordUnk2);
 		}
 
-		if (m_drawBox)
+		if (m_settings.drawBox)
 		{
 			GRAPHICS::DRAW_BOX(m_startBoxPoint.x, m_startBoxPoint.y, m_startBoxPoint.z,
 				m_endBoxPoint.x, m_endBoxPoint.y, m_endBoxPoint.z,
@@ -77,16 +85,17 @@ void AreaMod::Think()
 			}
 		}
 
-		if (m_drawInGame && m_showInGame)
+		if (m_settings.drawInGame && m_commonSettings.showInGame)
 		{
 			float screenX, screenY;
-			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(m_currentPos.x, m_currentPos.y, m_currentPos.z + m_drawOffsetZ,
+			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(m_currentPos.x, m_currentPos.y, m_currentPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);
 
 			char buf[256] = "";
+			eFont font = eFont::FontChaletLondon;
 			sprintf_s(buf, "Angled area: %s\nArea: %s\nCoord: %s",
 				BoolToStr(m_isInAngledArea), BoolToStr(m_isInArea), BoolToStr(m_isAtCoord));
-			DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+			DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 		}
 
 		m_wantsUpdate = false;
@@ -99,11 +108,11 @@ void AreaMod::DrawMenuBar()
 	{
 		if (ImGui::BeginMenu("HUD"))
 		{
-			ImGui::MenuItem("Show on HUD", NULL, &m_drawInGame);
+			ImGui::MenuItem("Show on HUD", NULL, &m_settings.drawInGame);
 
 			if (ImGui::BeginMenu("Misc"))
 			{
-				ImGui::InputFloat("Z offset", &m_drawOffsetZ, 0.1f);
+				ImGui::InputFloat("Z offset", &m_settings.drawOffsetZ, 0.1f);
 				ImGui::EndMenu();
 			}
 
@@ -116,46 +125,46 @@ void AreaMod::DrawMenuBar()
 
 bool AreaMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
 		if (ImGui::Button("Update"))
 			m_wantsUpdate = true;
 
-	if (ImGui::TreeNodeEx("Draw Box", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::TreeNodeEx("Draw Box", ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		ImGuiExtras::InputVector3("Start point", &m_startBoxPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current Start"))
+		if (ImGui::Button("Current"))
 			m_startBoxPoint = m_currentPos;
 
 		ImGuiExtras::InputVector3("End point", &m_endBoxPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current End"))
+		if (ImGui::Button("Current"))
 			m_endBoxPoint = m_currentPos;
 
 		if (ImGui::Button("Draw"))
-			m_drawBox = true;
+			m_settings.drawBox = true;
 		if (ImGui::Button("Erase"))
-			m_drawBox = false;
+			m_settings.drawBox = false;
 		ImGui::TreePop();
 	}
 
-	if (ImGui::TreeNode("Angled Area"))
+	if (ImGui::TreeNodeEx("Angled Area", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
 		ImGui::Checkbox("Same as box", &m_angledAreaSameBox);
 		ImGuiExtras::InputVector3("Start point", &m_angledAreaStartPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current Start"))
+		if (ImGui::Button("Current"))
 			m_angledAreaStartPoint = m_currentPos;
 
 		ImGuiExtras::InputVector3("End point", &m_angledAreaEndPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current End"))
+		if (ImGui::Button("Current"))
 			m_angledAreaEndPoint = m_currentPos;
 
 		ImGui::InputFloat("Width", &m_angledAreaWidth);
@@ -168,17 +177,17 @@ bool AreaMod::Draw()
 	}
 
 	ImGui::Separator();
-	if (ImGui::TreeNode("Area"))
+	if (ImGui::TreeNodeEx("Area", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
 		ImGui::Checkbox("Same as box", &m_areaSameBox);
 		ImGuiExtras::InputVector3("Start point", &m_areaStartPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current Start"))
+		if (ImGui::Button("Current"))
 			m_areaStartPoint = m_currentPos;
 
 		ImGuiExtras::InputVector3("End point", &m_areaEndPoint);
 		ImGui::SameLine();
-		if (ImGui::Button("Current End"))
+		if (ImGui::Button("Current"))
 			m_areaEndPoint = m_currentPos;
 
 		ImGui::Checkbox("Unk", &m_areaUnk0);
@@ -190,7 +199,7 @@ bool AreaMod::Draw()
 	}
 
 	ImGui::Separator();
-	if (ImGui::TreeNode("Coord"))
+	if (ImGui::TreeNodeEx("Coord", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
 		ImGuiExtras::InputVector3("Coord point", &m_coordPoint);
 		ImGui::SameLine();

@@ -1,12 +1,21 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
-#include "mission_helper.h"
 #include "types.h"
+
+class MissionHelper;
+struct CheatsSettings;
 
 class CheatsMod : public Mod
 {
 public:
-	CheatsMod(bool supportGlobals) : Mod("Cheats", false, supportGlobals)
+	CheatsMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Cheats", false, supportGlobals)
 	{
 		m_teleportPos.x = 0;
 		m_teleportPos.y = 0;
@@ -25,15 +34,11 @@ private:
 	void DrawMissionMenu();
 	void DrawHUDMenu();
 
+	CheatsSettings m_settings;
 	bool m_explosiveBullets = false;
-	bool m_scriptVarNeedsUpdate = false;
-	bool m_showDebug = true;
-	bool m_floatingMenu = false;
+	bool m_scriptVarNeedsUpdate = true;
 
-	float m_menuFontSize = 1.0f;
-	float m_contentFontSize = 1.0f;
-	float m_inGameFontSize = 0.3f;
-	bool m_displayKMH = true;
+	bool m_pauseMenuOn = false;
 
 	int m_largestStreaming = 0;
 	int m_largestStreamingTime = 0;

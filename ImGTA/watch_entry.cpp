@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "watch_entry.h"
 #include "types.h"
 #include "main.h"
@@ -8,7 +15,7 @@ void WatchEntry::UpdateValue()
 {
 	if (IsGlobal())
 		m_value = GetDisplayForType(m_addressIndex, m_type);
-	else
+	else if(m_scriptRunning)
 		m_value = GetDisplayForType(m_addressIndex, m_scriptHash, m_type);
 }
 

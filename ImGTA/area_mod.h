@@ -1,12 +1,19 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
 #include "types.h"
-#include "utils.h"
+
+struct AreaSettings;
 
 class AreaMod : public Mod
 {
 public:
-	AreaMod(bool supportGlobals) : Mod("Area", true, supportGlobals)
+	AreaMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Area", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
@@ -19,20 +26,18 @@ public:
 private:
 	void DrawMenuBar();
 
-	Vector3 m_currentPos = InitVector3(0);
-	bool m_drawInGame = true;
-	float m_drawOffsetZ = 0;
+	AreaSettings m_settings;
+	Vector3 m_currentPos = {};
 
 	// Box
-	bool m_drawBox = false;
-	Vector3 m_startBoxPoint = InitVector3(0);
-	Vector3 m_endBoxPoint = InitVector3(0);
+	Vector3 m_startBoxPoint = {};
+	Vector3 m_endBoxPoint = {};
 
 	// Angled area
 	bool m_angledAreaSameBox = true;
 	bool m_isInAngledArea = false;
-	Vector3 m_angledAreaStartPoint = InitVector3(0);
-	Vector3 m_angledAreaEndPoint = InitVector3(0);
+	Vector3 m_angledAreaStartPoint = {};
+	Vector3 m_angledAreaEndPoint = {};
 	float m_angledAreaWidth = 10;
 	bool m_angledAreaDebug = false;
 	bool m_angledAreaIncludeZ = true;
@@ -41,16 +46,16 @@ private:
 	// Area
 	bool m_areaSameBox = true;
 	bool m_isInArea = false;
-	Vector3 m_areaStartPoint = InitVector3(0);
-	Vector3 m_areaEndPoint = InitVector3(0);
+	Vector3 m_areaStartPoint = {};
+	Vector3 m_areaEndPoint = {};
 	bool m_areaUnk0 = false;
 	bool m_areaUnk1 = false;
 	int m_areaUnk2 = 0;
 
 	// Coord
 	bool m_isAtCoord = false;
-	Vector3 m_coordPoint = InitVector3(0);
-	Vector3 m_coordSize = InitVector3(1);
+	Vector3 m_coordPoint = {};
+	Vector3 m_coordSize = {};
 	bool m_coordUnk0 = false;
 	bool m_coordUnk1 = true;
 	int m_coordUnk2 = 0;

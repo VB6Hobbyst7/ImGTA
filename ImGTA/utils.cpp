@@ -1,35 +1,41 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include <bitset>
 
 #include "utils.h"
 #include "natives.h"
-#include "enums.h"
 #include "mod.h"
 
 ThreadBasket threadBasket;
 
-BOOL is_main_window(HWND handle)
+BOOL IsMainWindow(HWND handle)
 {
 	return GetWindow(handle, GW_OWNER) == (HWND)0 && IsWindowVisible(handle);
 }
 
-BOOL CALLBACK enum_windows_callback(HWND handle, LPARAM lParam)
+BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam)
 {
 	handle_data &data = *(handle_data *)lParam;
 	unsigned long process_id = 0;
 	GetWindowThreadProcessId(handle, &process_id);
-	if (data.processID != process_id || !is_main_window(handle))
+	if (data.processID != process_id || !IsMainWindow(handle))
 		return TRUE;
 	data.windowHandle = handle;
 	return FALSE;
 }
 
 // https://stackoverflow.com/questions/1888863/how-to-get-main-window-handle-from-process-id
-HWND find_main_window(unsigned long process_id)
+HWND FindMainWindow(unsigned long process_id)
 {
 	handle_data data;
 	data.processID = process_id;
 	data.windowHandle = 0;
-	EnumWindows(enum_windows_callback, (LPARAM)&data);
+	EnumWindows(EnumWindowsCallback, (LPARAM)&data);
 	return data.windowHandle;
 }
 
@@ -91,11 +97,11 @@ Vector3 InitVector3(float value)
 
 bool IsVersionSupportedForGlobals(eGameVersion ver)
 {
-	// TODO: are globals the same in steam and nonsteam?
+	// Note: Assumed globals are the same in steam and nonsteam
 	return ver == eGameVersion::VER_1_0_372_2_STEAM || ver == eGameVersion::VER_1_0_372_2_NOSTEAM;
 }
 
-void InitThreadBasket()
+bool InitThreadBasket()
 {
 	// 0x9B5BCD: offset to get to the mov instruction that contains the offset to the threads structure
 	// 0x2A07D38: Offset to get the pointer to the ThreadBasket structure
@@ -107,31 +113,42 @@ void InitThreadBasket()
 
 	// (*(*srcThreads)[0]).pStack -> First script stack start address
 	// *(*(*srcThreads)[0]).pStack + index) -> iLocal_index
+	if (IsVersionSupportedForGlobals(getGameVersion()))
+	{
+		PVOID baseAddress = GetModuleHandleA("GTA5.exe");
+		PVOID offsetAddress = (PVOID)((char*)baseAddress + 0x2A07D38);
 
-	PVOID baseAddress = GetModuleHandleA("GTA5.exe");
-	PVOID offsetAddress = (PVOID)((char*)baseAddress + 0x2A07D38);
-
-	DWORD d, ds;
-	VirtualProtect(offsetAddress, sizeof(ThreadBasket), PAGE_EXECUTE_READ, &d);
-	memcpy(&threadBasket, offsetAddress, sizeof(ThreadBasket));
-	VirtualProtect(offsetAddress, sizeof(ThreadBasket), d, &ds);
+		DWORD d, ds;
+		VirtualProtect(offsetAddress, sizeof(ThreadBasket), PAGE_EXECUTE_READ, &d);
+		memcpy(&threadBasket, offsetAddress, sizeof(ThreadBasket));
+		VirtualProtect(offsetAddress, sizeof(ThreadBasket), d, &ds);
+		return true;
+	}
+	else
+		return false;
 }
 
 uint64_t * GetThreadAddress(int localId, int scriptHash)
 {
+	bool threadBasketLoaded = false;
 	if (threadBasket.srcThreads == nullptr)
-		InitThreadBasket();
+		threadBasketLoaded = InitThreadBasket();
+	else
+		threadBasketLoaded = true;
 
 	uint64_t * localAddress = nullptr;
-	for (unsigned short i = 0; i < threadBasket.threadCount; i++)
+	if (threadBasketLoaded)
 	{
-		ScrThread * scrThread = threadBasket.srcThreads[i];
-		if (scrThread != nullptr && scrThread->pStack != nullptr)
+		for (unsigned short i = 0; i < threadBasket.threadCount; i++)
 		{
-			if (scrThread->scriptHash == scriptHash)
+			ScrThread * scrThread = threadBasket.srcThreads[i];
+			if (scrThread != nullptr && scrThread->pStack != nullptr)
 			{
-				localAddress = scrThread->pStack + localId;
-				break;
+				if (scrThread->scriptHash == scriptHash)
+				{
+					localAddress = scrThread->pStack + localId;
+					break;
+				}
 			}
 		}
 	}
