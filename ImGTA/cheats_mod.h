@@ -36,7 +36,7 @@ private:
 
 	CheatsSettings m_settings;
 	bool m_explosiveBullets = false;
-	bool m_scriptVarNeedsUpdate = false;
+	bool m_scriptVarNeedsUpdate = true;
 
 	bool m_pauseMenuOn = false;
 

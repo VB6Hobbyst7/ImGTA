@@ -140,15 +140,15 @@ void DLLObject::Load()
 		for (auto &m : modsLoaded)
 			m->Load();
 		MISC::SET_THIS_SCRIPT_CAN_BE_PAUSED(false);
-		
-		// After Ctrl-R, ScriptHookV does not call ProcessDetach,
-		// but ProcessAttach again
 		isLoaded = true;
-		while (true)
-		{
-			Update();
-			WAIT(0);
-		}
+	}
+		
+	// After loading a save, ScriptHookV does not call ProcessDetach,
+	// but ProcessAttach again
+	while (true)
+	{
+		Update();
+		WAIT(0);
 	}
 }
 
