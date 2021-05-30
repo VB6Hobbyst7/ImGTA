@@ -91,17 +91,26 @@ void ScriptsMod::Think()
 			yOff += step * 1.5f;
 		}
 
+		// Display three lines at a time to optimize the number of calls to DrawTextToScreen
+		std::string threeLines;
 		float xOff = m_settings.inGameOffsetX;
 		int i = 0;
+		yOff -= step * 2;
 		for (const auto & script : m_scripts)
 		{
+			if (i % 3 == 0)
+				threeLines = "";
+			threeLines += script.m_scriptName + "\n";
+			
+			if (i % 3 == 2)
+				DrawTextToScreen(threeLines.c_str(), xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+
 			if (i % 28 == 27)
 			{
 				xOff -= 0.15f;
 				yOff -= step * 28;
 			}
-			sprintf_s(buf, "%s", script.m_scriptName.c_str());
-			DrawTextToScreen(buf, xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			
 			yOff += step;
 			i++;
 		}

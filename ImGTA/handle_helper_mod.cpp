@@ -74,7 +74,7 @@ void HandleHelperMod::ListPeds()
 		eFont font = eFont::FontChaletLondon;
 		for (int i = 0; i < count; i++)
 		{
-			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(pedArr.entities[i].id, true);
+			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(pedArr.entities[i].id, false);
 			float screenX, screenY;
 			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);
@@ -116,7 +116,7 @@ void HandleHelperMod::ListVehs()
 		eFont font = eFont::FontChaletLondon;
 		for (int i = 0; i < count; i++)
 		{
-			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(vehArr.entities[i].id, true);
+			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(vehArr.entities[i].id, false);
 			float screenX, screenY;
 			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);

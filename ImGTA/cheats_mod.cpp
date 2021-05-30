@@ -209,17 +209,29 @@ void CheatsMod::Think()
 			inputStrings.push_back(michael ? "MICHAEL" : "");
 			inputStrings.push_back(franklin ? "FRANKLIN" : "");
 			inputStrings.push_back(multiplayer ? "MULTIPLAYER" : "");
-			int inputStrCount = 0;
+
+			// Display three lines at a time to optimize the number of calls to DrawTextToScreen
+			std::string threeLines;
+			int i = 0;
+			int iColumn = 0;
+			inputStartY -= step * 2;
 			for (const auto & inputString : inputStrings)
 			{
-				if (inputStrCount % 10 == 9)
+				if (i % 3 == 0)
+					threeLines = "";
+				threeLines += inputString + "\n";
+
+				if (i % 3 == 2)
+					DrawTextToScreen(threeLines.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+
+				if (i % 10 == 9)
 				{
 					inputStartX += 0.10f;
-					inputStartY -= step * 10;
+					inputStartY -= step * (10 - iColumn);
+					iColumn++;
 				}
-				DrawTextToScreen(inputString.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 				inputStartY += step;
-				inputStrCount++;
+				i++;
 			}
 		}
 

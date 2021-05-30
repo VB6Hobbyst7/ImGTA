@@ -41,6 +41,7 @@ HWND FindMainWindow(unsigned long process_id)
 
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight, int red, int green, int blue)
 {
+	// WARNING: Only the first 100 calls to this function are displayed!
 	HUD::SET_TEXT_FONT((int)font);
 	HUD::SET_TEXT_SCALE(scale, scale);
 	HUD::SET_TEXT_COLOUR(red, green, blue, 255);
@@ -50,7 +51,7 @@ void DrawTextToScreen(const char *text, float x, float y, float scale, eFont fon
 	HUD::SET_TEXT_DROPSHADOW(2, 2, 0, 0, 0);
 	HUD::SET_TEXT_EDGE(1, 0, 0, 0, 205);
 	HUD::BEGIN_TEXT_COMMAND_DISPLAY_TEXT((char *)"STRING");
-	HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME((char *)text);
+	HUD::ADD_TEXT_COMPONENT_SUBSTRING_KEYBOARD_DISPLAY((char *)text);
 	HUD::END_TEXT_COMMAND_DISPLAY_TEXT(x, y, 0);
 }
 

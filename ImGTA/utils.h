@@ -83,6 +83,7 @@ struct PaddedInt {
 BOOL IsMainWindow(HWND handle);
 BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam);
 HWND FindMainWindow(unsigned long processID);
+// WARNING DrawTextToScreen: Only the first 100 calls to this function are displayed!
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight = false, int red = 255, int green = 255, int blue = 255);
 void ClipInt(int & value, int min, int max);
 void ClipFloat(float & value, float min, float max);
