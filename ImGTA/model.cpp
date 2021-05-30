@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "model.h"
-#include "main.h"
 #include "natives.h"
 
 Model::Model(const char *model, bool block) : Model(MISC::GET_HASH_KEY((char *)model), block) {}

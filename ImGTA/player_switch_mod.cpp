@@ -1,22 +1,35 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "player_switch_mod.h"
-#include "natives.h"
 #include "script.h"
+#include "natives.h"
 #include "imgui.h"
-#include "main.h"
-#include "utils.h"
-#include "watch_entry.h"
 #include "imgui_extras.h"
+#include "watch_entry.h"
 #include "mission_mod.h"
 #include "global_id.h"
 
+PlayerSwitchMod::PlayerSwitchMod(DLLObject & dllObject, bool supportGlobals) :
+	Mod(dllObject, "Player Switch", true, supportGlobals),
+	m_gSwitch1(GlobalID::_85405)
+{
+	m_windowFlags = ImGuiWindowFlags_MenuBar;
+}
+
 void PlayerSwitchMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().playerSwitch;
 }
 
 void PlayerSwitchMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().playerSwitch = m_settings;
 }
 
 void PlayerSwitchMod::Think()
@@ -30,14 +43,6 @@ void PlayerSwitchMod::Think()
 
 void PlayerSwitchMod::UpdateLocationData()
 {
-	if (m_supportGlobals)
-	{
-		int offset = m_locationArrayStartAddr + m_locationID * sizeof(LocationArray) / 8;
-
-		m_locationCount = *(int *)getGlobalPtr(m_locationArraySizeAddr);
-		m_locationArray = *(LocationArray *)getGlobalPtr(offset);
-	}
-
 	m_switchInProgress = STREAMING::IS_PLAYER_SWITCH_IN_PROGRESS();
 	m_switchType = STREAMING::GET_PLAYER_SWITCH_TYPE();
 	m_switchState = STREAMING::GET_PLAYER_SWITCH_STATE();
@@ -45,6 +50,7 @@ void PlayerSwitchMod::UpdateLocationData()
 
 	if (m_supportGlobals)
 	{
+		m_gSwitch1.LoadElement();
 		m_currentCharacterID = *(int *)getGlobalPtr(GlobalID::_102834); 
 		m_previousCharacterID = *(int *)getGlobalPtr(GlobalID::_102835);
 	}
@@ -83,10 +89,10 @@ std::string SwitchTypeStr(SwitchType type)
 
 bool PlayerSwitchMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -107,19 +113,22 @@ bool PlayerSwitchMod::Draw()
 	if (m_supportGlobals)
 	{
 		ImGui::Separator();
-		if (ImGui::TreeNode("Player switch locations?"))
+		if (ImGui::TreeNodeEx("Player switch locations?", ImGuiTreeNodeFlags_SpanAvailWidth))
 		{
-			if (ImGui::InputInt("Handle", &m_locationID)) {
-				ClipInt(m_locationID, 0, m_locationCount - 1);
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("ID", &m_gSwitch1.id)) {
+				ClipInt(m_gSwitch1.id, 0, m_gSwitch1.size - 1);
 				m_wantsUpdate = true;
 			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gSwitch1.size);
 
-			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_locationArray.field_0.x, m_locationArray.field_0.y, m_locationArray.field_0.z);
-			ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_locationArray.field_3.x, m_locationArray.field_3.y, m_locationArray.field_3.z);
-			ImGui::Text("Field 2: %f", m_locationArray.field_6);
-			ImGui::Text("Field 3: %d", m_locationArray.field_7);
-			ImGui::Text("Field 4: %d", m_locationArray.field_8);
-			ImGui::Text("Character ID: %d (%s)", m_locationArray.field_9, CharacterIDStr((CharacterID)m_locationArray.field_9));
+			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_gSwitch1.arr.field_0.x, m_gSwitch1.arr.field_0.y, m_gSwitch1.arr.field_0.z);
+			ImGui::Text("Vector 1: (%.4f, %.4f, %.4f)", m_gSwitch1.arr.field_3.x, m_gSwitch1.arr.field_3.y, m_gSwitch1.arr.field_3.z);
+			ImGui::Text("Field 2: %f", m_gSwitch1.arr.field_6);
+			ImGui::Text("Field 3: %d", m_gSwitch1.arr.field_7);
+			ImGui::Text("Field 4: %d", m_gSwitch1.arr.field_8);
+			ImGui::Text("Character ID: %d (%s)", m_gSwitch1.arr.field_9, CharacterIDStr((CharacterID)m_gSwitch1.arr.field_9));
 			ImGui::TreePop();
 		}
 	}

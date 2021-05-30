@@ -1,6 +1,12 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "script.h"
 #include "mod.h"
-#include "main.h"
 #include "utils.h"
 #include "natives.h"
 
@@ -28,45 +34,43 @@
 #include "area_mod.h"
 #include "test_mod.h"
 #include "lua_console_mod.h"
-#include "lua_engine.h"
 
-std::vector<Mod *> modsLoaded;
-bool hasInitializedImgui;
-LONG_PTR oldProc;
-bool isOpen = false;
-bool isFirstLoad = true;
-bool floatingMenu = false;
-bool checkFirstUpdate = false;
-float menuFontSize = 1.0f;
-float contentFontSize = 1.0f;
-float inGameFontSize = 0.3f;
+LRESULT __stdcall WndProc(HWND hand, UINT msg, WPARAM wParam, LPARAM lParam);
 
-std::vector<std::function<void()>> toRun;
-std::mutex toRun_mutex;
-
-void InitMods()
+DLLObject::DLLObject()
 {
-	InitLuaEngine();
-
-	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
-
-	modsLoaded.push_back(new MemWatcherMod(supportGlobals));
-	modsLoaded.push_back(new CheatsMod(supportGlobals));
-	modsLoaded.push_back(new CutsceneMod(supportGlobals));
-	modsLoaded.push_back(new AudioMod(supportGlobals));
-	modsLoaded.push_back(new ScriptsMod(supportGlobals));
-	modsLoaded.push_back(new HandleHelperMod(supportGlobals));
-	modsLoaded.push_back(new SyncSceneMod(supportGlobals));
-	modsLoaded.push_back(new PlayerSwitchMod(supportGlobals));
-	modsLoaded.push_back(new CommsMod(supportGlobals));
-	if (supportGlobals)
-		modsLoaded.push_back(new MissionMod(supportGlobals));
-	modsLoaded.push_back(new AreaMod(supportGlobals));
-	//modsLoaded.push_back(new TestMod(supportGlobals));
-	modsLoaded.push_back(new LuaConsoleMod(supportGlobals));
+	
 }
 
-void Update()
+DLLObject::~DLLObject()
+{
+	// Make sure it's unloaded
+	Unload();
+}
+
+void DLLObject::InitMods()
+{
+	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
+
+	modsLoaded.push_back(new MemWatcherMod(*this, supportGlobals));
+	modsLoaded.push_back(new CheatsMod(*this, supportGlobals));
+	modsLoaded.push_back(new CutsceneMod(*this, supportGlobals));
+	modsLoaded.push_back(new AudioMod(*this, supportGlobals));
+	modsLoaded.push_back(new ScriptsMod(*this, supportGlobals));
+	modsLoaded.push_back(new HandleHelperMod(*this, supportGlobals));
+	modsLoaded.push_back(new SyncSceneMod(*this, supportGlobals));
+	modsLoaded.push_back(new PlayerSwitchMod(*this, supportGlobals));
+	modsLoaded.push_back(new AreaMod(*this, supportGlobals));
+	modsLoaded.push_back(new LuaConsoleMod(*this, supportGlobals, luaEngine));
+	if (supportGlobals)
+	{
+		modsLoaded.push_back(new CommsMod(*this, supportGlobals));
+		modsLoaded.push_back(new MissionMod(*this, supportGlobals));
+	}
+	//modsLoaded.push_back(new TestMod(supportGlobals));
+}
+
+void DLLObject::Update()
 {
 	if (isOpen)
 	{
@@ -75,8 +79,6 @@ void Update()
 		else
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
-	else
-		PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 
 	toRun_mutex.lock();
 	for (auto &f : toRun)
@@ -84,11 +86,11 @@ void Update()
 	toRun.clear();
 	toRun_mutex.unlock();
 
-	for (auto &m : modsLoaded)
+	for (Mod * m : modsLoaded)
 		m->Think();
 }
 
-void UpdateWindows()
+void DLLObject::UpdateWindows()
 {
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -104,66 +106,83 @@ void UpdateWindows()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	if (!checkFirstUpdate)
-		checkFirstUpdate = true;
 }
 
-void Load()
+void DLLObject::RunOnNativeThread(std::function<void()> func)
 {
-	if (isFirstLoad)
+	toRun.push_back(func);
+}
+
+void DLLObject::SetShowAllInGame(bool show)
+{
+	for (auto &m : modsLoaded)
+		m->SetShowInGame(show);
+}
+
+void DLLObject::SetAllFontSize(float menuSize, float contentSize, float inGameSize)
+{
+	for (auto &m : modsLoaded)
+		m->SetFontSize(menuSize, contentSize, inGameSize);
+}
+
+void DLLObject::SetAllInGameFontColor(int red, int green, int blue)
+{
+	for (auto &m : modsLoaded)
+		m->SetInGameFontColor(red, green, blue);
+}
+
+void DLLObject::Load()
+{
+	if (!isLoaded)
 	{
+		userSettings.Load(userSettingsFile);
 		InitMods();
 		for (auto &m : modsLoaded)
 			m->Load();
 		MISC::SET_THIS_SCRIPT_CAN_BE_PAUSED(false);
-		isFirstLoad = false;
-	}
-
-	while (true)
-	{
-		Update();
-		WAIT(0);
-	}
-
-}
-
-void Unload()
-{
-	isOpen = false;
-	for (auto &m : modsLoaded)
-	{
-		m->Unload();
-		delete m;
-	}
-
-	modsLoaded.clear();
-
-	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
-	if (oldProc)
-		SetWindowLongPtr(find_main_window(GetCurrentProcessId()), GWLP_WNDPROC, oldProc);
-}
-
-IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-LRESULT __stdcall WndProc(HWND hand, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	if (msg == WM_KEYDOWN)
-	{
-		if (wParam == VK_INSERT)
+		
+		// After Ctrl-R, ScriptHookV does not call ProcessDetach,
+		// but ProcessAttach again
+		isLoaded = true;
+		while (true)
 		{
-			isOpen = !isOpen;
-			ImGui::GetIO().MouseDrawCursor = isOpen;
+			Update();
+			WAIT(0);
 		}
 	}
-
-	if (isOpen)
-		ImGui_ImplWin32_WndProcHandler(hand, msg, wParam, lParam);
-
-	return CallWindowProcW((WNDPROC)oldProc, hand, msg, wParam, lParam);
 }
 
-void OnPresent(IDXGISwapChain *swap)
+void DLLObject::Unload()
+{
+	if (isLoaded)
+	{
+		isOpen = false;
+		for (auto &m : modsLoaded)
+		{
+			m->Unload();
+			delete m;
+		}
+		modsLoaded.clear();
+
+		// Save settings
+		userSettings.Save(userSettingsFile);
+
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
+		if (oldProc)
+			SetWindowLongPtr(FindMainWindow(GetCurrentProcessId()), GWLP_WNDPROC, oldProc);
+		isLoaded = false;
+	}
+}
+
+void DLLObject::ToggleOpen()
+{
+	isOpen = !isOpen;
+	ImGui::GetIO().MouseDrawCursor = isOpen;
+}
+
+void DLLObject::OnPresent(IDXGISwapChain *swap)
 {
 	if (!hasInitializedImgui)
 	{
@@ -176,47 +195,18 @@ void OnPresent(IDXGISwapChain *swap)
 
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
+		ImGui::GetIO().ConfigFlags = ImGuiConfigFlags_NavEnableGamepad;
+		ImGui::GetIO().IniFilename = fileImGuiIni.c_str();
+		ImGui::GetIO().LogFilename = fileImGuiLog.c_str();
 
-		HWND window = find_main_window(GetCurrentProcessId());
+		HWND window = FindMainWindow(GetCurrentProcessId());
 		ImGui_ImplWin32_Init(window);
 		ImGui_ImplDX11_Init(device, context);
 
-		ImGui::GetIO().ConfigFlags = ImGuiConfigFlags_NavEnableGamepad;
 
 		oldProc = SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
 	}
 
 	if (isOpen)
 		UpdateWindows();
-}
-
-void RunOnNativeThread(std::function<void()> func)
-{
-	toRun.push_back(func);
-}
-
-void SetFloatingMenu(bool isFloating)
-{
-	floatingMenu = isFloating;
-}
-
-bool GetFloatingMenu()
-{
-	return floatingMenu;
-}
-
-void SetShowAllInGame(bool show)
-{
-	for (auto &m : modsLoaded)
-		m->SetShowInGame(show);
-}
-
-
-void SetAllFontSize(float menuSize, float contentSize, float inGameSize)
-{
-	menuFontSize = menuSize;
-	contentFontSize = contentSize;
-	inGameFontSize = inGameSize;
-	for (auto &m : modsLoaded)
-		m->SetFontSize(menuSize, contentSize, inGameSize);
 }

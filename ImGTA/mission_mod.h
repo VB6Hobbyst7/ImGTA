@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
 #include "types.h"
-#include "global_id.h"
 #include "strangers_and_freaks_names.h"
+#include "utils.h"
 
 #include <bitset>
 #include <string>
+
+struct MissionSettings;
 
 enum CharacterID { // Guess from standard_global_reg
 	MICHAEL = 0,
@@ -19,12 +27,6 @@ enum CharacterID { // Guess from standard_global_reg
 
 std::string CharacterSetIDStr(int characterSetID);
 const char * CharacterIDStr(CharacterID id);
-
-
-struct PaddedInt {
-	int val = 0;
-	DWORD _padding;
-};
 
 struct MissionArray {
 	// Global_81155
@@ -50,10 +52,6 @@ struct MissionArray {
 	DWORD _paddings17;
 	PaddedInt field_17[16]; // 17 // Fixed size
 }; // Size 34 * 8 bytes
-
-struct StrangerAndFreaksArray {
-	// Global_104696 -> Global_97353.f_7341.f_2
-};
 
 struct MissionArray2 {
 	// Global_84352
@@ -120,7 +118,7 @@ struct MissionArray4 {
 	DWORD _padding6;
 	int field_7;
 	DWORD _padding7;
-	int field_8; // Character that see it 
+	int field_8; // Character that see it
 	DWORD _padding8;
 	int triggerID; // 9
 	DWORD _padding9;
@@ -184,6 +182,14 @@ struct MissionArray5Bis2 {
 	DWORD _padding11;
 }; // Size 12 * 8 bytes
 
+struct MissionArray5Bis3 {
+	// Global_72104 -> Global_68514.f_3590
+	int field_0;
+	DWORD _padding0;
+	int field_1; // 2
+	DWORD _padding1;
+}; // Size 2 * 8 bytes
+
 struct MissionArray6 {
 	// Global_75339 -> Global_68514.f_6825
 	int hash; // 0
@@ -209,11 +215,11 @@ struct MissionArray8 {
 	DWORD _padding0;
 	int missionArray6IDMax;
 	DWORD _padding1;
-};
+}; // Size 2 * 8 bytes
 
 struct MissionArray9 {
 	// Global_81119
-	int missionArray5ID; // 0 
+	int missionArray5ID; // 0
 	DWORD _padding0;
 	std::bitset<64> f_1;
 	int f_2;
@@ -228,7 +234,16 @@ struct MissionArray10 {
 	// Global_81106 -> Global_68514.f_12592
 	int missionArray5ID; // 0
 	DWORD _padding0;
-};
+}; // Size 1 * 8 bytes
+
+struct MissionArray12 {
+	// Global_84546
+	char scriptName[128];
+	int stackSize;
+	DWORD _padding16;
+	int scriptHash;
+	DWORD _padding17;
+}; // Size 18 * 8 bytes
 
 struct StrangersAndFreaksArray2 {
 	// Global_114181 -> Global_97353.f_16828
@@ -246,14 +261,10 @@ struct StrangersAndFreaksArray2 {
 };
 
 
-
 class MissionMod : public Mod
 {
 public:
-	MissionMod(bool supportGlobals) : Mod("Mission", true, supportGlobals)
-	{
-		m_windowFlags = ImGuiWindowFlags_MenuBar;
-	}
+	MissionMod(DLLObject & dllObject, bool supportGlobals);
 
 	bool Draw() override;
 	void Think() override;
@@ -265,55 +276,26 @@ private:
 	void ResetData();
 	void UpdateMissionData();
 
-	MissionArray m_currentMission;
-	MissionArray2 m_currentMission2;
-	MissionArray3 m_mission3;
-	MissionArray4 m_mission4;
-	MissionArray5 m_mission5;
-	MissionArray5Bis m_mission5Bis;
-	MissionArray5Bis2 m_mission5Bis2;
-	MissionArray6 m_mission6;
-	MissionArray7 m_mission7;
-	MissionArray8 m_mission8;
-	MissionArray9 m_mission9;
-	MissionArray10 m_mission10;
-	int m_missionCount = 0;
-	int m_mission2Size = 0;
-	int m_mission3Size = 0;
-	int m_mission4Size = 0;
-	int m_mission5Size = 0;
-	int m_mission5BisSize = 0;
-	int m_mission5Bis2Size = 0;
-	int m_mission6Size = 0;
-	int m_mission7Size = 0;
-	int m_mission8Size = 0;
-	int m_mission9Size = 0;
-	int m_mission10Size = 0;
-	int m_missionArraySizeAddr = GlobalID::_81155;
-	int m_missionArrayStartAddr = m_missionArraySizeAddr + 1;
-	int m_missionArray2SizeAddr = GlobalID::_84352;
-	int m_missionArray2StartAddr = m_missionArray2SizeAddr + 1;
-	int m_missionArray3SizeAddr = GlobalID::_24748;
-	int m_missionArray3StartAddr = m_missionArray3SizeAddr + 1;
-	int m_missionArray4SizeAddr = GlobalID::_87300;
-	int m_missionArray4StartAddr = m_missionArray4SizeAddr + 1;
-	int m_missionArray5SizeAddr = GlobalID::_68623;
-	int m_missionArray5StartAddr = m_missionArray5SizeAddr + 1;
-	int m_missionArray5BisSizeAddr = GlobalID::_75198;
-	int m_missionArray5BisStartAddr = m_missionArray5BisSizeAddr + 1;
-	int m_missionArray5Bis2SizeAddr = GlobalID::_72674;
-	int m_missionArray5Bis2StartAddr = m_missionArray5Bis2SizeAddr + 1;
-	int m_missionArray6SizeAddr = GlobalID::_75339;
-	int m_missionArray6StartAddr = m_missionArray6SizeAddr + 1;
-	int m_missionArray7SizeAddr = GlobalID::_104696;
-	int m_missionArray7StartAddr = m_missionArray7SizeAddr + 1;
-	int m_missionArray8SizeAddr = GlobalID::_81040;
-	int m_missionArray8StartAddr = m_missionArray8SizeAddr + 1;
-	int m_missionArray9SizeAddr = GlobalID::_81119;
-	int m_missionArray9StartAddr = m_missionArray9SizeAddr + 1;
-	int m_missionArray10SizeAddr = GlobalID::_81106;
-	int m_missionArray10StartAddr = m_missionArray10SizeAddr + 1;
+	MissionSettings m_settings;
+	GlobalArray<MissionArray> m_gMission1;
+	GlobalArray<MissionArray2> m_gMission2;
+	GlobalArray<MissionArray3> m_gMission3;
+	GlobalArray<MissionArray4> m_gMission4;
+	GlobalArray<MissionArray5> m_gMission5;
+	GlobalArray<MissionArray5Bis> m_gMission5Bis;
+	GlobalArray<MissionArray5Bis2> m_gMission5Bis2;
+	GlobalArray<MissionArray5Bis3> m_gMission5Bis3;
+	GlobalArray<MissionArray6> m_gMission6;
+	GlobalArray<MissionArray7> m_gMission7;
+	GlobalArray<MissionArray8> m_gMission8;
+	GlobalArray<MissionArray9> m_gMission9;
+	GlobalArray<MissionArray10> m_gMission10;
+	GlobalArray<MissionArray12> m_gMission12;
 
+	GlobalArray<StrangersAndFreaksArray> m_gSaf1;
+	GlobalArray<StrangersAndFreaksArray2> m_gSaf2;
+
+	bool m_updateSafArray = true;
 
 	int m_availableMissionCount = 0;
 	int m_missionState = 0;
@@ -325,28 +307,8 @@ private:
 	int m_missionUnk87298 = 0;
 	int m_missionUnk81105 = 0; // An array 6 ID
 
-
-	StrangersAndFreaksArray m_safArray;
-	StrangersAndFreaksArray2 m_safArray2;
-	int m_safArray2SizeAddr = GlobalID::_114181;
-	int m_safArray2StartAddr = m_safArray2SizeAddr + 1;
-	int m_safCount = 63; // Hardcoded, taken from script: Max case in strangers_and_freaks_names
-	int m_saf2Size = 0;
-	int m_safID = 0;
-	bool m_updateSafArray;
-
-
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;
-	int m_missionID = 0;
-	int m_missionID3 = 0;
-	int m_missionID4 = 0;
-	int m_missionID5 = 0;
-	int m_missionID6 = 0;
-	int m_missionID7 = 0;
-	int m_missionID8 = 0;
-	int m_missionID9 = 0;
-	int m_missionID10 = 0;
 	bool m_constantUpdate = true;
 	char m_animDictInput[256] = "";
 	char m_animNameInput[256] = "";

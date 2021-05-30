@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "test_mod.h"
 #include "natives.h"
 #include "script.h"
@@ -22,14 +29,14 @@ void TestMod::DrawMenuBar()
 {
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("Watch"))
+		if (ImGui::BeginMenu("Menu 1"))
 		{
 
-			if (ImGui::MenuItem("Load all debug"))
+			if (ImGui::MenuItem("Item 1"))
 			{
 			}
 
-			if (ImGui::MenuItem("Clear"))
+			if (ImGui::MenuItem("Item 2"))
 			{
 			}
 
@@ -42,11 +49,11 @@ void TestMod::DrawMenuBar()
 
 bool TestMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
-	ImGui::Text("RAS_maybe_loading_screen_tests");
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::Text("Text sample");
 
 	return true;
 }

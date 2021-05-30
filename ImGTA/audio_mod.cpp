@@ -1,19 +1,29 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "audio_mod.h"
 #include "natives.h"
 #include "script.h"
 #include "audio_scenes.h"
 #include "music_events.h"
 #include "global_id.h"
+#include "types.h"
 
 
 void AudioMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().audio;
 }
 
 void AudioMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().audio = m_settings;
 }
 
 void AudioMod::Think()
@@ -54,7 +64,7 @@ void AudioMod::DrawMenuBar()
 		{
 			if (ImGui::MenuItem("Restart"))
 			{
-				RunOnNativeThread([]
+				m_dllObject.RunOnNativeThread([]
 				{
 					AUDIO::RESTART_SCRIPTED_CONVERSATION();
 				});
@@ -65,7 +75,7 @@ void AudioMod::DrawMenuBar()
 				ImGui::Checkbox("Unknown param", &m_stopConversationParam);
 				if (ImGui::Button("Stop"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						AUDIO::STOP_SCRIPTED_CONVERSATION(m_stopConversationParam);
 					});
@@ -80,7 +90,7 @@ void AudioMod::DrawMenuBar()
 
 				if (ImGui::Button("Pause"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						AUDIO::PAUSE_SCRIPTED_CONVERSATION(m_pauseConversationParam);
 					});
@@ -91,7 +101,7 @@ void AudioMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Skip to Next Line"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					AUDIO::SKIP_TO_NEXT_SCRIPTED_CONVERSATION_LINE();
 				});
@@ -99,7 +109,7 @@ void AudioMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Start Preloaded Conversation"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					AUDIO::START_PRELOADED_CONVERSATION();
 				});
@@ -116,7 +126,7 @@ void AudioMod::DrawMenuBar()
 				{
 					if (ImGui::MenuItem(audioScenes[i]))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							AUDIO::START_AUDIO_SCENE((char *)audioScenes[i]);
 						});
@@ -135,7 +145,7 @@ void AudioMod::DrawMenuBar()
 					{
 						if (ImGui::MenuItem(audioScenes[i]))
 						{
-							RunOnNativeThread([=]
+							m_dllObject.RunOnNativeThread([=]
 							{
 								AUDIO::SET_AUDIO_SCENE_VARIABLE((char *)audioScenes[i], m_audioSceneVarName, m_audioSceneVarValue);
 							});
@@ -152,7 +162,7 @@ void AudioMod::DrawMenuBar()
 				{
 					if (ImGui::MenuItem(audioScenes[i]))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							if (AUDIO::IS_AUDIO_SCENE_ACTIVE((char *)audioScenes[i]))
 								AUDIO::STOP_AUDIO_SCENE((char *)audioScenes[i]);
@@ -164,7 +174,7 @@ void AudioMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Stop all"))
 			{
-				RunOnNativeThread([]
+				m_dllObject.RunOnNativeThread([]
 				{
 					AUDIO::STOP_AUDIO_SCENES();
 				});
@@ -181,7 +191,7 @@ void AudioMod::DrawMenuBar()
 				{
 					if (ImGui::MenuItem(musicEvents[i]))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							AUDIO::PREPARE_MUSIC_EVENT((char *)musicEvents[i]);
 						});
@@ -195,7 +205,7 @@ void AudioMod::DrawMenuBar()
 				{
 					if (ImGui::MenuItem(musicEvents[i]))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							AUDIO::TRIGGER_MUSIC_EVENT((char *)musicEvents[i]);
 						});
@@ -209,7 +219,7 @@ void AudioMod::DrawMenuBar()
 				{
 					if (ImGui::MenuItem(musicEvents[i]))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							AUDIO::CANCEL_MUSIC_EVENT((char *)musicEvents[i]);
 						});
@@ -227,10 +237,10 @@ void AudioMod::DrawMenuBar()
 
 bool AudioMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 	ImGui::Text("Is Phone Ringing: %d", m_isRingtonePlaying);
 	ImGui::Text("Is Call Ongoing: %d", m_isCallOngoing);
 	ImGui::Separator();

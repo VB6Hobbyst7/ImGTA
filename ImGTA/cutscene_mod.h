@@ -1,11 +1,20 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
 #include "types.h"
 
+struct CutsceneSettings;
+
 class CutsceneMod : public Mod
 {
 public:
-	CutsceneMod(bool supportGlobals) : Mod("Cutscene", true, supportGlobals)
+	CutsceneMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Cutscene", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 		m_startPos.x = 0;
@@ -21,6 +30,7 @@ public:
 private:
 	void DrawMenuBar();
 
+	CutsceneSettings m_settings;
 	char m_requestedCutscene[256] = "";
 	bool m_hasCutsceneLoaded = false;
 	bool m_hasCutsceneFinished = false;
@@ -35,7 +45,7 @@ private:
 	int m_cutsceneTime = 0;
 	int m_cutsceneTotalDuration = 0;
 	int m_cutsceneSectionPlaying = 0;
-
+	int m_threadId = 0;
 	int m_loadedCutsceneId = -1;
 
 	char m_audioVariableName[256] = "INOUT";

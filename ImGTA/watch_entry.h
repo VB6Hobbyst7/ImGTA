@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include <string>
 
@@ -20,6 +27,7 @@ public:
 	int m_addressIndex;
 	std::string m_scriptName;
 	int m_scriptHash = 0;
+	bool m_scriptRunning = true;
 	WatchType m_type;
 	std::string m_info;
 	std::string m_value;

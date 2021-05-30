@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
-#include "lua_engine.h"
 #include "types.h"
-#include "mission_mod.h"
+#include "utils.h"
+
+struct CommsSettings;
 
 struct MessageArray
 {
@@ -42,14 +49,49 @@ struct MessageArray2 {
 	DWORD _padding9;
 }; // Size 10 * 8 bytes
 
+struct MessageArray3 {
+	// Global_2270
+	char f_0[32];
+	int f_4;
+	DWORD _padding4;
+	char scriptName[32];
+	int scriptHash; // 9
+	DWORD _padding9;
+	int f_10;
+	DWORD _padding10;
+	int f_11;
+	DWORD _padding11;
+	int f_12;
+	DWORD _padding12;
+	int f_13;
+	DWORD _padding13;
+	int f_14;
+	DWORD _padding14;
+}; // Size 15 * 8 bytes
+
+struct MessageArray4 {
+	// Global_97353.f_23635
+};
+
+struct MessageArray5 {
+	// Global_2873
+	char f_0[32];
+	int f_5;
+	DWORD _padding5;
+}; // Size 6 * 8 bytes
+
+struct MessageArray6 {
+	// Global_1683749
+};
+
+struct MessageArray7 {
+	// Global_97353.f_12395
+};
 
 class CommsMod : public Mod
 {
 public:
-	CommsMod(bool supportGlobals) : Mod("Comms", true, supportGlobals)
-	{
-		m_windowFlags = ImGuiWindowFlags_MenuBar;
-	}
+	CommsMod(DLLObject & dllObject, bool supportGlobals);
 
 	bool Draw() override;
 	void Think() override;
@@ -59,24 +101,17 @@ public:
 private:
 	void DrawMenuBar();
 	void UpdateLocationData();
-		
-	MessageArray m_characterArray;
-	MessageArray2 m_messageArray2;
-	int m_characterID = 0;
-	int m_messageArrayID2 = 0;
-	int m_characterCount = 0;
-	int m_messageArray2Count = 0;
-	int m_characterArraySizeAddr = GlobalID::_127127;
-	int m_characterArrayStartAddr = m_characterArraySizeAddr + 1;
-	int m_messageArray2SizeAddr = GlobalID::_97;
-	int m_messageArray2StartAddr = m_messageArray2SizeAddr + 1;
+
+	CommsSettings m_settings;
+	GlobalArray<MessageArray> m_gMessage1;
+	GlobalArray<MessageArray2> m_gMessage2;
+	GlobalArray<MessageArray3> m_gMessage3;
 
 	std::string m_unk15750 = "";
 	std::string m_unk15756 = "";
 
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;
-	int m_locationID = 0;
 	bool m_constantUpdate = true;
 	char m_animDictInput[256] = "";
 	char m_animNameInput[256] = "";

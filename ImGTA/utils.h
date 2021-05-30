@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include <Windows.h>
 #include "types.h"
@@ -38,8 +45,44 @@ struct ThreadBasket {
 	unsigned short threadCapacity = 0; // 12
 }; // 16 Bytes
 
+template<typename T>
+struct GlobalArray {
+	GlobalArray(int sizeAddr) : sizeAddr{ sizeAddr }, startAddr{ sizeAddr + 1 }
+	{
 
-HWND find_main_window(unsigned long processID);
+	}
+
+	void LoadElement()
+	{
+		if (sizeAddr != 0)
+		{
+			size = *(int *)getGlobalPtr(sizeAddr);
+			if (size > 0 && id < size)
+			{
+				int offset = startAddr + id * sizeof(T) / 8;
+				arr = *(T *)getGlobalPtr(offset);
+			}
+		}
+	}
+
+	T arr;
+	int id = 0;
+	int size = 0;
+
+private:
+	int sizeAddr = 0;
+	int startAddr = 0;
+};
+
+struct PaddedInt {
+	int val = 0;
+	DWORD _padding;
+};
+
+
+BOOL IsMainWindow(HWND handle);
+BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam);
+HWND FindMainWindow(unsigned long processID);
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight = false, int red = 255, int green = 255, int blue = 255);
 void ClipInt(int & value, int min, int max);
 void ClipFloat(float & value, float min, float max);
@@ -50,5 +93,5 @@ bool IsVersionSupportedForGlobals(eGameVersion ver);
 // Thanks Parik (explanation on where and how to find addresses as well as thread structures...
 //				 everything you see in these two functions)
 // Thanks Gogsi123 (how to get the value from addresses in C++)
-void InitThreadBasket();
+bool InitThreadBasket();
 uint64_t * GetThreadAddress(int localId, int scriptHash);

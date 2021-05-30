@@ -1,22 +1,31 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "handle_helper_mod.h"
 #include "natives.h"
 #include "script.h"
 #include "anim_dict.h"
 #include "imgui_extras.h"
 #include "utils.h"
-
+#include "user_settings.h"
 #include <algorithm>
 
 const char *entityTypes[] = { "Invalid", "Ped", "Vehicle", "Object" };
 
 void HandleHelperMod::Load()
 {
-
+	Mod::CommonLoad();
+	m_settings = m_dllObject.GetUserSettings().handleHelper;
 }
 
 void HandleHelperMod::Unload()
 {
-
+	Mod::CommonUnload();
+	m_dllObject.GetUserSettings().handleHelper = m_settings;
 }
 
 void HandleHelperMod::Think()
@@ -51,7 +60,7 @@ void HandleHelperMod::ListPeds()
 	nearbyEnts pedArr;
 	int ped = PLAYER::GET_PLAYER_PED(PLAYER::PLAYER_ID());
 	int maxCount = PED::GET_PED_NEARBY_PEDS(ped, (int*)&pedArr, ped);
-	int count = std::min<int>(maxCount, m_nearbyObjectMax);
+	int count = std::min<int>(maxCount, m_settings.nearbyObjectMax);
 
 	// Go through peds
 	m_pedListMutex.lock();
@@ -60,28 +69,29 @@ void HandleHelperMod::ListPeds()
 		m_pedList += std::to_string(pedArr.entities[i].id) + ", ";
 	m_pedListMutex.unlock();
 
-	if (m_drawEntityInfo && m_showInGame)
+	if (m_settings.drawEntityInfo && m_commonSettings.showInGame)
 	{
+		eFont font = eFont::FontChaletLondon;
 		for (int i = 0; i < count; i++)
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(pedArr.entities[i].id, true);
 			float screenX, screenY;
-			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
+			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);
-			if (!m_drawOnScreenEntityOnly || !notOnScreen)
+			if (!m_settings.drawOnScreenEntityOnly || !notOnScreen)
 			{
 				char buf[256] = "";
 				int health = ENTITY::GET_ENTITY_HEALTH(pedArr.entities[i].id);
 				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(pedArr.entities[i].id);
 
-				if (m_drawId && m_drawLife)
+				if (m_settings.drawId && m_settings.drawLife)
 					sprintf_s(buf, "Ped ID: %d\nLife: %d/%d", pedArr.entities[i].id, health, maxHealth);
-				else if (m_drawId)
+				else if (m_settings.drawId)
 					sprintf_s(buf, "Ped: %d", pedArr.entities[i].id);
-				else if (m_drawLife)
+				else if (m_settings.drawLife)
 					sprintf_s(buf, "Ped: %d/%d", health, maxHealth);
 
-				DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+				DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 			}
 		}
 	}
@@ -92,7 +102,7 @@ void HandleHelperMod::ListVehs()
 	nearbyEnts vehArr;
 	int ped = PLAYER::GET_PLAYER_PED(PLAYER::PLAYER_ID());
 	int maxCount = PED::GET_PED_NEARBY_VEHICLES(ped, (int*)&vehArr);
-	int count = std::min<int>(maxCount, m_nearbyObjectMax);
+	int count = std::min<int>(maxCount, m_settings.nearbyObjectMax);
 
 	// Go through vehicles
 	m_vehListMutex.lock();
@@ -101,28 +111,29 @@ void HandleHelperMod::ListVehs()
 		m_vehList += std::to_string(vehArr.entities[i].id) + ", ";
 	m_vehListMutex.unlock();
 
-	if (m_drawEntityInfo && m_showInGame)
+	if (m_settings.drawEntityInfo && m_commonSettings.showInGame)
 	{
+		eFont font = eFont::FontChaletLondon;
 		for (int i = 0; i < count; i++)
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(vehArr.entities[i].id, true);
 			float screenX, screenY;
-			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_drawOffsetZ,
+			bool notOnScreen = HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(worldPos.x, worldPos.y, worldPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);
-			if (!m_drawOnScreenEntityOnly || !notOnScreen)
+			if (!m_settings.drawOnScreenEntityOnly || !notOnScreen)
 			{
 				char buf[256] = "";
 				int health = ENTITY::GET_ENTITY_HEALTH(vehArr.entities[i].id);
 				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(vehArr.entities[i].id);
 
-				if (m_drawId && m_drawLife)
+				if (m_settings.drawId && m_settings.drawLife)
 					sprintf_s(buf, "\n\nVeh ID: %d\nLife: %d/%d", vehArr.entities[i].id, health, maxHealth);
-				else if (m_drawId)
+				else if (m_settings.drawId)
 					sprintf_s(buf, "\n\nVeh: %d", vehArr.entities[i].id);
-				else if (m_drawLife)
+				else if (m_settings.drawLife)
 					sprintf_s(buf, "\n\nVeh: %d/%d", health, maxHealth);
 
-				DrawTextToScreen(buf, screenX, screenY, m_inGameFontSize, eFont::FontChaletLondon);
+				DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 			}
 		}
 	}
@@ -149,7 +160,7 @@ void HandleHelperMod::DrawMenuBar()
 			{
 				if (ImGui::MenuItem("Set Mission Entity"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 							ENTITY::SET_ENTITY_AS_MISSION_ENTITY(m_handleInput, true, false);
@@ -158,7 +169,7 @@ void HandleHelperMod::DrawMenuBar()
 
 				if (ImGui::MenuItem("Mark as No Longer Needed"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 						{
@@ -173,7 +184,7 @@ void HandleHelperMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Kill"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 						ENTITY::SET_ENTITY_HEALTH(m_handleInput, 0, true);
@@ -182,7 +193,7 @@ void HandleHelperMod::DrawMenuBar()
 
 			if (ImGui::MenuItem("Delete"))
 			{
-				RunOnNativeThread([=]
+				m_dllObject.RunOnNativeThread([=]
 				{
 					if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 						ENTITY::DELETE_ENTITY(&m_handleInput);
@@ -198,7 +209,7 @@ void HandleHelperMod::DrawMenuBar()
 					ImGuiExtras::BitField("Flags", &m_animFlags, nullptr);
 					if (ImGui::Button("Play"))
 					{
-						RunOnNativeThread([=]
+						m_dllObject.RunOnNativeThread([=]
 						{
 							if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 							{
@@ -213,7 +224,7 @@ void HandleHelperMod::DrawMenuBar()
 
 				if (ImGui::MenuItem("Stop"))
 				{
-					RunOnNativeThread([=]
+					m_dllObject.RunOnNativeThread([=]
 					{
 						if (ENTITY::DOES_ENTITY_EXIST(m_handleInput))
 							TASK::STOP_ANIM_PLAYBACK(m_handleInput, 0, 0);
@@ -227,16 +238,16 @@ void HandleHelperMod::DrawMenuBar()
 
 		if (ImGui::BeginMenu("HUD"))
 		{
-			ImGui::MenuItem("Show entities on scren only", NULL, &m_drawOnScreenEntityOnly);
-			ImGui::MenuItem("Show on HUD", NULL, &m_drawEntityInfo);
-			ImGui::MenuItem("Show Handle", NULL, &m_drawId);
-			ImGui::MenuItem("Show Life", NULL, &m_drawLife);
+			ImGui::MenuItem("Show entities on scren only", NULL, &m_settings.drawOnScreenEntityOnly);
+			ImGui::MenuItem("Show on HUD", NULL, &m_settings.drawEntityInfo);
+			ImGui::MenuItem("Show Handle", NULL, &m_settings.drawId);
+			ImGui::MenuItem("Show Life", NULL, &m_settings.drawLife);
 
 
 			if (ImGui::BeginMenu("Misc"))
 			{
-				ImGui::InputInt("Max display count", &m_nearbyObjectMax);
-				ImGui::InputInt("Z offset", &m_drawOffsetZ);
+				ImGui::InputInt("Max display count", &m_settings.nearbyObjectMax);
+				ImGui::InputFloat("Z offset", &m_settings.drawOffsetZ, 0.1f);
 				ImGui::EndMenu();
 			}
 
@@ -249,10 +260,10 @@ void HandleHelperMod::DrawMenuBar()
 
 bool HandleHelperMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_menuFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_contentFontSize);
+	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -260,9 +271,10 @@ bool HandleHelperMod::Draw()
 			m_wantsUpdate = true;
 
 	ImGui::Separator();
-	if (ImGui::TreeNode("Entity"))
+	if (ImGui::TreeNodeEx("Entity", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
-		if (ImGui::InputInt("Handle", &m_handleInput))
+		ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+		if (ImGui::InputInt("ID", &m_handleInput))
 		{
 			if (m_handleInput < 0)
 				m_handleInput = 0;

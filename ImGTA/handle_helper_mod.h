@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include <mutex>
 
 #include "mod.h"
 #include "types.h"
-#include "utils.h"
+
+struct HandleHelperSettings;
 
 struct PaddedEntity
 {
@@ -21,7 +29,7 @@ struct nearbyEnts
 class HandleHelperMod : public Mod
 {
 public:
-	HandleHelperMod(bool supportGlobals) : Mod("Handle Helper", true, supportGlobals)
+	HandleHelperMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Handle Helper", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
@@ -38,24 +46,19 @@ private:
 	void ListPeds();
 	void ListVehs();
 
+	HandleHelperSettings m_settings;
+
 	int m_type = 0;
 	int m_health = 0;
 	int m_maxHealth = 0;
 	bool m_injured = false;
 	Hash m_modelHash = 0;
-	Vector3 m_position = InitVector3(0);
+	Vector3 m_position = {};
 	bool m_isMissionEntity = false;
 	std::mutex m_pedListMutex;
 	std::mutex m_vehListMutex;
 	std::string m_pedList = "";
 	std::string m_vehList = "";
-
-	int m_nearbyObjectMax = 30;
-	int m_drawOffsetZ = 0;
-	bool m_drawEntityInfo = true;
-	bool m_drawOnScreenEntityOnly = true;
-	bool m_drawId = true;
-	bool m_drawLife = true;
 
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

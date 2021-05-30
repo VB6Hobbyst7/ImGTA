@@ -1,12 +1,35 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * Copyright (c) 2021, Rayope
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #include "lua_engine.h"
-#include "lua.hpp"
 #include "nativeCaller.h"
 
-lua_State *state;
-std::ostringstream lua_stream;
+
+const struct luaL_Reg LuaEngine::baselib[] =
+{
+	{ "print", LuaEngine::lua_Print }, // override print with our print
+	{ NULL, NULL }
+};
+
+const struct luaL_Reg LuaEngine::gtalib[] =
+{
+	{ "invoke", LuaEngine::lua_Invoke },
+	{ "invokeString", LuaEngine::lua_InvokeString },
+	{ "invokeInteger", LuaEngine::lua_InvokeInteger },
+	{ "getGlobal", LuaEngine::lua_GetGlobal },
+	{ "setGlobal", LuaEngine::lua_SetGlobal },
+	{ NULL, NULL }
+};
+
+std::ostringstream LuaEngine::luaStream{};
 
 // TODO: can we combine these somehow?
-void lua_BaseInvoke(lua_State *L)
+void LuaEngine::lua_BaseInvoke(lua_State *L)
 {
 	UINT64 addr = luaL_checkinteger(L, 1);
 	nativeInit(addr);
@@ -23,10 +46,9 @@ void lua_BaseInvoke(lua_State *L)
 			luaL_error(L, "not an integer, number, or string");
 		lua_pop(L, 1);
 	}
-
 }
 
-int lua_Invoke(lua_State *L)
+int LuaEngine::lua_Invoke(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
@@ -35,7 +57,7 @@ int lua_Invoke(lua_State *L)
 	return 1;
 }
 
-int lua_InvokeString(lua_State *L)
+int LuaEngine::lua_InvokeString(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
@@ -44,7 +66,7 @@ int lua_InvokeString(lua_State *L)
 	return 1;
 }
 
-int lua_InvokeInteger(lua_State *L)
+int LuaEngine::lua_InvokeInteger(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
@@ -53,7 +75,7 @@ int lua_InvokeInteger(lua_State *L)
 	return 1;
 }
 
-static int lua_Print(lua_State *L)
+int LuaEngine::lua_Print(lua_State *L)
 {
 	int n = lua_gettop(L);  /* number of arguments */
 	int i;
@@ -62,15 +84,15 @@ static int lua_Print(lua_State *L)
 		/* for each argument */
 		const char *s = luaL_tolstring(L, i, nullptr);  /* convert it to string */
 		if (i > 1)  /* not the first element? */
-			lua_stream << "\t";  /* add a tab before it */
-		lua_stream << s;
+			luaStream << "\t";  /* add a tab before it */
+		luaStream << s;
 		lua_pop(L, 1);  /* pop result */
 	}
-	lua_stream << std::endl;
+	luaStream << std::endl;
 	return 0;
 }
 
-static int lua_GetGlobal(lua_State *L)
+int LuaEngine::lua_GetGlobal(lua_State *L)
 {
 	int addr = static_cast<int>(luaL_checkinteger(L, 1));
 
@@ -87,7 +109,7 @@ static int lua_GetGlobal(lua_State *L)
 	return 1;
 }
 
-static int lua_SetGlobal(lua_State *L)
+int LuaEngine::lua_SetGlobal(lua_State *L)
 {
 	int addr = static_cast<int>(luaL_checkinteger(L, 1));
 
@@ -111,36 +133,11 @@ static int lua_SetGlobal(lua_State *L)
 	return 0;
 }
 
-static const struct luaL_Reg baselib[] =
+LuaEngine::LuaEngine(const std::string & scriptFolder) :
+	m_scriptFolder(scriptFolder),
+	m_nativesFile(scriptFolder + "natives.lua"),
+	m_nativeListerFile(scriptFolder + "nativesLister.lua")
 {
-	{ "print", lua_Print }, // override print with our print
-	{ NULL, NULL }
-};
-
-static const struct luaL_Reg gtalib[] =
-{
-	{ "invoke", lua_Invoke },
-	{ "invokeString", lua_InvokeString },
-	{ "invokeInteger", lua_InvokeInteger },
-	{ "getGlobal", lua_GetGlobal },
-	{ "setGlobal", lua_SetGlobal },
-	{ NULL, NULL }
-};
-
-void LoadLuaNatives()
-{
-	if (luaL_dofile(state, "natives.lua") != LUA_OK)
-	{
-		lua_stream << "WARN: Unable to dofile for natives.lua!" << std::endl;
-		lua_stream << "\t" << GetLastLuaError() << std::endl;
-	}
-}
-
-void InitLuaEngine()
-{
-	if (state)
-		return;
-
 	state = luaL_newstate();
 	luaL_openlibs(state);
 	lua_pushglobaltable(state);
@@ -149,29 +146,77 @@ void InitLuaEngine()
 	LoadLuaNatives();
 }
 
-void UnloadLuaEngine()
+LuaEngine::~LuaEngine()
 {
 	if (!state)
 		return;
 	lua_close(state);
 }
 
-int DoLuaString(const char *line)
+void LuaEngine::LoadLuaNatives()
+{
+	if (luaL_dofile(state, m_nativesFile.c_str()) != LUA_OK)
+	{
+		luaStream << "WARN: Unable to dofile for the file '"
+			<< m_nativesFile << "'!" << std::endl;
+		luaStream << "\t" << GetLastLuaError() << std::endl;
+	}
+}
+
+
+int LuaEngine::DoLuaString(const char *line)
 {
 	return luaL_dostring(state, line);
 }
 
-int DoLuaFile(const char *path)
+int LuaEngine::DoLuaFile(const char *path)
 {
 	return luaL_dofile(state, path);
 }
 
-bool IsLuaReady()
+bool LuaEngine::IsLuaReady()
 {
 	return state != nullptr;
 }
 
-const char *GetLastLuaError()
+const char * LuaEngine::GetLastLuaError()
 {
 	return lua_tostring(state, -1);
+}
+
+// Thanks Zack Lee: https://stackoverflow.com/questions/51063716/how-to-get-returned-table-from-lua-function-in-c
+void LuaEngine::ListAllCommands(std::vector<std::string> & commandList)
+{
+	if (!state)
+		return;
+
+	int iErr = 0;
+	if ((iErr = luaL_loadfile(state, m_nativeListerFile.c_str())) == 0)
+	{
+		// Call main...
+		if ((iErr = lua_pcall(state, 0, LUA_MULTRET, 0)) == 0)
+		{
+			// Push the function name onto the stack
+			lua_getglobal(state, "list_all_functions");
+			if (lua_pcall(state, 0, 1, 0))
+			{
+				std::string error_str = lua_tostring(state, -1);
+			}
+
+			if (lua_istable(state, -1))
+			{
+				lua_pushvalue(state, -1);
+				lua_pushnil(state);
+				while (lua_next(state, -2))
+				{
+					if (lua_isstring(state, -1))
+					{
+						commandList.emplace_back(lua_tostring(state, -1));
+					}
+					lua_pop(state, 1);
+				}
+				lua_pop(state, -1);
+			}
+		}
+	}
 }

@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2021, James Puleo <james@jame.xyz>
+ * Copyright (c) 2021, Rayope
+ *
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+
 #pragma once
 #include "mod.h"
-#include "lua_engine.h"
-#include "types.h"
 
 class TestMod : public Mod
 {
 public:
-	TestMod(bool supportGlobals) : Mod("Test", true, supportGlobals)
+	TestMod(DLLObject & dllObject, bool supportGlobals) : Mod(dllObject, "Test", true, supportGlobals)
 	{
 		m_windowFlags = ImGuiWindowFlags_MenuBar;
 	}
