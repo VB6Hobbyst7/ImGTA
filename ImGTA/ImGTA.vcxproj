@@ -114,13 +114,13 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Librairies\ScriptHookV_SDK\inc\;$(SolutionDir)Librairies\imgui\;$(SolutionDir)Librairies\imgui\backends\;$(SolutionDir)Librairies\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\ScriptHookV_SDK\inc\;$(SolutionDir)Libraries\imgui\;$(SolutionDir)Libraries\imgui\backends\;$(SolutionDir)Libraries\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>
       </ShowIncludes>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)Librairies\ScriptHookV_SDK\lib\;$(SolutionDir)Librairies\lua\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\ScriptHookV_SDK\lib\;$(SolutionDir)Libraries\lua\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ScriptHookV.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
@@ -161,30 +161,30 @@ copy "$(SolutionDir)lua\lua53.dll" "E:\Grand Theft Auto V"</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Librairies\ScriptHookV_SDK\inc\;$(SolutionDir)Librairies\imgui\;$(SolutionDir)Librairies\imgui\backends\;$(SolutionDir)Librairies\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\ScriptHookV_SDK\inc\;$(SolutionDir)Libraries\imgui\;$(SolutionDir)Libraries\imgui\backends\;$(SolutionDir)Libraries\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)Librairies\ScriptHookV_SDK\lib\;$(SolutionDir)Librairies\lua\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Libraries\ScriptHookV_SDK\lib\;$(SolutionDir)Libraries\lua\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>ScriptHookV.lib;liblua53.a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\$(ProjectName)\" mkdir "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\$(ProjectName)"
 copy "$(SolutionDir)$(ProjectName)\Lua\*.lua" "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\$(ProjectName)\"
 copy "$(SolutionDir)Config\*" "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\$(ProjectName)\"
-copy "$(SolutionDir)Librairies\lua\lua53.dll" "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\"
+copy "$(SolutionDir)Libraries\lua\lua53.dll" "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\"
 copy "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)" "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(ProjectName)\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Librairies\imgui\backends\imgui_impl_dx11.cpp" />
-    <ClCompile Include="..\Librairies\imgui\backends\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\Librairies\imgui\imgui.cpp" />
-    <ClCompile Include="..\Librairies\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\Librairies\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\Librairies\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\Libraries\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="..\Libraries\imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\Libraries\imgui\imgui.cpp" />
+    <ClCompile Include="..\Libraries\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\Libraries\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\Libraries\imgui\imgui_widgets.cpp" />
     <ClCompile Include="anim_dict.cpp" />
     <ClCompile Include="area_mod.cpp" />
     <ClCompile Include="cheats_mod.cpp" />
@@ -213,14 +213,14 @@ copy "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)
     <ClCompile Include="watch_entry.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Librairies\imgui\backends\imgui_impl_dx11.h" />
-    <ClInclude Include="..\Librairies\imgui\backends\imgui_impl_win32.h" />
-    <ClInclude Include="..\Librairies\imgui\imconfig.h" />
-    <ClInclude Include="..\Librairies\imgui\imgui.h" />
-    <ClInclude Include="..\Librairies\imgui\imgui_internal.h" />
-    <ClInclude Include="..\Librairies\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\Librairies\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\Librairies\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\Libraries\imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="..\Libraries\imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="..\Libraries\imgui\imconfig.h" />
+    <ClInclude Include="..\Libraries\imgui\imgui.h" />
+    <ClInclude Include="..\Libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="..\Libraries\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\Libraries\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\Libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="anim_dict.h" />
     <ClInclude Include="area_mod.h" />
     <ClInclude Include="audio_scenes.h" />

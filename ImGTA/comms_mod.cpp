@@ -12,13 +12,18 @@
 #include "imgui_extras.h"
 #include "mission_mod.h"
 #include "global_id.h"
+#include "utils.h"
 
 
 CommsMod::CommsMod(DLLObject & dllObject, bool supportGlobals) :
 	Mod(dllObject, "Comms", true, supportGlobals),
 	m_gMessage1(GlobalID::_127127),
 	m_gMessage2(GlobalID::_97),
-	m_gMessage3(GlobalID::_2270)
+	m_gMessage3(GlobalID::_2270),
+	m_gMessage4(GlobalID::_120988),
+	m_gMessage5(GlobalID::_2873),
+	m_gMessage6(GlobalID::_1683749),
+	m_gMessage7(GlobalID::_109748)
 {
 	m_windowFlags = ImGuiWindowFlags_MenuBar;
 }
@@ -51,9 +56,13 @@ void CommsMod::UpdateLocationData()
 		m_gMessage1.LoadElement();
 		m_gMessage2.LoadElement();
 		m_gMessage3.LoadElement();
+		m_gMessage4.LoadElement();
+		m_gMessage5.LoadElement();
+		m_gMessage6.LoadElement();
+		m_gMessage7.LoadElement();
 
-		m_unk15750 = std::string((char *)getGlobalPtr(GlobalID::_15750));
-		m_unk15756 = std::string((char *)getGlobalPtr(GlobalID::_15756));
+		m_unk15750 = std::string((char *)GetGlobalPtr(GlobalID::_15750));
+		m_unk15756 = std::string((char *)GetGlobalPtr(GlobalID::_15756));
 	}
 }
 
@@ -163,6 +172,108 @@ bool CommsMod::Draw()
 			ImGui::Text("Field 12: %d", m_gMessage3.arr.f_12);
 			ImGui::Text("Field 13: %d", m_gMessage3.arr.f_13);
 			ImGui::Text("Field 14: %d", m_gMessage3.arr.f_14);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Message Array 4", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("Array 4 ID", &m_gMessage4.id))
+			{
+				ClipInt(m_gMessage4.id, 0, m_gMessage4.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gMessage4.size);
+
+			ImGui::Text("Field 0: %s", m_gMessage4.arr.f_0);
+			ImGui::Text("Field 4: %s", m_gMessage4.arr.f_4);
+			ImGui::Text("Timer: %d", m_gMessage4.arr.timer);
+			ImGui::Text("Field 9: %d", m_gMessage4.arr.f_9);
+			ImGui::Text("Field 10: %d", m_gMessage4.arr.f_10);
+			ImGui::Text("Field 11: %d", m_gMessage4.arr.f_11);
+			ImGui::Text("Field 12: %d", m_gMessage4.arr.f_12);
+			ImGui::Text("Field 13: %d", m_gMessage4.arr.f_13);
+			ImGui::Text("Field 14: %d", m_gMessage4.arr.f_14);
+			ImGui::Text("Field 15: %d", m_gMessage4.arr.f_15);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Message Array 5", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("Array 5 ID", &m_gMessage5.id))
+			{
+				ClipInt(m_gMessage5.id, 0, m_gMessage5.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gMessage5.size);
+
+			ImGui::Text("Field 0: %s", m_gMessage5.arr.f_0);
+			ImGui::Text("Field 5: %d", m_gMessage5.arr.f_5);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Message Array 6", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("Array 6 ID", &m_gMessage6.id))
+			{
+				ClipInt(m_gMessage6.id, 0, m_gMessage6.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gMessage6.size);
+
+			ImGui::Text("Field 0: %s", m_gMessage6.arr.f_0);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Received texts", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("Array 7 ID", &m_gMessage7.id))
+			{
+				ClipInt(m_gMessage7.id, 0, m_gMessage7.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gMessage7.size);
+
+			ImGui::Text("Name: %s", m_gMessage7.arr.name);
+			ImGui::Text("Notification ID: %d", m_gMessage7.arr.notificationId);
+			ImGui::Text("Field 17: %d", m_gMessage7.arr.f_17);
+			ImGui::Text("Reception Time (hour, min, sec): %d, %d, %d", m_gMessage7.arr.timeAndDate.hours,
+				m_gMessage7.arr.timeAndDate.minutes,
+				m_gMessage7.arr.timeAndDate.seconds);
+			ImGui::Text("Reception Date (day,month,year): %d, %d, %d", m_gMessage7.arr.timeAndDate.day,
+				m_gMessage7.arr.timeAndDate.month,
+				m_gMessage7.arr.timeAndDate.year);
+			ImGui::Text("Field 24: %d", m_gMessage7.arr.f_24);
+			ImGui::Text("Field 25: %d", m_gMessage7.arr.f_25);
+			ImGui::Text("Field 26: %d", m_gMessage7.arr.f_26);
+			ImGui::Text("Field 27: %d", m_gMessage7.arr.f_27);
+			ImGui::Text("Field 28: %d", m_gMessage7.arr.f_28);
+			ImGui::Text("Field 29: %d", m_gMessage7.arr.f_29);
+			ImGui::Text("Field 30: %d", m_gMessage7.arr.f_30);
+			ImGui::Text("Field 31: %d", m_gMessage7.arr.f_31);
+			ImGui::Text("Field 32: %d", m_gMessage7.arr.f_32);
+			ImGui::Text("Field 33: %s", m_gMessage7.arr.f_33);
+			ImGui::Text("Field 49: %d", m_gMessage7.arr.f_49);
+			ImGui::Text("Field 50: %s", m_gMessage7.arr.f_50);
+			ImGui::Text("Field 66: %d", m_gMessage7.arr.f_66);
+			ImGui::Text("Field 67: %s", m_gMessage7.arr.f_67);
+			ImGui::Text("Field 83: %s", m_gMessage7.arr.f_83);
+			ImGui::Text("Message recipient array size: %d", m_gMessage7.arr.f_99_size);
+			std::string field_99 = "Message recipient (michael, franklin, trevor, multiplayer?): ";
+			for (int i = 0; i < m_gMessage7.arr.f_99_size; ++i)
+				field_99 += std::to_string(m_gMessage7.arr.type[i].val) + ", ";
+			ImGui::Text(field_99.c_str());
 			ImGui::TreePop();
 		}
 	}

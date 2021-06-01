@@ -7,6 +7,7 @@
 #include "mission_mod.h"
 #include "natives.h"
 #include "script.h"
+#include "utils.h"
 #include "imgui.h"
 #include "imgui_extras.h"
 #include "watch_entry.h"
@@ -90,15 +91,15 @@ void MissionMod::UpdateMissionData()
 	m_gSaf2.LoadElement();
 
 
-	m_availableMissionCount = *(int *)getGlobalPtr(GlobalID::_87299);
-	m_missionState = *(int *)getGlobalPtr(GlobalID::_89962);
-	m_deathName = std::string((char *)getGlobalPtr(GlobalID::_68477));
-	m_missionUnk0 = *(int *)getGlobalPtr(GlobalID::_68507);
-	m_missionUnk68523 = *(int *)getGlobalPtr(GlobalID::_68523);
-	m_missionUnk87289 = *(int *)getGlobalPtr(GlobalID::_87289);
-	m_missionUnk87290 = *(int *)getGlobalPtr(GlobalID::_87290);
-	m_missionUnk87298 = *(int *)getGlobalPtr(GlobalID::_87298);
-	m_missionUnk81105 = *(int *)getGlobalPtr(GlobalID::_81105);
+	m_availableMissionCount = *(int *)GetGlobalPtr(GlobalID::_87299);
+	m_missionState = *(int *)GetGlobalPtr(GlobalID::_89962);
+	m_deathName = std::string((char *)GetGlobalPtr(GlobalID::_68477));
+	m_missionUnk0 = *(int *)GetGlobalPtr(GlobalID::_68507);
+	m_missionUnk68523 = *(int *)GetGlobalPtr(GlobalID::_68523);
+	m_missionUnk87289 = *(int *)GetGlobalPtr(GlobalID::_87289);
+	m_missionUnk87290 = *(int *)GetGlobalPtr(GlobalID::_87290);
+	m_missionUnk87298 = *(int *)GetGlobalPtr(GlobalID::_87298);
+	m_missionUnk81105 = *(int *)GetGlobalPtr(GlobalID::_81105);
 }
 
 void MissionMod::DrawMenuBar()
@@ -544,6 +545,8 @@ const char * CharacterIDStr(CharacterID id)
 		return "Franklin";
 	case TREVOR:
 		return "Trevor";
+
+	// Not sure about these next ones
 	case LAMAR:
 		return "Lamar";
 	case JIMMY:

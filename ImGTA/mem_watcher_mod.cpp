@@ -80,13 +80,39 @@ void MemWatcherMod::Think()
 	}
 }
 
+void MemWatcherMod::SortWatches()
+{
+	std::lock_guard<std::mutex> lock(m_watchesMutex);
+	std::sort(m_watches.begin(), m_watches.end(), CompareWatch);
+}
+
 void MemWatcherMod::ShowAddAddress(bool isGlobal)
 {
 	if (m_settings.inputHexIndex)
-		ImGui::InputInt("Hex Index##AddAddress", &m_inputAddressIndex, 1, 100, ImGuiInputTextFlags_CharsHexadecimal);
+	{
+		if (ImGui::InputInt("Hex Index##AddAddress", &m_inputAddressIndex, 1, 100, ImGuiInputTextFlags_CharsHexadecimal))
+		{
+			ClipInt(m_inputAddressIndex, 0, 999999);
+			m_indexRange = 1;
+			m_inputsUpdated = true;
+		}
+	}
 	else
-		ImGui::InputInt("Decimal Index##AddAddress", &m_inputAddressIndex, 1, 100);
-	ImGui::Combo("Type##AddAddress", &m_inputType, watchTypeNames, IM_ARRAYSIZE(watchTypeNames));
+	{
+		if (ImGui::InputInt("Decimal Index##AddAddress", &m_inputAddressIndex, 1, 100))
+		{
+			ClipInt(m_inputAddressIndex, 0, 999999);
+			m_indexRange = 1;
+			m_inputsUpdated = true;
+		}
+	}
+
+	if (ImGui::InputInt("Range size##AddAddress", &m_indexRange))
+		ClipInt(m_indexRange, 1, 100);
+	
+	if (ImGui::Combo("Type##AddAddress", &m_inputType, watchTypeNames, IM_ARRAYSIZE(watchTypeNames)))
+		m_inputsUpdated = true;
+
 	if (!isGlobal)
 	{
 		if (ImGui::InputText("Script Name##AddAddress", m_scriptNameBuf, sizeof(m_scriptNameBuf)))
@@ -100,6 +126,7 @@ void MemWatcherMod::ShowAddAddress(bool isGlobal)
 				else
 					m_scriptRunning = false;
 			});
+			m_inputsUpdated = true;
 		}
 	}
 
@@ -110,33 +137,66 @@ void MemWatcherMod::ShowAddAddress(bool isGlobal)
 	{
 		if (ImGui::Button("Add##AddAddress"))
 		{
+			m_addressAvailable = true;
 			if (isGlobal)
 			{
-				if (getGlobalPtr(m_inputAddressIndex) == nullptr)
-					m_addressUnavailable = true;
+				if (GetGlobalPtr(m_inputAddressIndex) == nullptr)
+					m_addressAvailable = false;
 			}
 			else
 			{
 				if (GetThreadAddress(m_inputAddressIndex, m_scriptHash) == nullptr)
-					m_addressUnavailable = true;
+					m_addressAvailable = false;
 			}
 
-			m_addressUnavailable = false;
+			if (m_addressAvailable)
+			{
+				std::lock_guard<std::mutex> lock(m_watchesMutex);
 
-			std::lock_guard<std::mutex> lock(m_watchesMutex);
-			if (isGlobal)
-				m_watches.push_back(WatchEntry(m_inputAddressIndex, (WatchType)m_inputType, "Global", 0, m_watchInfo));
-			else
-				m_watches.push_back(WatchEntry(m_inputAddressIndex, (WatchType)m_inputType, m_scriptName, m_scriptHash, m_watchInfo));
-			m_autoScrollDown = true;
+				// Check if the address is already watched
+				int tmpScriptHash = isGlobal ? 0 : m_scriptHash;
+				m_variableAlreadyWatched = false;
+				for (const auto & watch : m_watches)
+				{
+					if (watch.m_addressIndex == m_inputAddressIndex
+						&& watch.m_scriptHash == tmpScriptHash
+						&& watch.m_type == m_inputType)
+					{
+						m_variableAlreadyWatched = true;
+						break;
+					}
+				}
+
+				if (!m_variableAlreadyWatched)
+				{
+					for (int i = 0; i < m_indexRange; i++)
+					{
+						if (isGlobal)
+							m_watches.push_back(WatchEntry(m_inputAddressIndex + i, (WatchType)m_inputType, "Global", 0, m_watchInfo));
+						else
+							m_watches.push_back(WatchEntry(m_inputAddressIndex + i, (WatchType)m_inputType, m_scriptName, m_scriptHash, m_watchInfo));
+					}
+					m_autoScrollDown = true;
+				}
+			}
+
+			// Reset error messages
+			m_inputsUpdated = false;
 		}
 
-		if (m_addressUnavailable)
-			ImGui::TextColored(ImVec4(255, 0, 0, 255), "Cannot get memory address");
 	}
 	else // If a local index and script is not running
 	{
 		ImGui::TextColored(ImVec4(255, 0, 0, 255), "Script '%', is not running", m_scriptName.c_str());
+	}
+	// Error messages
+	if (!m_inputsUpdated)
+	{
+		if (!m_addressAvailable)
+			ImGui::TextColored(ImVec4(255, 0, 0, 255), "Cannot get memory address");
+
+		if (m_variableAlreadyWatched)
+			ImGui::TextColored(ImVec4(255, 0, 0, 255), "This variable is already on the watch list");
 	}
 }
 
@@ -156,7 +216,7 @@ void MemWatcherMod::ShowSelectedPopup()
 		uint64_t * val;
 		if (m_selectedEntry->IsGlobal())
 		{
-			val = getGlobalPtr(m_selectedEntry->m_addressIndex);
+			val = GetGlobalPtr(m_selectedEntry->m_addressIndex);
 
 			// Can only edit globalPtr for now
 			if (val != nullptr)
@@ -241,6 +301,8 @@ void MemWatcherMod::DrawMenuBar()
 					ImGui::EndMenu();
 				}
 			}
+			if (ImGui::MenuItem("Sort all watches"))
+				SortWatches();
 
 			if (ImGui::MenuItem("Clear"))
 			{
@@ -291,12 +353,12 @@ bool MemWatcherMod::Draw()
 	ImGui::Text("Value"); ImGui::NextColumn();
 	ImGui::Separator();
 
-	std::lock_guard<std::mutex> lock(m_watchesMutex);
+	m_watchesMutex.lock();
 	if (m_watches.size() > 0)
 	{
 		for (auto &w : m_watches)
 		{
-			sprintf_s(buf, "%d (0x%x)", w.m_addressIndex, w.m_addressIndex);
+			sprintf_s(buf, "%d (0x%x)##%d%d", w.m_addressIndex, w.m_addressIndex, w.m_scriptHash, w.m_type);
 
 			if (ImGui::Selectable(buf, false, ImGuiSelectableFlags_SpanAllColumns))
 			{
@@ -313,6 +375,7 @@ bool MemWatcherMod::Draw()
 		ImGui::Columns(1);
 		ImGui::Separator();
 	}
+	m_watchesMutex.unlock();
 
 	if (m_autoScrollDown)
 	{
@@ -322,4 +385,31 @@ bool MemWatcherMod::Draw()
 
 	ShowSelectedPopup();
 	return true;
+}
+
+bool CompareWatch(WatchEntry a, WatchEntry b)
+{
+	bool smaller = false;
+	// Make sure globals are at the top
+	if (a.m_scriptName == "Global")
+		a.m_scriptName = "000Global";
+	if (b.m_scriptName == "Global")
+		b.m_scriptName = "000Global";
+
+	// Order by script name
+	if (a.m_scriptName < b.m_scriptName)
+		smaller = true;
+	else if (a.m_scriptName == b.m_scriptName)
+	{
+		// If equal, order by index
+		if (a.m_addressIndex < b.m_addressIndex)
+			smaller = true;
+		else if (a.m_addressIndex == b.m_addressIndex)
+		{
+			// If equal, order by type
+			if (a.m_type < b.m_type)
+				smaller = true;
+		}
+	}
+	return smaller;
 }

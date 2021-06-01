@@ -12,10 +12,14 @@
 #include "watch_entry.h"
 #include "mission_mod.h"
 #include "global_id.h"
+#include "utils.h"
 
 PlayerSwitchMod::PlayerSwitchMod(DLLObject & dllObject, bool supportGlobals) :
 	Mod(dllObject, "Player Switch", true, supportGlobals),
-	m_gSwitch1(GlobalID::_85405)
+	m_gSwitch1(GlobalID::_85405),
+	m_gSwitch2(GlobalID::_85570),
+	m_gSwitch4(GlobalID::_101149),
+	m_gSwitch5(GlobalID::_88538)
 {
 	m_windowFlags = ImGuiWindowFlags_MenuBar;
 }
@@ -51,8 +55,12 @@ void PlayerSwitchMod::UpdateLocationData()
 	if (m_supportGlobals)
 	{
 		m_gSwitch1.LoadElement();
-		m_currentCharacterID = *(int *)getGlobalPtr(GlobalID::_102834); 
-		m_previousCharacterID = *(int *)getGlobalPtr(GlobalID::_102835);
+		m_gSwitch2.LoadElement();
+		m_gSwitch4.LoadElement();
+		m_gSwitch5.LoadElement();
+
+		m_currentCharacterID = *(int *)GetGlobalPtr(GlobalID::_102834); 
+		m_previousCharacterID = *(int *)GetGlobalPtr(GlobalID::_102835);
 	}
 }
 
@@ -128,7 +136,56 @@ bool PlayerSwitchMod::Draw()
 			ImGui::Text("Field 2: %f", m_gSwitch1.arr.field_6);
 			ImGui::Text("Field 3: %d", m_gSwitch1.arr.field_7);
 			ImGui::Text("Field 4: %d", m_gSwitch1.arr.field_8);
-			ImGui::Text("Character ID: %d (%s)", m_gSwitch1.arr.field_9, CharacterIDStr((CharacterID)m_gSwitch1.arr.field_9));
+			ImGui::Text("Character ID: %d (%s)", m_gSwitch1.arr.characterId, CharacterIDStr((CharacterID)m_gSwitch1.arr.characterId));
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Hospital switches", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("ID", &m_gSwitch2.id)) {
+				ClipInt(m_gSwitch2.id, 0, m_gSwitch2.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gSwitch2.size);
+
+			ImGui::Text("Vector 0: (%.4f, %.4f, %.4f)", m_gSwitch2.arr.f_0.x, m_gSwitch2.arr.f_0.y, m_gSwitch2.arr.f_0.z);
+			ImGui::Text("Potential coords: (%.4f, %.4f, %.4f)", m_gSwitch2.arr.f_3.x, m_gSwitch2.arr.f_3.y, m_gSwitch2.arr.f_3.z);
+			ImGui::Text("Field 2: %f", m_gSwitch2.arr.f_6);
+			ImGui::Text("Field 3: %d", m_gSwitch2.arr.f_7);
+			ImGui::Text("Hospital ID: %d", m_gSwitch2.arr.hospitalIndex);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Switch array 4", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("ID", &m_gSwitch4.id)) {
+				ClipInt(m_gSwitch4.id, 0, m_gSwitch4.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gSwitch4.size);
+
+			ImGui::Text("Potential coords: (%.4f, %.4f, %.4f)", m_gSwitch4.arr.f_0.x, m_gSwitch4.arr.f_0.y, m_gSwitch4.arr.f_0.z);
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Switch array 5", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("ID", &m_gSwitch5.id)) {
+				ClipInt(m_gSwitch5.id, 0, m_gSwitch5.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gSwitch5.size);
+
+			ImGui::Text("Potential coords: (%.4f, %.4f, %.4f)", m_gSwitch5.arr.f_0.x, m_gSwitch5.arr.f_0.y, m_gSwitch5.arr.f_0.z);
 			ImGui::TreePop();
 		}
 	}

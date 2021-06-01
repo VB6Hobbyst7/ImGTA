@@ -9,7 +9,12 @@
 #include "script.h"
 #include "user_settings.h"
 
-Mod::Mod(DLLObject & dllObject, std::string name, bool hasWindow, bool supportGlobals) : m_dllObject(dllObject), m_windowName(name), m_hasWindow(hasWindow), m_supportGlobals(supportGlobals)
+Mod::Mod(DLLObject & dllObject, std::string name, bool hasWindow, bool supportGlobals) :
+	m_dllObject(dllObject),
+	m_windowName(name),
+	m_hasWindow(hasWindow),
+	m_supportGlobals(supportGlobals),
+	m_textDrawMaxWarning(false)
 {
 
 }
@@ -51,4 +56,9 @@ void Mod::SetInGameFontColor(int red, int green, int blue)
 void Mod::SetShowInGame(bool show)
 {
 	m_commonSettings.showInGame = show;
+}
+
+void Mod::SetTextDrawMaxWarning(bool toggle)
+{
+	m_textDrawMaxWarning = toggle;
 }

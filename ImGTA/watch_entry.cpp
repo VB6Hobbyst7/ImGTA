@@ -55,7 +55,7 @@ std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)
 
 std::string GetDisplayForType(int addrId, WatchType type)
 {
-	return GetDisplayForType(getGlobalPtr(addrId), type);
+	return GetDisplayForType(GetGlobalPtr(addrId), type);
 }
 
 std::string GetDisplayForType(int addrId, int scriptHash, WatchType type)

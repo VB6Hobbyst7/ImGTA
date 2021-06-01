@@ -31,6 +31,7 @@ public:
 	void SetFontSize(float menuSize, float contentSize, float ingameSize);
 	void SetInGameFontColor(int red, int green, int blue);
 	void SetShowInGame(bool show);
+	void SetTextDrawMaxWarning(bool toggle);
 
 	ImGuiWindowFlags m_windowFlags;
 
@@ -40,6 +41,7 @@ protected:
 	std::string m_windowName;
 	bool m_hasWindow;
 	bool m_supportGlobals;
+	bool m_textDrawMaxWarning;
 
 	const float m_inputIDWidgetWidth = 150.0f;
 };

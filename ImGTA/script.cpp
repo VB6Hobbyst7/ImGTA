@@ -72,6 +72,7 @@ void DLLObject::InitMods()
 
 void DLLObject::Update()
 {
+	ResetTextDrawCount();
 	if (isOpen)
 	{
 		if (floatingMenu)
@@ -88,6 +89,26 @@ void DLLObject::Update()
 
 	for (Mod * m : modsLoaded)
 		m->Think();
+
+	// Display a warning message if too much calls to DrawTextToScreen
+	if (GetTextDrawCount() > 100)
+	{
+		if (!updatedTextDrawMaxWarningOn)
+		{
+			SetTextDrawMaxWarning(true);
+			updatedTextDrawMaxWarningOn = true;
+			updatedTextDrawMaxWarningOff = false;
+		}
+	}
+	else
+	{
+		if (!updatedTextDrawMaxWarningOff)
+		{
+			SetTextDrawMaxWarning(false);
+			updatedTextDrawMaxWarningOff = true;
+			updatedTextDrawMaxWarningOn = false;
+		}
+	}
 }
 
 void DLLObject::UpdateWindows()
@@ -117,6 +138,12 @@ void DLLObject::SetShowAllInGame(bool show)
 {
 	for (auto &m : modsLoaded)
 		m->SetShowInGame(show);
+}
+
+void DLLObject::SetTextDrawMaxWarning(bool toggle)
+{
+	for (auto &m : modsLoaded)
+		m->SetTextDrawMaxWarning(toggle);
 }
 
 void DLLObject::SetAllFontSize(float menuSize, float contentSize, float inGameSize)

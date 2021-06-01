@@ -31,6 +31,7 @@ public:
 	void RunOnNativeThread(std::function<void()> func);
 
 	void SetShowAllInGame(bool show);
+	void SetTextDrawMaxWarning(bool toggle);
 	void SetAllFontSize(float menuSize, float contentSize, float ingameSize);
 	void SetAllInGameFontColor(int red, int green, int blue);
 	void Load();
@@ -60,6 +61,10 @@ private:
 	bool isOpen = false;
 	bool isLoaded = false;
 	bool floatingMenu = false;
+
+	// TODO: Update this bad design for ON/OFF
+	bool updatedTextDrawMaxWarningOn = false;
+	bool updatedTextDrawMaxWarningOff = false;
 
 	std::vector<std::function<void()>> toRun;
 	std::mutex toRun_mutex;

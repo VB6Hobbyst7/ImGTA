@@ -114,6 +114,8 @@ void ScriptsMod::Think()
 			yOff += step;
 			i++;
 		}
+		if (i % 3 == 2)
+			DrawTextToScreen(threeLines.c_str(), xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 	}
 }
 

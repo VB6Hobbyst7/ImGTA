@@ -8,6 +8,7 @@
 #include "mod.h"
 #include "types.h"
 #include "utils.h"
+#include "mission_mod.h"
 
 struct PlayerSwitchSettings;
 
@@ -19,8 +20,7 @@ enum class SwitchType
 	SWITCH_TYPE_SHORT = 3
 };
 
-struct SwitchArray
-{
+struct SwitchArray {
 	// Global_85405
 	Vector3 field_0 = { 0 }; // 0
 	Vector3 field_3 = { 0 }; // 3
@@ -30,9 +30,54 @@ struct SwitchArray
 	DWORD _padding7;
 	int field_8 = 0; // 8
 	DWORD _padding8;
-	int field_9 = 0; // 9
+	int characterId = 0; // 9
 	DWORD _padding9;
 }; // Size 10 * 8 bytes
+
+struct SwitchArray2 {
+	// Global_85570
+	Vector3 f_0;
+	Vector3 f_3; // potential coords
+	float f_6;
+	DWORD _padding6;
+	int f_7; // Looks like local_115.f_3 or f_2
+	DWORD _padding7;
+	int hospitalIndex; // 8
+	DWORD _padding8;
+}; // Size 9 * 8 bytes
+
+struct SwitchArray3 {
+	// Global_88210
+	int f_2;
+	int f_3;
+	Vector3 f_4; // potential coords
+	float f_7;
+	//... UNFINISHED
+}; // Size 109 * 8 bytes
+
+struct SwitchArray4 {
+	// Global_101149 -> Global_97353.f_1729.f_539.f_1528
+	Vector3 f_0; // potential coords
+}; // Size 3 * 8 bytes
+
+struct SwitchArray5 {
+	// Global_88538
+	Vector3 f_0; // potential coords
+}; // Size 3 * 8 bytes
+
+struct SwitchArray6 {
+	// Global_87845
+	PaddedInt f_0[4];
+	CharacterID f_7;
+	QWORD _padding[37];
+	int f_44; // 55
+	int f_45;
+	int f_46;
+};
+
+// Global_97353.f_16787
+// local_115.f_3 // Global_87845.f_45
+// Global_97353.f_1729.f_539.f_3213
 
 std::string SwitchTypeStr(SwitchType type);
 
@@ -60,6 +105,9 @@ private:
 	int m_previousCharacterID = 0;
 
 	GlobalArray<SwitchArray> m_gSwitch1;
+	GlobalArray<SwitchArray2> m_gSwitch2;
+	GlobalArray<SwitchArray4> m_gSwitch4;
+	GlobalArray<SwitchArray5> m_gSwitch5;
 	
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

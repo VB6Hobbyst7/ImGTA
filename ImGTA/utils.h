@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <string>
 
+typedef unsigned long long QWORD;
+
 struct handle_data
 {
 	unsigned long processID;
@@ -56,11 +58,11 @@ struct GlobalArray {
 	{
 		if (sizeAddr != 0)
 		{
-			size = *(int *)getGlobalPtr(sizeAddr);
+			size = *(int *)GetGlobalPtr(sizeAddr);
 			if (size > 0 && id < size)
 			{
 				int offset = startAddr + id * sizeof(T) / 8;
-				arr = *(T *)getGlobalPtr(offset);
+				arr = *(T *)GetGlobalPtr(offset);
 			}
 		}
 	}
@@ -83,6 +85,8 @@ struct PaddedInt {
 BOOL IsMainWindow(HWND handle);
 BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam);
 HWND FindMainWindow(unsigned long processID);
+void ResetTextDrawCount();
+int GetTextDrawCount();
 // WARNING DrawTextToScreen: Only the first 100 calls to this function are displayed!
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight = false, int red = 255, int green = 255, int blue = 255);
 void ClipInt(int & value, int min, int max);
@@ -96,3 +100,4 @@ bool IsVersionSupportedForGlobals(eGameVersion ver);
 // Thanks Gogsi123 (how to get the value from addresses in C++)
 bool InitThreadBasket();
 uint64_t * GetThreadAddress(int localId, int scriptHash);
+uint64_t * GetGlobalPtr(int globalId);

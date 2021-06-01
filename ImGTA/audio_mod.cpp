@@ -12,6 +12,7 @@
 #include "music_events.h"
 #include "global_id.h"
 #include "types.h"
+#include "utils.h"
 
 
 void AudioMod::Load()
@@ -49,10 +50,10 @@ void AudioMod::Think()
 
 	if (m_supportGlobals)
 	{
-		m_audioName = std::string((char *)getGlobalPtr(GlobalID::_15311));
-		m_audioSource = std::string((char *)getGlobalPtr(GlobalID::_15762));
-		m_audio1 = std::string((char *)getGlobalPtr(GlobalID::_16696));
-		m_audio2 = std::string((char *)getGlobalPtr(GlobalID::_15146));
+		m_audioName = std::string((char *)GetGlobalPtr(GlobalID::_15311));
+		m_audioSource = std::string((char *)GetGlobalPtr(GlobalID::_15762));
+		m_audio1 = std::string((char *)GetGlobalPtr(GlobalID::_16696));
+		m_audio2 = std::string((char *)GetGlobalPtr(GlobalID::_15146));
 	}
 }
 

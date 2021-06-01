@@ -49,7 +49,7 @@ void CheatsMod::Think()
 		char buf[256] = "";
 		std::ostringstream buffer;
 		float startX = 0.155f;
-		float startY = 0.75f;
+		float startY = 0.73f;
 		float inputStartX = 0.5f;
 		float inputStartY = 0.75f;
 		float step = 0.02f;
@@ -233,6 +233,8 @@ void CheatsMod::Think()
 				inputStartY += step;
 				i++;
 			}
+			if (i % 3 == 2)
+				DrawTextToScreen(threeLines.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
 		}
 
 		int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
@@ -256,6 +258,13 @@ void CheatsMod::Think()
 
 		sprintf_s(buf, "Game Time: %d", MISC::GET_GAME_TIMER());
 		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		startY += step;
+
+		sprintf_s(buf, "Date and time (d,m,y,hour,min,sec): (%d, %d, %d, %d h, %d min, %d sec)",
+			CLOCK::GET_CLOCK_DAY_OF_MONTH(), CLOCK::GET_CLOCK_MONTH(), CLOCK::GET_CLOCK_YEAR(),
+			CLOCK::GET_CLOCK_HOURS(), CLOCK::GET_CLOCK_MINUTES(), CLOCK::GET_CLOCK_SECONDS());
+		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		
 
 		sprintf_s(buf, "Menu key: 'Insert'");
 		DrawTextToScreen(buf, 0.5f, 0.98f, m_commonSettings.inGameFontSize, font, false, 200, 0, 0);
@@ -528,20 +537,24 @@ bool CheatsMod::Draw()
 		//DrawMissionMenu();
 		DrawHUDMenu();
 
+
+		if (!m_supportGlobals)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(255, 0, 0, 255), " Your game version (%d) does not support specific memory access.", getGameVersion());
+		}
+		if (m_textDrawMaxWarning)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0, 255, 0, 255), " Maximum (100) number of element displayed in-game reached (Some will not be displayed)!");
+		}
 		if (m_pauseMenuOn)
 		{
-			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 700);
-			ImGui::TextColored(ImVec4(255, 0, 0, 255), "Game paused. No updates!");
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(0, 0, 255, 255), " Game paused. No updates!");
 		}
 
-
-		if (m_supportGlobals)
-			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 100);
-		else
-		{
-			ImGui::SameLine(ImGui::GetContentRegionAvailWidth() - 530);
-			ImGui::TextColored(ImVec4(255, 0, 0, 255), "Your game version (%d) does not support specific memory access.", getGameVersion());
-		}
+		ImGui::SameLine(ImGui::GetWindowWidth() - 310);
 		ImGui::Checkbox("Debug", &m_settings.showDebug);
 		if (ImGui::Checkbox("Show in game", &m_commonSettings.showInGame))
 			m_scriptVarNeedsUpdate = true;
@@ -550,6 +563,6 @@ bool CheatsMod::Draw()
 
 		ImGui::EndMainMenuBar();
 	}
-
+	
 	return false;
 }

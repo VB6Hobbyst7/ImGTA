@@ -8,6 +8,7 @@
 
 #include "lua_engine.h"
 #include "nativeCaller.h"
+#include "utils.h"
 
 
 const struct luaL_Reg LuaEngine::baselib[] =
@@ -99,7 +100,7 @@ int LuaEngine::lua_GetGlobal(lua_State *L)
 	if (addr < 0)
 		luaL_error(L, "invalid global address");
 
-	UINT64 *realAddr = getGlobalPtr(addr);
+	UINT64 *realAddr = GetGlobalPtr(addr);
 
 	if (!realAddr)
 		luaL_error(L, "invalid global address");
@@ -116,7 +117,7 @@ int LuaEngine::lua_SetGlobal(lua_State *L)
 	if (addr < 0)
 		luaL_error(L, "invalid global address");
 
-	UINT64 *realAddr = getGlobalPtr(addr);
+	UINT64 *realAddr = GetGlobalPtr(addr);
 
 	if (!realAddr)
 		luaL_error(L, "invalid global address");
@@ -125,7 +126,7 @@ int LuaEngine::lua_SetGlobal(lua_State *L)
 		*realAddr = lua_tointeger(L, 2);
 	else if (lua_isnumber(L, 2))
 		*(float *)realAddr = static_cast<float>(lua_tonumber(L, 2));
-	else // TOOD: allow string copy. (dangerous, technically)
+	else // TODO: allow string copy. (dangerous, technically)
 		luaL_error(L, "not an integer or number.");
 
 	lua_pop(L, 1);
