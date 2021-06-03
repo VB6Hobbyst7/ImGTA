@@ -7,11 +7,11 @@
 
 #pragma once
 #include "mod.h"
+#include "user_settings.h"
+
 #include <vector>
 #include <string>
 #include <mutex>
-
-struct ScriptsSettings;
 
 class ScriptObject
 {
@@ -37,6 +37,7 @@ public:
 private:
 	void DrawMenuBar();
 	void ShowSelectedPopup();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	ScriptsSettings m_settings;
 	std::vector<ScriptObject> m_scripts;

@@ -8,10 +8,10 @@
 #pragma once
 #include "mod.h"
 #include "watch_entry.h"
+#include "user_settings.h"
+
 #include <vector>
 #include <mutex>
-
-struct MemWatcherSettings;
 
 class MemWatcherMod : public Mod
 {
@@ -31,6 +31,7 @@ protected:
 	void ShowAddAddress(bool isGlobal);
 	void ShowSelectedPopup();
 	void DrawMenuBar();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	MemWatcherSettings m_settings;
 	std::vector<WatchEntry> m_watches;

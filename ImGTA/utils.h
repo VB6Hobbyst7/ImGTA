@@ -6,10 +6,11 @@
  */
 
 #pragma once
-#include <Windows.h>
 #include "types.h"
 #include "enums.h"
 #include "main.h"
+
+#include <Windows.h>
 #include <cstdint>
 #include <string>
 
@@ -87,6 +88,7 @@ BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam);
 HWND FindMainWindow(unsigned long processID);
 void ResetTextDrawCount();
 int GetTextDrawCount();
+float TextFontHeight(float size, eFont font);
 // WARNING DrawTextToScreen: Only the first 100 calls to this function are displayed!
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight = false, int red = 255, int green = 255, int blue = 255);
 void ClipInt(int & value, int min, int max);

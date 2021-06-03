@@ -12,8 +12,6 @@
 #include "imgui_extras.h"
 #include "mission_mod.h"
 #include "global_id.h"
-#include "utils.h"
-
 
 CommsMod::CommsMod(DLLObject & dllObject, bool supportGlobals) :
 	Mod(dllObject, "Comms", true, supportGlobals),
@@ -30,13 +28,11 @@ CommsMod::CommsMod(DLLObject & dllObject, bool supportGlobals) :
 
 void CommsMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().comms;
 }
 
 void CommsMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().comms = m_settings;
 }
 
@@ -61,6 +57,7 @@ void CommsMod::UpdateLocationData()
 		m_gMessage6.LoadElement();
 		m_gMessage7.LoadElement();
 
+		// Global_35464 -> store time where it's possible to receive message? not always updated though
 		m_unk15750 = std::string((char *)GetGlobalPtr(GlobalID::_15750));
 		m_unk15756 = std::string((char *)GetGlobalPtr(GlobalID::_15756));
 	}
@@ -82,10 +79,10 @@ void CommsMod::DrawMenuBar()
 
 bool CommsMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

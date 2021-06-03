@@ -6,7 +6,9 @@
  */
 
 #include "mod.h"
+
 #include "script.h"
+#include "utils.h"
 #include "user_settings.h"
 
 Mod::Mod(DLLObject & dllObject, std::string name, bool hasWindow, bool supportGlobals) :
@@ -19,16 +21,6 @@ Mod::Mod(DLLObject & dllObject, std::string name, bool hasWindow, bool supportGl
 
 }
 
-void Mod::CommonLoad()
-{
-	m_commonSettings = m_dllObject.GetUserSettings().common;
-}
-
-void Mod::CommonUnload()
-{
-	m_dllObject.GetUserSettings().common = m_commonSettings;
-}
-
 bool Mod::HasWindow()
 {
 	return m_hasWindow;
@@ -39,26 +31,91 @@ const std::string Mod::GetName()
 	return m_windowName;
 }
 
+void Mod::SetShowInGame(bool show)
+{
+	GetCommonSettings().showInGame = show;
+}
+
 void Mod::SetFontSize(float menuSize, float contentSize, float inGameSize)
 {
-	m_commonSettings.menuFontSize = menuSize;
-	m_commonSettings.contentFontSize = contentSize;
-	m_commonSettings.inGameFontSize = inGameSize;
+	GetCommonSettings().menuFontSize = menuSize;
+	GetCommonSettings().contentFontSize = contentSize;
+	GetCommonSettings().inGameFontSize = inGameSize;
 }
 
 void Mod::SetInGameFontColor(int red, int green, int blue)
 {
-	m_commonSettings.inGameFontRed = red;
-	m_commonSettings.inGameFontGreen = green;
-	m_commonSettings.inGameFontBlue = blue;
+	GetCommonSettings().inGameFontRed = red;
+	GetCommonSettings().inGameFontGreen = green;
+	GetCommonSettings().inGameFontBlue = blue;
 }
 
-void Mod::SetShowInGame(bool show)
+void Mod::SetInGameOffsets(float x, float y)
 {
-	m_commonSettings.showInGame = show;
+	GetCommonSettings().inGameOffsetX = x;
+	GetCommonSettings().inGameOffsetY = y;
 }
 
 void Mod::SetTextDrawMaxWarning(bool toggle)
 {
 	m_textDrawMaxWarning = toggle;
+}
+
+void Mod::DrawCommonSettingsMenus(CommonSettings & common)
+{
+	ImGui::MenuItem("Show in game", NULL, &common.showInGame);
+
+	if (ImGui::BeginMenu("Font size"))
+	{
+		if (ImGui::InputFloat("Menu Font size", &common.menuFontSize, 0.1f))
+			ClipFloat(common.menuFontSize, 0.6f, 2.0f);
+
+		if (ImGui::InputFloat("Content Font size", &common.contentFontSize, 0.1f))
+			ClipFloat(common.contentFontSize, 0.3f, 3.0f);
+
+		if (ImGui::InputFloat("In-game Font size", &common.inGameFontSize, 0.1f))
+			ClipFloat(common.inGameFontSize, 0.1f, 3.0f);
+
+		if (ImGui::Button("Reset"))
+		{
+			common.menuFontSize = 1.0f;
+			common.contentFontSize = 1.0f;
+			common.inGameFontSize = 0.3f;
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Font color"))
+	{
+		if (ImGui::InputInt("Red", &common.inGameFontRed))
+			ClipInt(common.inGameFontRed, 0, 255);
+
+		if (ImGui::InputInt("Green", &common.inGameFontGreen))
+			ClipInt(common.inGameFontGreen, 0, 255);
+
+		if (ImGui::InputInt("Blue", &common.inGameFontBlue))
+			ClipInt(common.inGameFontBlue, 0, 255);
+
+		if (ImGui::Button("Reset"))
+		{
+			common.inGameFontRed = 255;
+			common.inGameFontGreen = 255;
+			common.inGameFontBlue = 255;
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Offsets"))
+	{
+		if (ImGui::InputFloat("X Offset", &common.inGameOffsetX, 0.01f))
+			ClipFloat(common.inGameOffsetX, -0.2f, 1.2f);
+
+
+		if (ImGui::InputFloat("Y Offset", &common.inGameOffsetY, 0.01f))
+			ClipFloat(common.inGameOffsetY, -0.2f, 1.2f);
+
+		ImGui::EndMenu();
+	}
 }

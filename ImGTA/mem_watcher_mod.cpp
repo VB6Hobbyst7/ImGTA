@@ -7,31 +7,32 @@
 
 #include "mem_watcher_mod.h"
 
-#include "imgui.h"
-#include "imgui_extras.h"
 #include "script.h"
-#include "natives.h"
 #include "utils.h"
 #include "global_id.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_extras.h"
+
 #include <vector>
-#include <stdio.h>
+#include <cstdio>
 #include <inttypes.h>
 #include <mutex>
 #include <algorithm>
 #include <bitset>
 
-const char *watchTypeNames[] = { "Int", "Float", "String", "Vector", "Bitfield" };
+const char *watchTypeNames[] = { "Int", "Float", "String", "Vector3", "Bitfield32" };
 
 void MemWatcherMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().memWatcher;
 	m_onlineVersion = NETWORK::_GET_ONLINE_VERSION();
 }
 
 void MemWatcherMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().memWatcher = m_settings;
 }
 
@@ -41,8 +42,9 @@ void MemWatcherMod::Think()
 	{
 		std::lock_guard<std::mutex> lock(m_watchesMutex);
 
-		char buf[128] = "";
-		float yOff = m_settings.inGameOffsetY;
+		char buf[112] = "";
+		float xOff = m_settings.common.inGameOffsetX;
+		float yOff = m_settings.common.inGameOffsetY;
 
 		m_scriptHash = MISC::GET_HASH_KEY(m_scriptName.c_str());
 		// Check if script is still running
@@ -51,7 +53,12 @@ void MemWatcherMod::Think()
 		else
 			m_scriptRunning = false;
 
-		eFont font = eFont::FontChaletLondon;
+		const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
+		const char * strFormat = m_settings.inputHexIndex ? "%s%s (0x%x) %s: %s" : "%s%s (%d) %s: %s";
+		std::string bufferLines;
+		const int bufferLinesCount = 2;
+		int i = 0;
+		yOff -= step * (bufferLinesCount - 1);
 		for (auto &w : m_watches)
 		{
 			// Re-check if script is still running
@@ -65,18 +72,39 @@ void MemWatcherMod::Think()
 			
 			w.UpdateValue();
 			
-			if (w.m_drawInGame && m_commonSettings.showInGame)
+			if (m_settings.common.showInGame && w.m_showInGame)
 			{
+				if (i % bufferLinesCount == 0)
+					bufferLines = "";
+
 				std::string infoDetail = (m_settings.displayHudInfo && w.m_info.size() > 0) ? (" (" + w.m_info + ")") : "";
-				sprintf_s(buf, "%s%s%s: %d (0x%x): %s",
-						  w.m_scriptName.c_str(),
-						  w.m_scriptRunning ? "" : "(STOPPED)",
-						  infoDetail.c_str(),
-						  w.m_addressIndex, w.m_addressIndex, w.m_value.c_str());
-				DrawTextToScreen(buf, m_settings.inGameOffsetX, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
-				yOff += 0.02f;
+				std::snprintf(buf, sizeof(buf), strFormat,
+							  w.m_scriptRunning ? "" : "(STOPPED) ",
+							  w.m_scriptName.c_str(),
+							  w.m_addressIndex,
+							  infoDetail.c_str(),
+							  w.m_value.c_str());
+				bufferLines += std::string(buf) + "\n";
+
+				if (i % bufferLinesCount == (bufferLinesCount - 1))
+					DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+				if (i % 30 == 29)
+				{
+					xOff += 0.3f + (step * 2);
+					yOff -= step * 30;
+				}
+
+				yOff += step;
+				i++;
 			}
 		}
+		if (m_settings.common.showInGame)
+		{
+			if (i % bufferLinesCount == (bufferLinesCount - 1))
+				DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+		}
+
 	}
 }
 
@@ -205,7 +233,7 @@ void MemWatcherMod::ShowSelectedPopup()
 	if (ImGui::BeginPopup("PopupEntryProperties"))
 	{
 		ImGui::Combo("Type##EntryProperties", (int *)&m_selectedEntry->m_type, watchTypeNames, IM_ARRAYSIZE(watchTypeNames));
-		ImGui::Checkbox("Show Ingame##EntryProperties", &m_selectedEntry->m_drawInGame);
+		ImGui::Checkbox("Show Ingame##EntryProperties", &m_selectedEntry->m_showInGame);
 
 
 		if (ImGui::InputText("Info##AddAddress", m_watchInfoModifyBuf, sizeof(m_watchInfoModifyBuf)))
@@ -223,7 +251,7 @@ void MemWatcherMod::ShowSelectedPopup()
 			{
 				switch (m_selectedEntry->m_type)
 				{
-				case WatchType::kBitfield:
+				case WatchType::kBitfield32:
 					ImGuiExtras::BitField("Value##GlobalWatchValueBitfield", (unsigned int *)val, nullptr);
 					if (ImGui::Button("LS<<##GlobalWatchLBitshift"))
 						*val = *val << 1;
@@ -315,17 +343,11 @@ void MemWatcherMod::DrawMenuBar()
 
 		if (ImGui::BeginMenu("HUD"))
 		{
+			DrawCommonSettingsMenus(m_settings.common);
+
 			ImGui::MenuItem("Hexadecimal index", NULL, &m_settings.inputHexIndex);
 			ImGui::MenuItem("Display information detail", NULL, &m_settings.displayHudInfo);
-			if (ImGui::BeginMenu("Offsets"))
-			{
-				if (ImGui::InputFloat("X offset", &m_settings.inGameOffsetX, 0.01f))
-					ClipFloat(m_settings.inGameOffsetX, 0.0f, 0.95f);
-				if (ImGui::InputFloat("Y offset", &m_settings.inGameOffsetY, 0.01f))
-					ClipFloat(m_settings.inGameOffsetY, 0.0f, 0.95f);
-
-				ImGui::EndMenu();
-			}
+			
 			ImGui::EndMenu();
 		}
 
@@ -335,20 +357,21 @@ void MemWatcherMod::DrawMenuBar()
 
 bool MemWatcherMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 	ImGui::TextColored(ImVec4(255, 0, 0, 255), "Game online version: %s. "
 					   "Variable indexes are dependent on the game version.", m_onlineVersion.c_str());
 
-	char buf[128] = "";
+	char buf[112] = "";
+	const char * indexFormat = m_settings.inputHexIndex ? "0x%x##%d%d" : "%d##%d%d";
 
 	ImGui::Columns(5);
 	ImGui::Separator();
 	ImGui::Text("Index"); ImGui::NextColumn();
 	ImGui::Text("Type"); ImGui::NextColumn();
-	ImGui::Text("Script"); ImGui::NextColumn();
+	ImGui::Text("Script (Hash)"); ImGui::NextColumn();
 	ImGui::Text("Info"); ImGui::NextColumn();
 	ImGui::Text("Value"); ImGui::NextColumn();
 	ImGui::Separator();
@@ -358,7 +381,7 @@ bool MemWatcherMod::Draw()
 	{
 		for (auto &w : m_watches)
 		{
-			sprintf_s(buf, "%d (0x%x)##%d%d", w.m_addressIndex, w.m_addressIndex, w.m_scriptHash, w.m_type);
+			std::snprintf(buf, sizeof(buf), indexFormat, w.m_addressIndex, w.m_addressIndex, w.m_scriptHash, w.m_type);
 
 			if (ImGui::Selectable(buf, false, ImGuiSelectableFlags_SpanAllColumns))
 			{

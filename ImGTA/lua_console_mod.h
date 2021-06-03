@@ -7,12 +7,13 @@
 
 #pragma once
 #include "mod.h"
-#include "lua_engine.h"
+#include "user_settings.h"
+
 #include <sstream>
 #include <vector>
 #include <string>
 
-struct LuaConsoleSettings;
+class LuaEngine;
 
 class LuaConsoleMod : public Mod
 {
@@ -38,6 +39,7 @@ private:
 	int InputTextCallback(ImGuiInputTextCallbackData * data);
 	void IncrementCurrentHistoryId();
 	void DecrementCurrentHistoryId();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	LuaConsoleSettings m_settings;
 	LuaEngine & m_luaEngine;

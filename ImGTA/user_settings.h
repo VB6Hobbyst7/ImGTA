@@ -12,26 +12,30 @@
 
 
 struct CommonSettings {
+	bool showInGame = true;
 	float menuFontSize = 1.0f;
 	float contentFontSize = 1.0f;
 	float inGameFontSize = 0.3f;
 	int inGameFontRed = 255;
 	int inGameFontGreen = 255;
 	int inGameFontBlue = 255;
-	bool showInGame = true;
+	float inGameOffsetX = 0.0f;
+	float inGameOffsetY = 0.0f;
 };
 
 struct AreaSettings {
-	bool drawInGame = true;
+	CommonSettings common;
+	//bool drawInGame = true;
 	float drawOffsetZ = 0;
 	bool drawBox = false;
 };
 
 struct AudioSettings {
-
+	CommonSettings common;
 };
 
 struct CheatsSettings {
+	CommonSettings common;
 	bool showAvailableInputs = true;
 	bool showDebug = true;
 	bool floatingMenu = true;
@@ -39,14 +43,15 @@ struct CheatsSettings {
 };
 
 struct CommsSettings {
-
+	CommonSettings common;
 };
 
 struct CutsceneSettings {
-
+	CommonSettings common;
 };
 
 struct HandleHelperSettings {
+	CommonSettings common;
 	int nearbyObjectMax = 30;
 	float drawOffsetZ = 0;
 	bool drawEntityInfo = true;
@@ -56,38 +61,40 @@ struct HandleHelperSettings {
 };
 
 struct LuaConsoleSettings {
+	CommonSettings common;
 	bool showInfo = true;
 };
 
 struct MemWatcherSettings {
+	CommonSettings common;
 	bool sortByName = true;
 	bool inputHexIndex = false;
 	bool displayHudInfo = true;
-	float inGameOffsetX = 0.01f;
-	float inGameOffsetY = 0.08f;
+	/*float inGameOffsetX = 0.01f;
+	float inGameOffsetY = 0.08f;*/
 };
 
 struct MissionSettings {
-
+	CommonSettings common;
 };
 
 struct ScriptsSettings {
+	CommonSettings common;
 	bool sortByName = true;
-	bool drawInGame = false;
+	/*bool drawInGame = false;
 	float inGameOffsetX = 0.84f;
-	float inGameOffsetY = 0.01f;
+	float inGameOffsetY = 0.01f;*/
 };
 
 struct PlayerSwitchSettings {
-
+	CommonSettings common;
 };
 
 struct SyncSceneSettings {
-
+	CommonSettings common;
 };
 
 struct UserSettings {
-	CommonSettings common;
 	AreaSettings area;
 	AudioSettings audio;
 	CheatsSettings cheats;
@@ -110,5 +117,8 @@ public:
 	UserSettings & Get() { return s; }
 
 private:
+	void LoadCommon(std::string & line, std::istringstream & stream, CommonSettings & common, const std::string & prefix);
+	void SaveCommon(std::ofstream & file, CommonSettings & common, const std::string & prefix);
+
 	UserSettings s;
 };

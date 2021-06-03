@@ -5,13 +5,15 @@
  */
 
 #include "mission_mod.h"
-#include "natives.h"
+
 #include "script.h"
-#include "utils.h"
-#include "imgui.h"
-#include "imgui_extras.h"
 #include "watch_entry.h"
 #include "global_id.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_extras.h"
 
 
 MissionMod::MissionMod(DLLObject & dllObject, bool supportGlobals) :
@@ -39,13 +41,11 @@ MissionMod::MissionMod(DLLObject & dllObject, bool supportGlobals) :
 
 void MissionMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().mission;
 }
 
 void MissionMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().mission = m_settings;
 }
 
@@ -118,10 +118,10 @@ void MissionMod::DrawMenuBar()
 
 bool MissionMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

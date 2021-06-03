@@ -6,13 +6,12 @@
  */
 
 #pragma once
-
-#include <Windows.h>
-
-#include <functional>
-#include <mutex>
 #include "lua_engine.h"
 #include "user_settings.h"
+
+#include <Windows.h>
+#include <functional>
+#include <mutex>
 
 struct IDXGISwapChain;
 class Mod;

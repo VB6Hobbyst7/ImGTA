@@ -6,9 +6,9 @@
 
 #pragma once
 #include "mod.h"
-#include "types.h"
+#include "user_settings.h"
 
-struct AreaSettings;
+#include "types.h"
 
 class AreaMod : public Mod
 {
@@ -25,6 +25,7 @@ public:
 
 private:
 	void DrawMenuBar();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	AreaSettings m_settings;
 	Vector3 m_currentPos = {};

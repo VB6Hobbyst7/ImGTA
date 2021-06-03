@@ -6,10 +6,8 @@
 
 #pragma once
 #include "mod.h"
-#include "types.h"
 #include "utils.h"
-
-struct CommsSettings;
+#include "user_settings.h"
 
 struct MessageArray
 {
@@ -174,6 +172,7 @@ public:
 private:
 	void DrawMenuBar();
 	void UpdateLocationData();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	CommsSettings m_settings;
 	GlobalArray<MessageArray> m_gMessage1;

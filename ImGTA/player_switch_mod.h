@@ -6,11 +6,11 @@
 
 #pragma once
 #include "mod.h"
-#include "types.h"
 #include "utils.h"
 #include "mission_mod.h"
+#include "user_settings.h"
 
-struct PlayerSwitchSettings;
+#include "types.h"
 
 enum class SwitchType
 {
@@ -94,12 +94,21 @@ public:
 private:
 	void DrawMenuBar();
 	void UpdateLocationData();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	PlayerSwitchSettings m_settings;
 	bool m_switchInProgress = false;
 	int m_switchType = 0;
 	int m_switchState = 0;
 	int m_shortSwitchState = 0;
+	int m_switchJumpCutIndex = 0;
+	bool m_switchReadyForDescent = false;
+	bool m_switchSkippingDescent = false;
+	bool m_unkSwitch = false;
+	bool m_unkSwitch2 = false;
+	int m_switchInterpOutDuration = 0;
+	int m_switchInterpOutCurrentTime = 0;
+
 
 	int m_currentCharacterID = 0;
 	int m_previousCharacterID = 0;

@@ -6,25 +6,27 @@
  */
 
 #include "handle_helper_mod.h"
-#include "natives.h"
+
 #include "script.h"
-#include "anim_dict.h"
-#include "imgui_extras.h"
 #include "utils.h"
-#include "user_settings.h"
+#include "anim_dict.h"
+
+#include "natives.h"
+
+#include "imgui_extras.h"
+
 #include <algorithm>
+#include <cstdio>
 
 const char *entityTypes[] = { "Invalid", "Ped", "Vehicle", "Object" };
 
 void HandleHelperMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().handleHelper;
 }
 
 void HandleHelperMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().handleHelper = m_settings;
 }
 
@@ -69,9 +71,9 @@ void HandleHelperMod::ListPeds()
 		m_pedList += std::to_string(pedArr.entities[i].id) + ", ";
 	m_pedListMutex.unlock();
 
-	if (m_settings.drawEntityInfo && m_commonSettings.showInGame)
+	if (m_settings.drawEntityInfo && m_settings.common.showInGame)
 	{
-		eFont font = eFont::FontChaletLondon;
+		char buf[112] = "";
 		for (int i = 0; i < count; i++)
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(pedArr.entities[i].id, false);
@@ -80,18 +82,17 @@ void HandleHelperMod::ListPeds()
 				&screenX, &screenY);
 			if (!m_settings.drawOnScreenEntityOnly || !notOnScreen)
 			{
-				char buf[256] = "";
 				int health = ENTITY::GET_ENTITY_HEALTH(pedArr.entities[i].id);
 				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(pedArr.entities[i].id);
 
 				if (m_settings.drawId && m_settings.drawLife)
-					sprintf_s(buf, "Ped ID: %d\nLife: %d/%d", pedArr.entities[i].id, health, maxHealth);
+					std::snprintf(buf, sizeof(buf), "Ped ID: %d\nLife: %d/%d", pedArr.entities[i].id, health, maxHealth);
 				else if (m_settings.drawId)
-					sprintf_s(buf, "Ped: %d", pedArr.entities[i].id);
+					std::snprintf(buf, sizeof(buf), "Ped: %d", pedArr.entities[i].id);
 				else if (m_settings.drawLife)
-					sprintf_s(buf, "Ped: %d/%d", health, maxHealth);
+					std::snprintf(buf, sizeof(buf), "Ped: %d/%d", health, maxHealth);
 
-				DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+				DrawTextToScreen(buf, screenX, screenY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 			}
 		}
 	}
@@ -111,9 +112,9 @@ void HandleHelperMod::ListVehs()
 		m_vehList += std::to_string(vehArr.entities[i].id) + ", ";
 	m_vehListMutex.unlock();
 
-	if (m_settings.drawEntityInfo && m_commonSettings.showInGame)
+	if (m_settings.drawEntityInfo && m_settings.common.showInGame)
 	{
-		eFont font = eFont::FontChaletLondon;
+		char buf[112] = "";
 		for (int i = 0; i < count; i++)
 		{
 			Vector3 worldPos = ENTITY::GET_ENTITY_COORDS(vehArr.entities[i].id, false);
@@ -122,18 +123,17 @@ void HandleHelperMod::ListVehs()
 				&screenX, &screenY);
 			if (!m_settings.drawOnScreenEntityOnly || !notOnScreen)
 			{
-				char buf[256] = "";
 				int health = ENTITY::GET_ENTITY_HEALTH(vehArr.entities[i].id);
 				int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(vehArr.entities[i].id);
 
 				if (m_settings.drawId && m_settings.drawLife)
-					sprintf_s(buf, "\n\nVeh ID: %d\nLife: %d/%d", vehArr.entities[i].id, health, maxHealth);
+					std::snprintf(buf, sizeof(buf), "\n\nVeh ID: %d\nLife: %d/%d", vehArr.entities[i].id, health, maxHealth);
 				else if (m_settings.drawId)
-					sprintf_s(buf, "\n\nVeh: %d", vehArr.entities[i].id);
+					std::snprintf(buf, sizeof(buf), "\n\nVeh: %d", vehArr.entities[i].id);
 				else if (m_settings.drawLife)
-					sprintf_s(buf, "\n\nVeh: %d/%d", health, maxHealth);
+					std::snprintf(buf, sizeof(buf), "\n\nVeh: %d/%d", health, maxHealth);
 
-				DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+				DrawTextToScreen(buf, screenX, screenY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 			}
 		}
 	}
@@ -260,10 +260,10 @@ void HandleHelperMod::DrawMenuBar()
 
 bool HandleHelperMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

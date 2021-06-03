@@ -7,8 +7,7 @@
 
 #pragma once
 #include "mod.h"
-
-struct AudioSettings;
+#include "user_settings.h"
 
 class AudioMod : public Mod
 {
@@ -25,6 +24,7 @@ public:
 
 private:
 	void DrawMenuBar();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	AudioSettings m_settings;
 	bool m_isRingtonePlaying = false;

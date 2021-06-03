@@ -8,9 +8,9 @@
 #pragma once
 #include "mod.h"
 #include "types.h"
+#include "user_settings.h"
 
 class MissionHelper;
-struct CheatsSettings;
 
 class CheatsMod : public Mod
 {
@@ -33,6 +33,7 @@ private:
 	void DrawWorldMenu();
 	void DrawMissionMenu();
 	void DrawHUDMenu();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	CheatsSettings m_settings;
 	bool m_explosiveBullets = false;

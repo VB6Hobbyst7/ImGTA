@@ -6,8 +6,12 @@
  */
 
 #include "lua_console_mod.h"
-#include "imgui_internal.h"
+
+#include "lua_engine.h"
 #include "script.h"
+
+#include "imgui_internal.h"
+
 #include <algorithm>
 
 LuaConsoleMod::LuaConsoleMod(DLLObject & dllObject, bool supportGlobals, LuaEngine & luaEngine) : Mod(dllObject, "Lua Console", true, supportGlobals), m_luaEngine(luaEngine)
@@ -21,13 +25,11 @@ LuaConsoleMod::LuaConsoleMod(DLLObject & dllObject, bool supportGlobals, LuaEngi
 
 void LuaConsoleMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().luaConsole;
 }
 
 void LuaConsoleMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().luaConsole = m_settings;
 }
 
@@ -58,10 +60,10 @@ void LuaConsoleMod::DrawMenuBar()
 
 bool LuaConsoleMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	if (m_settings.showInfo)
 	{

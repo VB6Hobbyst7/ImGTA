@@ -8,8 +8,7 @@
 #pragma once
 #include "mod.h"
 #include "types.h"
-
-struct CutsceneSettings;
+#include "user_settings.h"
 
 class CutsceneMod : public Mod
 {
@@ -29,6 +28,7 @@ public:
 
 private:
 	void DrawMenuBar();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	CutsceneSettings m_settings;
 	char m_requestedCutscene[256] = "";

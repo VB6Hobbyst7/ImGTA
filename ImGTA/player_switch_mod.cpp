@@ -5,14 +5,15 @@
  */
 
 #include "player_switch_mod.h"
+
 #include "script.h"
+#include "watch_entry.h"
+#include "global_id.h"
+
 #include "natives.h"
+
 #include "imgui.h"
 #include "imgui_extras.h"
-#include "watch_entry.h"
-#include "mission_mod.h"
-#include "global_id.h"
-#include "utils.h"
 
 PlayerSwitchMod::PlayerSwitchMod(DLLObject & dllObject, bool supportGlobals) :
 	Mod(dllObject, "Player Switch", true, supportGlobals),
@@ -26,13 +27,11 @@ PlayerSwitchMod::PlayerSwitchMod(DLLObject & dllObject, bool supportGlobals) :
 
 void PlayerSwitchMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().playerSwitch;
 }
 
 void PlayerSwitchMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().playerSwitch = m_settings;
 }
 
@@ -51,6 +50,13 @@ void PlayerSwitchMod::UpdateLocationData()
 	m_switchType = STREAMING::GET_PLAYER_SWITCH_TYPE();
 	m_switchState = STREAMING::GET_PLAYER_SWITCH_STATE();
 	m_shortSwitchState = STREAMING::GET_PLAYER_SHORT_SWITCH_STATE();
+	m_switchJumpCutIndex = STREAMING::GET_PLAYER_SWITCH_JUMP_CUT_INDEX();
+	m_switchReadyForDescent = STREAMING::IS_SWITCH_READY_FOR_DESCENT();
+	m_switchSkippingDescent = STREAMING::IS_SWITCH_SKIPPING_DESCENT();
+	m_unkSwitch = STREAMING::_0x933BBEEB8C61B5F4();
+	m_unkSwitch2 = STREAMING::_0x71E7B2E657449AAD();
+	m_switchInterpOutDuration = STREAMING::GET_PLAYER_SWITCH_INTERP_OUT_DURATION();
+	m_switchInterpOutCurrentTime = STREAMING::GET_PLAYER_SWITCH_INTERP_OUT_CURRENT_TIME();
 
 	if (m_supportGlobals)
 	{
@@ -97,10 +103,10 @@ std::string SwitchTypeStr(SwitchType type)
 
 bool PlayerSwitchMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -117,6 +123,13 @@ bool PlayerSwitchMod::Draw()
 	ImGui::Text("Switch type: %s (%d)", SwitchTypeStr(SwitchType(m_switchType)).c_str(), m_switchType);
 	ImGui::Text("Switch state: %d", m_switchState);
 	ImGui::Text("Short switch state: %d", m_shortSwitchState);
+	ImGui::Text("Switch jump cut index: %d", m_switchJumpCutIndex);
+	ImGui::Text("Switch ready for descent: %s", BoolToStr(m_switchReadyForDescent));
+	ImGui::Text("Switch skipping descent: %s", BoolToStr(m_switchSkippingDescent));
+	ImGui::Text("Unk switch1: %s", BoolToStr(m_unkSwitch));
+	ImGui::Text("Unk switch2: %s", BoolToStr(m_unkSwitch2));
+	ImGui::Text("Switch interp out duration: %d", m_switchInterpOutDuration);
+	ImGui::Text("Switch interp out current time: %d", m_switchInterpOutCurrentTime);
 
 	if (m_supportGlobals)
 	{

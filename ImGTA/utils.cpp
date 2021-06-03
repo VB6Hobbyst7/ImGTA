@@ -5,11 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include <bitset>
-
 #include "utils.h"
-#include "natives.h"
+
 #include "mod.h"
+
+#include "natives.h"
+
+#include <bitset>
 
 ThreadBasket threadBasket;
 int textDrawCount = 0;
@@ -48,6 +50,11 @@ void ResetTextDrawCount()
 int GetTextDrawCount()
 {
 	return textDrawCount;
+}
+
+float TextFontHeight(float size, eFont font)
+{
+	return HUD::GET_RENDERED_CHARACTER_HEIGHT(size, font);
 }
 
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight, int red, int green, int blue)

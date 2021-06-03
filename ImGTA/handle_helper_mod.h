@@ -6,12 +6,12 @@
  */
 
 #pragma once
-#include <mutex>
-
 #include "mod.h"
+#include "user_settings.h"
+
 #include "types.h"
 
-struct HandleHelperSettings;
+#include <mutex>
 
 struct PaddedEntity
 {
@@ -45,6 +45,7 @@ private:
 	void ResetData();
 	void ListPeds();
 	void ListVehs();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	HandleHelperSettings m_settings;
 

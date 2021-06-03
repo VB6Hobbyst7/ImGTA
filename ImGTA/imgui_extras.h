@@ -5,8 +5,9 @@
  */
 
 #pragma once
-#include "imgui.h"
 #include "types.h"
+
+#include "imgui.h"
 
 namespace ImGuiExtras
 {

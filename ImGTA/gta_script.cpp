@@ -5,6 +5,7 @@
  */
 
 #include "gta_script.h"
+
 #include "natives.h"
 
 GTAScript::GTAScript(const char *scriptName, bool block)

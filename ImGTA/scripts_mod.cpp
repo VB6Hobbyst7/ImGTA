@@ -6,15 +6,18 @@
  */
 
 #include "scripts_mod.h"
-#include <algorithm>
 
-#include "natives.h"
-#include "imgui.h"
-#include "imgui_extras.h"
 #include "utils.h"
 #include "script.h"
 #include "gta_script.h"
 #include "script_names.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_extras.h"
+
+#include <algorithm>
 
 bool CompareScriptByHandle(ScriptObject a, ScriptObject b)
 {
@@ -28,13 +31,11 @@ bool CompareScriptByName(ScriptObject a, ScriptObject b)
 
 void ScriptsMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().scripts;
 }
 
 void ScriptsMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().scripts = m_settings;
 }
 
@@ -72,50 +73,50 @@ void ScriptsMod::Think()
 		m_wantsUpdate = false;
 	}
 
-	if (m_settings.drawInGame) {
+	if (m_settings.common.showInGame) {
 		std::lock_guard<std::mutex> lock(m_scriptsMutex);
-		char buf[128] = "";
-		float yOff = m_settings.inGameOffsetY;
-		const float step = 0.02f;
-		eFont font = eFont::FontChaletLondon;
+		char buf[112] = "";
+		float xOff = m_settings.common.inGameOffsetX;
+		float yOff = m_settings.common.inGameOffsetY;
+		const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
 
-		sprintf_s(buf, "Constant updates: %s", BoolToStr(m_constantUpdate));
-		DrawTextToScreen(buf, m_settings.inGameOffsetX, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Constant updates: %s", BoolToStr(m_constantUpdate));
+		DrawTextToScreen(buf, xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		yOff += step;
 
 		// Pin
 		if (m_enablePinnedScript)
 		{
-			sprintf_s(buf, "%s", m_pinnedScript.m_scriptName.c_str());
-			DrawTextToScreen(buf, m_settings.inGameOffsetX, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			std::snprintf(buf, sizeof(buf), "%s", m_pinnedScript.m_scriptName.c_str());
+			DrawTextToScreen(buf, xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 			yOff += step * 1.5f;
 		}
 
 		// Display three lines at a time to optimize the number of calls to DrawTextToScreen
-		std::string threeLines;
-		float xOff = m_settings.inGameOffsetX;
+		std::string bufferLines;
+		const int bufferLinesCount = 3;
 		int i = 0;
-		yOff -= step * 2;
+		yOff -= step * (bufferLinesCount - 1);
 		for (const auto & script : m_scripts)
 		{
-			if (i % 3 == 0)
-				threeLines = "";
-			threeLines += script.m_scriptName + "\n";
+			if (i % bufferLinesCount == 0)
+				bufferLines = "";
+			bufferLines += script.m_scriptName + "\n";
 			
-			if (i % 3 == 2)
-				DrawTextToScreen(threeLines.c_str(), xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			if (i % bufferLinesCount == (bufferLinesCount - 1))
+				DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 			if (i % 28 == 27)
 			{
-				xOff -= 0.15f;
+				xOff -= (0.13f + step);
 				yOff -= step * 28;
 			}
 			
 			yOff += step;
 			i++;
 		}
-		if (i % 3 == 2)
-			DrawTextToScreen(threeLines.c_str(), xOff, yOff, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		if (i % bufferLinesCount == (bufferLinesCount - 1))
+			DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 	}
 }
 
@@ -198,16 +199,8 @@ void ScriptsMod::DrawMenuBar()
 
 		if (ImGui::BeginMenu("HUD"))
 		{
-			ImGui::MenuItem("Show in game", NULL, &m_settings.drawInGame);
-			if (ImGui::BeginMenu("Offsets"))
-			{
-				if (ImGui::InputFloat("X offset", &m_settings.inGameOffsetX, 0.01f))
-					ClipFloat(m_settings.inGameOffsetX, 0.0f, 0.95f);
-				if (ImGui::InputFloat("Y offset", &m_settings.inGameOffsetY, 0.01f))
-					ClipFloat(m_settings.inGameOffsetY, 0.0f, 0.95f);
+			DrawCommonSettingsMenus(m_settings.common);
 
-				ImGui::EndMenu();
-			}
 			ImGui::EndMenu();
 		}
 
@@ -252,10 +245,10 @@ void ScriptsMod::ShowSelectedPopup()
 
 bool ScriptsMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

@@ -5,18 +5,22 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include <sstream>
-#include <iomanip>
-#include <vector>
-
 #include "cheats_mod.h"
-#include "natives.h"
+
 #include "script.h"
 #include "utils.h"
-#include "imgui_extras.h"
 #include "input_controls.h"
 #include "mission_helper.h"
 #include "model.h"
+
+#include "natives.h"
+
+#include "imgui_extras.h"
+
+#include <sstream>
+#include <iomanip>
+#include <vector>
+#include <cstdio>
 
 #pragma region Weapon Array
 const char *weapons[] = { "weapon_dagger", "weapon_bat", "weapon_bottle", "weapon_crowbar", "weapon_unarmed", "weapon_flashlight", "weapon_golfclub", "weapon_hammer", "weapon_hatchet", "weapon_knuckle", "weapon_knife", "weapon_machete", "weapon_switchblade", "weapon_nightstick", "weapon_wrench", "weapon_battleaxe", "weapon_poolcue", "weapon_stone_hatchet", "weapon_pistol", "weapon_pistol_mk2", "weapon_combatpistol", "weapon_appistol", "weapon_stungun", "weapon_pistol50", "weapon_snspistol", "weapon_snspistol_mk2", "weapon_heavypistol", "weapon_vintagepistol", "weapon_flaregun", "weapon_marksmanpistol", "weapon_revolver", "weapon_revolver_mk2", "weapon_doubleaction", "weapon_raypistol", "weapon_ceramicpistol", "weapon_navyrevolver", "weapon_microsmg", "weapon_smg", "weapon_smg_mk2", "weapon_assaultsmg", "weapon_combatpdw", "weapon_machinepistol", "weapon_minismg", "weapon_raycarbine", "weapon_pumpshotgun", "weapon_pumpshotgun_mk2", "weapon_sawnoffshotgun", "weapon_assaultshotgun", "weapon_bullpupshotgun", "weapon_musket", "weapon_heavyshotgun", "weapon_dbshotgun", "weapon_autoshotgun", "weapon_assaultrifle", "weapon_assaultrifle_mk2", "weapon_carbinerifle", "weapon_carbinerifle_mk2", "weapon_advancedrifle", "weapon_specialcarbine", "weapon_specialcarbine_mk2", "weapon_bullpuprifle", "weapon_bullpuprifle_mk2", "weapon_compactrifle", "weapon_mg", "weapon_combatmg", "weapon_combatmg_mk2", "weapon_gusenberg", "weapon_sniperrifle", "weapon_heavysniper", "weapon_heavysniper_mk2", "weapon_marksmanrifle", "weapon_marksmanrifle_mk2", "weapon_rpg", "weapon_grenadelauncher", "weapon_grenadelauncher_smoke", "weapon_minigun", "weapon_firework", "weapon_railgun", "weapon_hominglauncher", "weapon_compactlauncher", "weapon_rayminigun", "weapon_grenade", "weapon_bzgas", "weapon_molotov", "weapon_stickybomb", "weapon_proxmine", "weapon_snowball", "weapon_pipebomb", "weapon_ball", "weapon_smokegrenade", "weapon_flare", "weapon_petrolcan", "gadget_parachute", "weapon_fireextinguisher", "weapon_hazardcan" };
@@ -24,7 +28,6 @@ const char *weapons[] = { "weapon_dagger", "weapon_bat", "weapon_bottle", "weapo
 
 void CheatsMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().cheats;
 	if (m_supportGlobals)
 		m_helper = new MissionHelper(getGameVersion());
@@ -32,7 +35,6 @@ void CheatsMod::Load()
 
 void CheatsMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().cheats = m_settings;
 }
 
@@ -44,17 +46,16 @@ void CheatsMod::Think()
 	if (m_explosiveBullets)
 		MISC::SET_EXPLOSIVE_AMMO_THIS_FRAME(playerPedID);
 
-	if (m_settings.showDebug && m_commonSettings.showInGame)
+	if (m_settings.showDebug && m_settings.common.showInGame)
 	{
-		char buf[256] = "";
+		char buf[112] = "";
 		std::ostringstream buffer;
-		float startX = 0.155f;
-		float startY = 0.73f;
+		float startX = m_settings.common.inGameOffsetX;
+		float startY = m_settings.common.inGameOffsetY;
 		float inputStartX = 0.5f;
 		float inputStartY = 0.75f;
-		float step = 0.02f;
-		float valueStep = 0.04f;
-		eFont font = eFont::FontChaletLondon;
+		const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
+		const float valueStep = 2.4f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
 		std::string speedUnits = m_settings.displayKMH ? "km/h" : "m/s";
 
 		// TODO: Remove the manual tweaks here and there... It's unreadable
@@ -62,34 +63,34 @@ void CheatsMod::Think()
 		// Position
 		Vector3 pos = ENTITY::GET_ENTITY_COORDS(playerPedID, TRUE);
 		buffer << "Position (x, y, z): (";
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.x << ",";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.2f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.y << ", ";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.2f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.z << ")";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.2f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 		startY += step;
 
 		int health = ENTITY::GET_ENTITY_HEALTH(playerPedID);
 		int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(playerPedID);
-		sprintf_s(buf, "Health: %d / %d", health, maxHealth);
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Health: %d / %d", health, maxHealth);
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		int armour = PED::GET_PED_ARMOUR(playerPedID);
 		int maxArmour = PLAYER::GET_PLAYER_MAX_ARMOUR(PLAYER::PLAYER_ID());
-		sprintf_s(buf, "Armour: %d / %d", armour, maxArmour);
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Armour: %d / %d", armour, maxArmour);
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		float speed = ENTITY::GET_ENTITY_SPEED(playerPedID);
@@ -98,7 +99,7 @@ void CheatsMod::Think()
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << "Speed: " << std::setfill(' ') << std::setw(7) << speed << std::setfill(' ') << std::setw(5) << speedUnits;
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		Vector3 speed3;
@@ -116,38 +117,38 @@ void CheatsMod::Think()
 		buffer.str("");
 		buffer.clear();
 		buffer << "Speed vector (x, y, z): (";
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.x << ",";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.5f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.y << ", ";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.5f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 		buffer.str("");
 		buffer.clear();
 		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.z << ")" << std::setw(5) << speedUnits;
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.5f, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		//bool damagePossible = ENTITY::_GET_ENTITY_CAN_BE_DAMAGED(playerID);
 		bool invincible = PLAYER::GET_PLAYER_INVINCIBLE(playerID);
-		sprintf_s(buf, "Invincible: %s", BoolToStr(invincible));
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Invincible: %s", BoolToStr(invincible));
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		bool ragdollPossible = PED::CAN_PED_RAGDOLL(playerPedID);
-		sprintf_s(buf, "Can ragdoll: %s", BoolToStr(ragdollPossible));
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Can ragdoll: %s", BoolToStr(ragdollPossible));
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 		
 		if (m_settings.showAvailableInputs)
 		{
 			std::string inputs{ "Available inputs:" };
-			DrawTextToScreen(inputs.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			DrawTextToScreen(inputs.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 			inputStartY += step;
 			bool skipCutscene = PAD::IS_CONTROL_ENABLED(CONTROL_TYPE::PLAYER_CONTROL, CONTROL::INPUT_SKIP_CUTSCENE);
 			bool jump = PAD::IS_CONTROL_ENABLED(CONTROL_TYPE::PLAYER_CONTROL, CONTROL::INPUT_JUMP);
@@ -211,18 +212,19 @@ void CheatsMod::Think()
 			inputStrings.push_back(multiplayer ? "MULTIPLAYER" : "");
 
 			// Display three lines at a time to optimize the number of calls to DrawTextToScreen
-			std::string threeLines;
+			std::string bufferLines;
+			const int bufferLinesCount = 5;
 			int i = 0;
 			int iColumn = 0;
-			inputStartY -= step * 2;
+			inputStartY -= step * (bufferLinesCount - 1);
 			for (const auto & inputString : inputStrings)
 			{
-				if (i % 3 == 0)
-					threeLines = "";
-				threeLines += inputString + "\n";
+				if (i % bufferLinesCount == 0)
+					bufferLines = "";
+				bufferLines += inputString + "\n";
 
-				if (i % 3 == 2)
-					DrawTextToScreen(threeLines.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+				if (i % bufferLinesCount == (bufferLinesCount - 1))
+					DrawTextToScreen(bufferLines.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
 				if (i % 10 == 9)
 				{
@@ -233,8 +235,8 @@ void CheatsMod::Think()
 				inputStartY += step;
 				i++;
 			}
-			if (i % 3 == 2)
-				DrawTextToScreen(threeLines.c_str(), inputStartX, inputStartY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			if (i % bufferLinesCount == (bufferLinesCount - 1))
+				DrawTextToScreen(bufferLines.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		}
 
 		int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
@@ -245,35 +247,35 @@ void CheatsMod::Think()
 			m_largestStreamingTime = MISC::GET_GAME_TIMER();
 
 		}
-		sprintf_s(buf, "Streaming: %d (%d)", streamingCount, m_largestStreaming);
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Streaming: %d (%d)", streamingCount, m_largestStreaming);
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
 		if (m_largestStreaming != 0 && MISC::GET_GAME_TIMER() >= m_largestStreamingTime + 3000)
 			m_largestStreaming = 0;
 
-		sprintf_s(buf, "Your Ped Handle: %d", playerPedID);
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Your Ped Handle: %d", playerPedID);
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
-		sprintf_s(buf, "Game Time: %d", MISC::GET_GAME_TIMER());
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		std::snprintf(buf, sizeof(buf), "Game Time: %d", MISC::GET_GAME_TIMER());
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		startY += step;
 
-		sprintf_s(buf, "Date and time (d,m,y,hour,min,sec): (%d, %d, %d, %d h, %d min, %d sec)",
-			CLOCK::GET_CLOCK_DAY_OF_MONTH(), CLOCK::GET_CLOCK_MONTH(), CLOCK::GET_CLOCK_YEAR(),
+		std::snprintf(buf, sizeof(buf), "Date (D/M/Y) and time: (%d / %d / %d: %d h, %d min, %d sec)",
+			CLOCK::GET_CLOCK_DAY_OF_MONTH(), CLOCK::GET_CLOCK_MONTH() + 1, CLOCK::GET_CLOCK_YEAR(),
 			CLOCK::GET_CLOCK_HOURS(), CLOCK::GET_CLOCK_MINUTES(), CLOCK::GET_CLOCK_SECONDS());
-		DrawTextToScreen(buf, startX, startY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		
 
-		sprintf_s(buf, "Menu key: 'Insert'");
-		DrawTextToScreen(buf, 0.5f, 0.98f, m_commonSettings.inGameFontSize, font, false, 200, 0, 0);
+		std::snprintf(buf, sizeof(buf), "Menu key: 'Insert'");
+		DrawTextToScreen(buf, 0.5f, 0.98f, m_settings.common.inGameFontSize, m_font, false, 200, 0, 0);
 	}
 
 	if (m_scriptVarNeedsUpdate)
 	{
 		m_dllObject.SetFloatingMenu(m_settings.floatingMenu);
-		m_dllObject.SetShowAllInGame(m_commonSettings.showInGame);
+		m_dllObject.SetShowAllInGame(m_settings.common.showInGame);
 		m_scriptVarNeedsUpdate = false;
 	}
 }
@@ -458,65 +460,78 @@ void CheatsMod::DrawHUDMenu()
 {
 	if (ImGui::BeginMenu("HUD"))
 	{
-		if (ImGui::BeginMenu("Font size"))
+		if (ImGui::BeginMenu("All HUDs"))
 		{
-			if (ImGui::InputFloat("Menu Font size", &m_commonSettings.menuFontSize, 0.1f))
+			if (ImGui::MenuItem("Show in game", NULL, &m_settings.common.showInGame))
+				m_dllObject.SetShowAllInGame(m_settings.common.showInGame);
+
+			if (ImGui::BeginMenu("Font size"))
 			{
-				ClipFloat(m_commonSettings.menuFontSize, 0.6f, 2.0f);
-				m_dllObject.SetAllFontSize(m_commonSettings.menuFontSize, m_commonSettings.contentFontSize, m_commonSettings.inGameFontSize);
+				if (ImGui::InputFloat("Menu Font size", &m_settings.common.menuFontSize, 0.1f))
+				{
+					ClipFloat(m_settings.common.menuFontSize, 0.6f, 2.0f);
+					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+				}
+
+				if (ImGui::InputFloat("Content Font size", &m_settings.common.contentFontSize, 0.1f))
+				{
+					ClipFloat(m_settings.common.contentFontSize, 0.6f, 2.0f);
+					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+				}
+
+				if (ImGui::InputFloat("In-game Font size", &m_settings.common.inGameFontSize, 0.1f))
+				{
+					ClipFloat(m_settings.common.inGameFontSize, 0.1f, 2.0f);
+					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+				}
+
+				if (ImGui::Button("Reset"))
+				{
+					m_settings.common.menuFontSize = 1.0f;
+					m_settings.common.contentFontSize = 1.0f;
+					m_settings.common.inGameFontSize = 0.3f;
+					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+				}
+
+				ImGui::EndMenu();
 			}
 
-			if (ImGui::InputFloat("Content Font size", &m_commonSettings.contentFontSize, 0.1f))
+			if (ImGui::BeginMenu("Font color"))
 			{
-				ClipFloat(m_commonSettings.contentFontSize, 0.6f, 2.0f);
-				m_dllObject.SetAllFontSize(m_commonSettings.menuFontSize, m_commonSettings.contentFontSize, m_commonSettings.inGameFontSize);
-			}
+				if (ImGui::InputInt("Red", &m_settings.common.inGameFontRed))
+				{
+					ClipInt(m_settings.common.inGameFontRed, 0, 255);
+					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+				}
 
-			if (ImGui::InputFloat("In-game Font size", &m_commonSettings.inGameFontSize, 0.1f))
-			{
-				ClipFloat(m_commonSettings.inGameFontSize, 0.1f, 2.0f);
-				m_dllObject.SetAllFontSize(m_commonSettings.menuFontSize, m_commonSettings.contentFontSize, m_commonSettings.inGameFontSize);
-			}
+				if (ImGui::InputInt("Green", &m_settings.common.inGameFontGreen))
+				{
+					ClipInt(m_settings.common.inGameFontGreen, 0, 255);
+					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+				}
 
-			if (ImGui::Button("Reset"))
-			{
-				m_commonSettings.menuFontSize = 1.0f;
-				m_commonSettings.contentFontSize = 1.0f;
-				m_commonSettings.inGameFontSize = 0.3f;
-				m_dllObject.SetAllFontSize(m_commonSettings.menuFontSize, m_commonSettings.contentFontSize, m_commonSettings.inGameFontSize);
-			}
+				if (ImGui::InputInt("Blue", &m_settings.common.inGameFontBlue))
+				{
+					ClipInt(m_settings.common.inGameFontBlue, 0, 255);
+					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+				}
 
+				if (ImGui::Button("Reset"))
+				{
+					m_settings.common.inGameFontRed = 255;
+					m_settings.common.inGameFontGreen = 255;
+					m_settings.common.inGameFontBlue = 255;
+					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+				}
+
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Font color"))
+		if (ImGui::BeginMenu("Debug HUD"))
 		{
-			if (ImGui::InputInt("Red", &m_commonSettings.inGameFontRed))
-			{
-				ClipInt(m_commonSettings.inGameFontRed, 0, 255);
-				m_dllObject.SetAllInGameFontColor(m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
-			}
-
-			if (ImGui::InputInt("Green", &m_commonSettings.inGameFontGreen))
-			{
-				ClipInt(m_commonSettings.inGameFontGreen, 0, 255);
-				m_dllObject.SetAllInGameFontColor(m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
-			}
-
-			if (ImGui::InputInt("Blue", &m_commonSettings.inGameFontBlue))
-			{
-				ClipInt(m_commonSettings.inGameFontBlue, 0, 255);
-				m_dllObject.SetAllInGameFontColor(m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
-			}
-
-			if (ImGui::Button("Reset"))
-			{
-				m_commonSettings.inGameFontRed = 255;
-				m_commonSettings.inGameFontGreen = 255;
-				m_commonSettings.inGameFontBlue = 255;
-				m_dllObject.SetAllInGameFontColor(m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
-			}
-
+			DrawCommonSettingsMenus(m_settings.common);
 			ImGui::EndMenu();
 		}
 
@@ -528,7 +543,7 @@ void CheatsMod::DrawHUDMenu()
 
 bool CheatsMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	if (ImGui::BeginMainMenuBar())
 	{
 		DrawPlayerMenu();
@@ -556,7 +571,7 @@ bool CheatsMod::Draw()
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 310);
 		ImGui::Checkbox("Debug", &m_settings.showDebug);
-		if (ImGui::Checkbox("Show in game", &m_commonSettings.showInGame))
+		if (ImGui::Checkbox("Show in game", &m_settings.common.showInGame))
 			m_scriptVarNeedsUpdate = true;
 		if (ImGui::Checkbox("Floating menu", &m_settings.floatingMenu))
 			m_scriptVarNeedsUpdate = true;

@@ -6,21 +6,8 @@
  */
 
 #include "script.h"
+
 #include "mod.h"
-#include "utils.h"
-#include "natives.h"
-
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx11.h"
-
-#include <d3d11.h>
-#include <vector>
-#include <mutex>
-#include <cstdio>
-#include <iostream>
-
 #include "mem_watcher_mod.h"
 #include "cheats_mod.h"
 #include "cutscene_mod.h"
@@ -34,6 +21,20 @@
 #include "area_mod.h"
 #include "test_mod.h"
 #include "lua_console_mod.h"
+#include "utils.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_internal.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
+
+#include <d3d11.h>
+#include <vector>
+#include <mutex>
+#include <cstdio>
+#include <iostream>
 
 LRESULT __stdcall WndProc(HWND hand, UINT msg, WPARAM wParam, LPARAM lParam);
 
