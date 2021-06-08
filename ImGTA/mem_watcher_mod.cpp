@@ -91,7 +91,7 @@ void MemWatcherMod::Think()
 
 				if (i % 30 == 29)
 				{
-					xOff += 0.3f + (step * 2);
+					xOff += 0.27f + (step * 2);
 					yOff -= step * 30;
 				}
 

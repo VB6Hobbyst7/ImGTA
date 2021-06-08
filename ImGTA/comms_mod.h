@@ -155,9 +155,36 @@ struct MessageArray7 {
 	PaddedInt type[4]; // 99
 }; // Size 104 * 8
 
+struct EmailArrayBis2 {
+	char f_0[32];
+}; // Size 4 * 8 bytes
 
-// Global_97353.f_12395
-// Global_97353.f_5944.f_0
+struct EmailArrayBis {
+	int f_0;
+	DWORD _padding0;
+	int f_1; // Boolean values
+	DWORD _padding1;
+	char f_2[32];
+	int f_6; // 6 // Next ID of f_7?
+	DWORD _padding6;
+	int f_7_size = 10;
+	DWORD _padding7;
+	EmailArrayBis2 f_7[10];
+}; // Size 48 * 8 bytes
+
+struct EmailArray {
+	// Global_45154
+	int f_0;
+	int f_1;
+	int f_2;
+	int f_3 = 5; // Size of f_4 ?
+	PaddedInt f_4[5];
+	int f_9; // Size of f_10 ?
+	int f_10_size = 4; // 4
+	EmailArrayBis f_10[4];
+}; // Size 203 * 8 bytes
+
+// Global_97353.f_5944
 
 class CommsMod : public Mod
 {
@@ -182,9 +209,15 @@ private:
 	GlobalArray<MessageArray5> m_gMessage5;
 	GlobalArray<MessageArray6> m_gMessage6;
 	GlobalArray<MessageArray7> m_gMessage7;
+	GlobalArray<EmailArray> m_gEmail1;
 
 	std::string m_unk15750 = "";
 	std::string m_unk15756 = "";
+	std::string m_unk15774 = "";
+	std::string m_unk15780 = "";
+	std::string m_unk15840 = "";
+	int m_nextReceivingTime = 0;
+	int m_timeLeftForReceiving = 0;
 
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

@@ -134,7 +134,7 @@ bool PlayerSwitchMod::Draw()
 	if (m_supportGlobals)
 	{
 		ImGui::Separator();
-		if (ImGui::TreeNodeEx("Player switch locations?", ImGuiTreeNodeFlags_SpanAvailWidth))
+		if (ImGui::TreeNodeEx("Places close to player switch locations?", ImGuiTreeNodeFlags_SpanAvailWidth))
 		{
 			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
 			if (ImGui::InputInt("ID", &m_gSwitch1.id)) {

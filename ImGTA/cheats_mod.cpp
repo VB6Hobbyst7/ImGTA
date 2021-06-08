@@ -46,7 +46,7 @@ void CheatsMod::Think()
 	if (m_explosiveBullets)
 		MISC::SET_EXPLOSIVE_AMMO_THIS_FRAME(playerPedID);
 
-	if (m_settings.showDebug && m_settings.common.showInGame)
+	if (m_settings.common.showInGame)
 	{
 		char buf[112] = "";
 		std::ostringstream buffer;
@@ -275,7 +275,7 @@ void CheatsMod::Think()
 	if (m_scriptVarNeedsUpdate)
 	{
 		m_dllObject.SetFloatingMenu(m_settings.floatingMenu);
-		m_dllObject.SetShowAllInGame(m_settings.common.showInGame);
+		m_dllObject.SetShowAllInGame(m_settings.showAllInGame);
 		m_scriptVarNeedsUpdate = false;
 	}
 }
@@ -458,85 +458,82 @@ void CheatsMod::DrawMissionMenu()
 
 void CheatsMod::DrawHUDMenu()
 {
-	if (ImGui::BeginMenu("HUD"))
+	if (ImGui::BeginMenu("Debug HUD"))
 	{
-		if (ImGui::BeginMenu("All HUDs"))
-		{
-			if (ImGui::MenuItem("Show in game", NULL, &m_settings.common.showInGame))
-				m_dllObject.SetShowAllInGame(m_settings.common.showInGame);
-
-			if (ImGui::BeginMenu("Font size"))
-			{
-				if (ImGui::InputFloat("Menu Font size", &m_settings.common.menuFontSize, 0.1f))
-				{
-					ClipFloat(m_settings.common.menuFontSize, 0.6f, 2.0f);
-					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
-				}
-
-				if (ImGui::InputFloat("Content Font size", &m_settings.common.contentFontSize, 0.1f))
-				{
-					ClipFloat(m_settings.common.contentFontSize, 0.6f, 2.0f);
-					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
-				}
-
-				if (ImGui::InputFloat("In-game Font size", &m_settings.common.inGameFontSize, 0.1f))
-				{
-					ClipFloat(m_settings.common.inGameFontSize, 0.1f, 2.0f);
-					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
-				}
-
-				if (ImGui::Button("Reset"))
-				{
-					m_settings.common.menuFontSize = 1.0f;
-					m_settings.common.contentFontSize = 1.0f;
-					m_settings.common.inGameFontSize = 0.3f;
-					m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
-				}
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::BeginMenu("Font color"))
-			{
-				if (ImGui::InputInt("Red", &m_settings.common.inGameFontRed))
-				{
-					ClipInt(m_settings.common.inGameFontRed, 0, 255);
-					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-				}
-
-				if (ImGui::InputInt("Green", &m_settings.common.inGameFontGreen))
-				{
-					ClipInt(m_settings.common.inGameFontGreen, 0, 255);
-					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-				}
-
-				if (ImGui::InputInt("Blue", &m_settings.common.inGameFontBlue))
-				{
-					ClipInt(m_settings.common.inGameFontBlue, 0, 255);
-					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-				}
-
-				if (ImGui::Button("Reset"))
-				{
-					m_settings.common.inGameFontRed = 255;
-					m_settings.common.inGameFontGreen = 255;
-					m_settings.common.inGameFontBlue = 255;
-					m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-				}
-
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenu();
-		}
-
-		if (ImGui::BeginMenu("Debug HUD"))
-		{
-			DrawCommonSettingsMenus(m_settings.common);
-			ImGui::EndMenu();
-		}
+		DrawCommonSettingsMenus(m_settings.common);
 
 		ImGui::MenuItem("Km/h", NULL, &m_settings.displayKMH);
 		ImGui::MenuItem("Show available inputs", NULL, &m_settings.showAvailableInputs);
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("All HUDs"))
+	{
+		if (ImGui::MenuItem("Show in game", NULL, &m_settings.showAllInGame))
+			m_dllObject.SetShowAllInGame(m_settings.showAllInGame);
+
+		if (ImGui::BeginMenu("Font size"))
+		{
+			if (ImGui::InputFloat("Menu Font size", &m_settings.common.menuFontSize, 0.1f))
+			{
+				ClipFloat(m_settings.common.menuFontSize, 0.6f, 2.0f);
+				m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+			}
+
+			if (ImGui::InputFloat("Content Font size", &m_settings.common.contentFontSize, 0.1f))
+			{
+				ClipFloat(m_settings.common.contentFontSize, 0.6f, 2.0f);
+				m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+			}
+
+			if (ImGui::InputFloat("In-game Font size", &m_settings.common.inGameFontSize, 0.1f))
+			{
+				ClipFloat(m_settings.common.inGameFontSize, 0.1f, 2.0f);
+				m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+			}
+
+			if (ImGui::Button("Reset"))
+			{
+				m_settings.common.menuFontSize = 1.0f;
+				m_settings.common.contentFontSize = 1.0f;
+				m_settings.common.inGameFontSize = 0.3f;
+				m_dllObject.SetAllFontSize(m_settings.common.menuFontSize, m_settings.common.contentFontSize, m_settings.common.inGameFontSize);
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Font color"))
+		{
+			if (ImGui::InputInt("Red", &m_settings.common.inGameFontRed))
+			{
+				ClipInt(m_settings.common.inGameFontRed, 0, 255);
+				m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			}
+
+			if (ImGui::InputInt("Green", &m_settings.common.inGameFontGreen))
+			{
+				ClipInt(m_settings.common.inGameFontGreen, 0, 255);
+				m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			}
+
+			if (ImGui::InputInt("Blue", &m_settings.common.inGameFontBlue))
+			{
+				ClipInt(m_settings.common.inGameFontBlue, 0, 255);
+				m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			}
+
+			if (ImGui::Button("Reset"))
+			{
+				m_settings.common.inGameFontRed = 255;
+				m_settings.common.inGameFontGreen = 255;
+				m_settings.common.inGameFontBlue = 255;
+				m_dllObject.SetAllInGameFontColor(m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			}
+
+			ImGui::EndMenu();
+		}
 		ImGui::EndMenu();
 	}
 }
@@ -570,8 +567,8 @@ bool CheatsMod::Draw()
 		}
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 310);
-		ImGui::Checkbox("Debug", &m_settings.showDebug);
-		if (ImGui::Checkbox("Show in game", &m_settings.common.showInGame))
+		ImGui::Checkbox("Debug", &m_settings.common.showInGame);
+		if (ImGui::Checkbox("Show in game", &m_settings.showAllInGame))
 			m_scriptVarNeedsUpdate = true;
 		if (ImGui::Checkbox("Floating menu", &m_settings.floatingMenu))
 			m_scriptVarNeedsUpdate = true;

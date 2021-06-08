@@ -5,13 +5,18 @@
  */
 
 #include "comms_mod.h"
-#include "imgui.h"
-#include "natives.h"
+
 #include "script.h"
 #include "watch_entry.h"
-#include "imgui_extras.h"
 #include "mission_mod.h"
 #include "global_id.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_extras.h"
+
+#include <cmath>
 
 CommsMod::CommsMod(DLLObject & dllObject, bool supportGlobals) :
 	Mod(dllObject, "Comms", true, supportGlobals),
@@ -21,7 +26,8 @@ CommsMod::CommsMod(DLLObject & dllObject, bool supportGlobals) :
 	m_gMessage4(GlobalID::_120988),
 	m_gMessage5(GlobalID::_2873),
 	m_gMessage6(GlobalID::_1683749),
-	m_gMessage7(GlobalID::_109748)
+	m_gMessage7(GlobalID::_109748),
+	m_gEmail1(GlobalID::_45154)
 {
 	m_windowFlags = ImGuiWindowFlags_MenuBar;
 }
@@ -56,10 +62,17 @@ void CommsMod::UpdateLocationData()
 		m_gMessage5.LoadElement();
 		m_gMessage6.LoadElement();
 		m_gMessage7.LoadElement();
+		m_gEmail1.LoadElement();
 
-		// Global_35464 -> store time where it's possible to receive message? not always updated though
+		// Global_35464 -> store time where it's possible to receive message. not always updated though
+		m_nextReceivingTime = *(int *)GetGlobalPtr(GlobalID::_35464);
+		int tmp = (MISC::GET_GAME_TIMER() - m_nextReceivingTime) / 1000;
+		m_timeLeftForReceiving = tmp >= 0 ? tmp : 0;
 		m_unk15750 = std::string((char *)GetGlobalPtr(GlobalID::_15750));
 		m_unk15756 = std::string((char *)GetGlobalPtr(GlobalID::_15756));
+		m_unk15774 = std::string((char *)GetGlobalPtr(GlobalID::_15774));
+		m_unk15780 = std::string((char *)GetGlobalPtr(GlobalID::_15780));
+		m_unk15840 = std::string((char *)GetGlobalPtr(GlobalID::_15840));
 	}
 }
 
@@ -90,8 +103,13 @@ bool CommsMod::Draw()
 			m_wantsUpdate = true;
 
 	ImGui::Separator();
+	ImGui::Text("Next time comms can be received: %d", m_nextReceivingTime);
+	ImGui::Text("Time left for being able to receive comms: %d sec", m_timeLeftForReceiving);
 	ImGui::Text("Unk15750: %s", m_unk15750.c_str());
 	ImGui::Text("Unk15756: %s", m_unk15756.c_str());
+	ImGui::Text("Unk15774: %s", m_unk15774.c_str());
+	ImGui::Text("Unk15780: %s", m_unk15780.c_str());
+	ImGui::Text("Unk15840: %s", m_unk15840.c_str());
 
 	if (m_supportGlobals)
 	{
@@ -271,6 +289,41 @@ bool CommsMod::Draw()
 			for (int i = 0; i < m_gMessage7.arr.f_99_size; ++i)
 				field_99 += std::to_string(m_gMessage7.arr.type[i].val) + ", ";
 			ImGui::Text(field_99.c_str());
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
+		if (ImGui::TreeNodeEx("Email array", ImGuiTreeNodeFlags_SpanAvailWidth))
+		{
+			ImGui::SetNextItemWidth(m_inputIDWidgetWidth);
+			if (ImGui::InputInt("Email ID", &m_gEmail1.id))
+			{
+				ClipInt(m_gEmail1.id, 0, m_gEmail1.size - 1);
+				m_wantsUpdate = true;
+			}
+			ImGui::SameLine();
+			ImGui::Text("(max: %d)", m_gEmail1.size);
+
+			ImGui::Text("Field 0: %d", m_gEmail1.arr.f_0);
+			ImGui::Text("Field 1: %d", m_gEmail1.arr.f_1);
+			ImGui::Text("Field 2: %d", m_gEmail1.arr.f_2);
+			ImGui::Text("Field 3: %d", m_gEmail1.arr.f_3);
+			std::string field_4 = "Field 4: ";
+			for (int i = 0; i < m_gEmail1.arr.f_3; ++i)
+				field_4 += std::to_string(m_gEmail1.arr.f_4[i].val) + ", ";
+			ImGui::Text(field_4.c_str());
+			ImGui::Text("Field 9: %d", m_gEmail1.arr.f_9);
+			ImGui::Text("Field 10 size: %d", m_gEmail1.arr.f_10_size);
+			for (int i = 0; i < m_gEmail1.arr.f_10_size; ++i)
+			{
+				ImGui::Text("Field 0 of field 10: %d", m_gEmail1.arr.f_10[i].f_0);
+				ImGui::Text("Field 1 of field 10: %d", m_gEmail1.arr.f_10[i].f_1);
+				ImGui::Text("Field 2 of field 10: %s", m_gEmail1.arr.f_10[i].f_2);
+				ImGui::Text("Field 6 of field 10: %d", m_gEmail1.arr.f_10[i].f_6);
+				ImGui::Text("Field 7 size of field 10: %d", m_gEmail1.arr.f_10[i].f_7_size);
+				for (int j = 0; j < m_gEmail1.arr.f_10[i].f_7_size; ++j)
+					ImGui::Text("Field 0 of field 7 of field 10: %s", m_gEmail1.arr.f_10[i].f_7[j].f_0);
+			}
 			ImGui::TreePop();
 		}
 	}

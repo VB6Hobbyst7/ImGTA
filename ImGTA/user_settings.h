@@ -25,7 +25,6 @@ struct CommonSettings {
 
 struct AreaSettings {
 	CommonSettings common;
-	//bool drawInGame = true;
 	float drawOffsetZ = 0;
 	bool drawBox = false;
 };
@@ -37,7 +36,7 @@ struct AudioSettings {
 struct CheatsSettings {
 	CommonSettings common;
 	bool showAvailableInputs = true;
-	bool showDebug = true;
+	bool showAllInGame = true;
 	bool floatingMenu = true;
 	bool displayKMH = true;
 };
@@ -70,8 +69,6 @@ struct MemWatcherSettings {
 	bool sortByName = true;
 	bool inputHexIndex = false;
 	bool displayHudInfo = true;
-	/*float inGameOffsetX = 0.01f;
-	float inGameOffsetY = 0.08f;*/
 };
 
 struct MissionSettings {
@@ -81,9 +78,6 @@ struct MissionSettings {
 struct ScriptsSettings {
 	CommonSettings common;
 	bool sortByName = true;
-	/*bool drawInGame = false;
-	float inGameOffsetX = 0.84f;
-	float inGameOffsetY = 0.01f;*/
 };
 
 struct PlayerSwitchSettings {

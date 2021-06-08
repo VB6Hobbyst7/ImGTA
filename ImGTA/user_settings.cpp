@@ -36,8 +36,8 @@ void UserSettingsManager::Load(const std::string & filename) {
 		// Cheats
 		else if (line.find("cheats.showAvailableInputs") != -1)
 			current >> s.cheats.showAvailableInputs;
-		else if (line.find("cheats.showDebug") != -1)
-			current >> s.cheats.showDebug;
+		else if (line.find("cheats.showAllInGame") != -1)
+			current >> s.cheats.showAllInGame;
 		else if (line.find("cheats.floatingMenu") != -1)
 			current >> s.cheats.floatingMenu;
 		else if (line.find("cheats.displayKMH") != -1)
@@ -98,7 +98,7 @@ void UserSettingsManager::Save(const std::string & filename) {
 	// Audio
 	// Cheats
 	file << "cheats.showAvailableInputs = " << s.cheats.showAvailableInputs << std::endl;
-	file << "cheats.showDebug = " << s.cheats.showDebug << std::endl;
+	file << "cheats.showAllInGame = " << s.cheats.showAllInGame << std::endl;
 	file << "cheats.floatingMenu = " << s.cheats.floatingMenu << std::endl;
 	file << "cheats.displayKMH = " << s.cheats.displayKMH << std::endl;
 	// Comms
