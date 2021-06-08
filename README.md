@@ -69,8 +69,10 @@ Notes:
 # Instructions for developers
 ScriptHookV
 * You must download ScriptHookV SDK [here](http://www.dev-c.com/gtav/scripthookv/)
-* Extract the archive in Libraries/ScriptHookV_SDK
-	After extracting, you should have at least these two folders: Libraries/ScriptHookV_SDK/inc and Libraries/ScriptHookV_SDK/lib
+* Extract the archive in Libraries/ScriptHookV_SDK<br />
+	After extracting, you should have these two folders at least:<br />
+	* Libraries/ScriptHookV_SDK/inc
+	* Libraries/ScriptHookV_SDK/lib
 * Then you need to update (replace) Libraries/ScriptHookV_SDK/inc/natives.h with the updated one provided in Libraries/UpdatedNatives/natives.h
 
 
