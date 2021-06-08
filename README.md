@@ -66,6 +66,14 @@ Notes:
   * List running synchronized scene
 * User settings
 
+# Instructions for developers
+ScriptHookV
+* You must download ScriptHookV SDK [here](http://www.dev-c.com/gtav/scripthookv/)
+* Extract the archive in Libraries/ScriptHookV_SDK
+	After extracting, you should have at least these two folders: Libraries/ScriptHookV_SDK/inc and Libraries/ScriptHookV_SDK/lib
+* Then you need to update (replace) Libraries/ScriptHookV_SDK/inc/natives.h with the updated one provided in Libraries/UpdatedNatives/natives.h
+
+
 # Indirect contributors
 Thank you to everyone that indirectly contributed to this mod's functionalities:
 * GTA V Speedruns discord members (https://www.speedrun.com/gtav):  All its coding community and special mentions to: Parik, Gogsi123, Justice
