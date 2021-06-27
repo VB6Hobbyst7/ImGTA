@@ -12,6 +12,7 @@
 #include <Windows.h>
 #include <functional>
 #include <mutex>
+#include <chrono>
 
 struct IDXGISwapChain;
 class Mod;
@@ -29,6 +30,8 @@ public:
 	// Relying on this function is not recommended!
 	void RunOnNativeThread(std::function<void()> func);
 
+	void SetAllWindowCollapsed(bool collapse);
+	void SetPauseMenuOn(bool on);
 	void SetShowAllInGame(bool show);
 	void SetTextDrawMaxWarning(bool toggle);
 	void SetAllFontSize(float menuSize, float contentSize, float ingameSize);
@@ -38,34 +41,43 @@ public:
 	void ToggleOpen();
 	void OnPresent(IDXGISwapChain *swap);
 	
-	std::string GetSettingsFolder() { return settingsFolder; }
-	bool HasInitializedImGui() { return hasInitializedImgui; }
-	LONG_PTR GetOldProc() { return oldProc; }
-	void SetOldProc(LONG_PTR proc) { oldProc = proc; }
-	UserSettings & GetUserSettings() { return userSettings.Get(); }
-	bool GetIsOpen() { return isOpen; }
-	void SetIsOpen(bool open) { isOpen = open; }
-	bool GetFloatingMenu() { return floatingMenu; }
-	void SetFloatingMenu(bool isFloating) { floatingMenu = isFloating; }
+	std::chrono::time_point<std::chrono::high_resolution_clock> GetLastGameTime() { return m_lastGameTime; }
+	std::string GetSettingsFolder() { return m_settingsFolder; }
+	bool HasInitializedImGui() { return m_hasInitializedImgui; }
+	LONG_PTR GetOldProc() { return m_oldProc; }
+	void SetOldProc(LONG_PTR proc) { m_oldProc = proc; }
+	UserSettings & GetUserSettings() { return m_userSettings.Get(); }
+	bool GetIsOpen() { return m_isOpen; }
+	void SetIsOpen(bool open) { m_isOpen = open; }
+	bool GetFloatingMenu() { return m_floatingMenu; }
+	void SetFloatingMenu(bool isFloating) { m_floatingMenu = isFloating; }
+	void SetEnableHUD(bool enable) { m_enableHUD = enable; }
+	bool GetEnableHUD() { return m_enableHUD; }
+	bool m_updatedPauseMenuOn = false;
+	bool m_updatedPauseMenuOff = false;
+	bool m_timerThreadAlive = false;
 
 private:
-	std::string settingsFolder = "ImGTA/";
-	std::string fileImGuiIni = settingsFolder + "Settings_imgui.ini";
-	std::string fileImGuiLog = settingsFolder + "Log_imgui.txt";
-	std::string userSettingsFile = settingsFolder + "Settings_HUD.ini";
-	UserSettingsManager userSettings;
-	std::vector<Mod *> modsLoaded;
-	bool hasInitializedImgui;
-	LONG_PTR oldProc = 0;
-	bool isOpen = false;
-	bool isLoaded = false;
-	bool floatingMenu = false;
+	std::string m_settingsFolder = "ImGTA/";
+	std::string m_fileImGuiIni = m_settingsFolder + "Settings_imgui.ini";
+	std::string m_fileImGuiLog = m_settingsFolder + "Log_imgui.txt";
+	std::string m_userSettingsFile = m_settingsFolder + "Settings_HUD.ini";
+	UserSettingsManager m_userSettings;
+	std::vector<Mod *> m_modsLoaded;
+	bool m_hasInitializedImgui;
+	LONG_PTR m_oldProc = 0;
+	bool m_isOpen = false;
+	bool m_isLoaded = false;
+	bool m_floatingMenu = false;
+	bool m_enableHUD = true;
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastGameTime;
+	std::thread m_timerThread;
 
 	// TODO: Update this bad design for ON/OFF
-	bool updatedTextDrawMaxWarningOn = false;
-	bool updatedTextDrawMaxWarningOff = false;
+	bool m_updatedTextDrawMaxWarningOn = false;
+	bool m_updatedTextDrawMaxWarningOff = false;
 
-	std::vector<std::function<void()>> toRun;
-	std::mutex toRun_mutex;
-	LuaEngine luaEngine{settingsFolder};
+	std::vector<std::function<void()>> m_toRun;
+	std::mutex m_toRunMutex;
+	LuaEngine m_luaEngine{m_settingsFolder};
 };

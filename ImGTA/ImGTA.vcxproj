@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -247,10 +247,12 @@ copy "$(SolutionDir)Build\$(Platform)\$(Configuration)\$(TargetName)$(TargetExt)
     <ClInclude Include="audio_mod.h" />
     <ClInclude Include="script_names.h" />
     <ClInclude Include="strangers_and_freaks_names.h" />
+    <ClInclude Include="switch_anim_dict_names.h" />
     <ClInclude Include="sync_scene_mod.h" />
     <ClInclude Include="test_mod.h" />
     <ClInclude Include="user_settings.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="vehicle_names.h" />
     <ClInclude Include="watch_entry.h" />
   </ItemGroup>
   <ItemGroup>

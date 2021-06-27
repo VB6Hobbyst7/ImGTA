@@ -72,7 +72,7 @@ void MemWatcherMod::Think()
 			
 			w.UpdateValue();
 			
-			if (m_settings.common.showInGame && w.m_showInGame)
+			if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame && w.m_showInGame)
 			{
 				if (i % bufferLinesCount == 0)
 					bufferLines = "";
@@ -89,9 +89,10 @@ void MemWatcherMod::Think()
 				if (i % bufferLinesCount == (bufferLinesCount - 1))
 					DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
+				// Change column
 				if (i % 30 == 29)
 				{
-					xOff += 0.27f + (step * 2);
+					xOff += (m_settings.common.columnSpacing + step);
 					yOff -= step * 30;
 				}
 
@@ -99,7 +100,7 @@ void MemWatcherMod::Think()
 				i++;
 			}
 		}
-		if (m_settings.common.showInGame)
+		if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame)
 		{
 			if (i % bufferLinesCount == (bufferLinesCount - 1))
 				DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
@@ -341,10 +342,14 @@ void MemWatcherMod::DrawMenuBar()
 			ImGui::EndMenu();
 		}
 
+		ImGui::Separator();
+		ImGui::Checkbox("##Enable HUD", &m_settings.common.showInGame);
+
 		if (ImGui::BeginMenu("HUD"))
 		{
 			DrawCommonSettingsMenus(m_settings.common);
 
+			ImGui::Separator();
 			ImGui::MenuItem("Hexadecimal index", NULL, &m_settings.inputHexIndex);
 			ImGui::MenuItem("Display information detail", NULL, &m_settings.displayHudInfo);
 			
@@ -366,7 +371,7 @@ bool MemWatcherMod::Draw()
 
 	char buf[112] = "";
 	const char * indexFormat = m_settings.inputHexIndex ? "0x%x##%d%d" : "%d##%d%d";
-
+	
 	ImGui::Columns(5);
 	ImGui::Separator();
 	ImGui::Text("Index"); ImGui::NextColumn();

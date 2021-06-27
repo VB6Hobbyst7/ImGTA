@@ -55,6 +55,7 @@ private:
 	bool m_injured = false;
 	Hash m_modelHash = 0;
 	Vector3 m_position = {};
+	float m_speed = 0.0f;
 	bool m_isMissionEntity = false;
 	std::mutex m_pedListMutex;
 	std::mutex m_vehListMutex;

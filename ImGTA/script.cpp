@@ -53,20 +53,20 @@ void DLLObject::InitMods()
 {
 	bool supportGlobals = IsVersionSupportedForGlobals(getGameVersion());
 
-	modsLoaded.push_back(new MemWatcherMod(*this, supportGlobals));
-	modsLoaded.push_back(new CheatsMod(*this, supportGlobals));
-	modsLoaded.push_back(new CutsceneMod(*this, supportGlobals));
-	modsLoaded.push_back(new AudioMod(*this, supportGlobals));
-	modsLoaded.push_back(new ScriptsMod(*this, supportGlobals));
-	modsLoaded.push_back(new HandleHelperMod(*this, supportGlobals));
-	modsLoaded.push_back(new SyncSceneMod(*this, supportGlobals));
-	modsLoaded.push_back(new PlayerSwitchMod(*this, supportGlobals));
-	modsLoaded.push_back(new AreaMod(*this, supportGlobals));
-	modsLoaded.push_back(new LuaConsoleMod(*this, supportGlobals, luaEngine));
+	m_modsLoaded.push_back(new MemWatcherMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new CheatsMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new CutsceneMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new AudioMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new ScriptsMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new HandleHelperMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new SyncSceneMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new PlayerSwitchMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new AreaMod(*this, supportGlobals));
+	m_modsLoaded.push_back(new LuaConsoleMod(*this, supportGlobals, m_luaEngine));
 	if (supportGlobals)
 	{
-		modsLoaded.push_back(new CommsMod(*this, supportGlobals));
-		modsLoaded.push_back(new MissionMod(*this, supportGlobals));
+		m_modsLoaded.push_back(new CommsMod(*this, supportGlobals));
+		m_modsLoaded.push_back(new MissionMod(*this, supportGlobals));
 	}
 	//modsLoaded.push_back(new TestMod(supportGlobals));
 }
@@ -74,40 +74,40 @@ void DLLObject::InitMods()
 void DLLObject::Update()
 {
 	ResetTextDrawCount();
-	if (isOpen)
+	if (m_isOpen)
 	{
-		if (floatingMenu)
+		if (m_floatingMenu)
 			PAD::ENABLE_ALL_CONTROL_ACTIONS(0);
 		else
 			PAD::DISABLE_ALL_CONTROL_ACTIONS(0);
 	}
 
-	toRun_mutex.lock();
-	for (auto &f : toRun)
+	m_toRunMutex.lock();
+	for (auto &f : m_toRun)
 		f();
-	toRun.clear();
-	toRun_mutex.unlock();
+	m_toRun.clear();
+	m_toRunMutex.unlock();
 
-	for (Mod * m : modsLoaded)
+	for (Mod * m : m_modsLoaded)
 		m->Think();
 
 	// Display a warning message if too much calls to DrawTextToScreen
 	if (GetTextDrawCount() > 100)
 	{
-		if (!updatedTextDrawMaxWarningOn)
+		if (!m_updatedTextDrawMaxWarningOn)
 		{
 			SetTextDrawMaxWarning(true);
-			updatedTextDrawMaxWarningOn = true;
-			updatedTextDrawMaxWarningOff = false;
+			m_updatedTextDrawMaxWarningOn = true;
+			m_updatedTextDrawMaxWarningOff = false;
 		}
 	}
 	else
 	{
-		if (!updatedTextDrawMaxWarningOff)
+		if (!m_updatedTextDrawMaxWarningOff)
 		{
 			SetTextDrawMaxWarning(false);
-			updatedTextDrawMaxWarningOff = true;
-			updatedTextDrawMaxWarningOn = false;
+			m_updatedTextDrawMaxWarningOff = true;
+			m_updatedTextDrawMaxWarningOn = false;
 		}
 	}
 }
@@ -118,7 +118,7 @@ void DLLObject::UpdateWindows()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	for (auto &m : modsLoaded)
+	for (auto &m : m_modsLoaded)
 	{
 		if (m->HasWindow())
 			ImGui::Begin(m->GetName().c_str(), nullptr, m->m_windowFlags);
@@ -132,89 +132,143 @@ void DLLObject::UpdateWindows()
 
 void DLLObject::RunOnNativeThread(std::function<void()> func)
 {
-	toRun.push_back(func);
+	m_toRun.push_back(func);
+}
+
+void DLLObject::SetAllWindowCollapsed(bool collapse)
+{
+	for (auto &m : m_modsLoaded)
+		m->SetWindowCollapsed(collapse);
+}
+
+void DLLObject::SetPauseMenuOn(bool on)
+{
+	for (auto &m : m_modsLoaded)
+		m->SetPauseMenuOn(on);
 }
 
 void DLLObject::SetShowAllInGame(bool show)
 {
-	for (auto &m : modsLoaded)
+	for (auto &m : m_modsLoaded)
 		m->SetShowInGame(show);
 }
 
 void DLLObject::SetTextDrawMaxWarning(bool toggle)
 {
-	for (auto &m : modsLoaded)
+	for (auto &m : m_modsLoaded)
 		m->SetTextDrawMaxWarning(toggle);
 }
 
 void DLLObject::SetAllFontSize(float menuSize, float contentSize, float inGameSize)
 {
-	for (auto &m : modsLoaded)
+	for (auto &m : m_modsLoaded)
 		m->SetFontSize(menuSize, contentSize, inGameSize);
 }
 
 void DLLObject::SetAllInGameFontColor(int red, int green, int blue)
 {
-	for (auto &m : modsLoaded)
+	for (auto &m : m_modsLoaded)
 		m->SetInGameFontColor(red, green, blue);
 }
 
+void updTime(DLLObject * dllObject)
+{
+	using namespace std::chrono_literals;
+	while (!dllObject->m_timerThreadAlive)
+		std::this_thread::sleep_for(5s);
+
+	while (dllObject->m_timerThreadAlive)
+	{
+		std::chrono::time_point<std::chrono::high_resolution_clock> newGameTime = \
+			std::chrono::high_resolution_clock::now();
+		// If game timer hasn't changed for 100ms, update
+		if ((newGameTime - dllObject->GetLastGameTime()) >  std::chrono::milliseconds(100)) {
+			if (!dllObject->m_updatedPauseMenuOn)
+			{
+				dllObject->SetPauseMenuOn(true);
+				dllObject->m_updatedPauseMenuOn = true;
+				dllObject->m_updatedPauseMenuOff = false;
+			}
+		}
+		else {
+			if (!dllObject->m_updatedPauseMenuOff)
+			{
+				dllObject->SetPauseMenuOn(false);
+				dllObject->m_updatedPauseMenuOff = true;
+				dllObject->m_updatedPauseMenuOn = false;
+			}
+		}
+		std::this_thread::sleep_for(100ms);
+	}
+}
+
+
 void DLLObject::Load()
 {
-	if (!isLoaded)
+	if (!m_isLoaded)
 	{
-		userSettings.Load(userSettingsFile);
+		m_userSettings.Load(m_userSettingsFile);
 		InitMods();
-		for (auto &m : modsLoaded)
+		for (auto &m : m_modsLoaded)
 			m->Load();
 		MISC::SET_THIS_SCRIPT_CAN_BE_PAUSED(false);
-		isLoaded = true;
+		m_isLoaded = true;
+		m_timerThread = std::thread(updTime, this);
 	}
 		
 	// After loading a save, ScriptHookV does not call ProcessDetach,
 	// but ProcessAttach again
+
+	m_timerThreadAlive = true;
 	while (true)
 	{
 		Update();
+		m_lastGameTime = std::chrono::high_resolution_clock::now();
 		WAIT(0);
 	}
 }
 
 void DLLObject::Unload()
 {
-	if (isLoaded)
+	if (m_isLoaded)
 	{
-		isOpen = false;
-		for (auto &m : modsLoaded)
+		m_isOpen = false;
+
+		// Stop the timer thread
+		m_timerThreadAlive = false;
+		m_timerThread.join();
+
+		// Unload mods
+		for (auto &m : m_modsLoaded)
 		{
 			m->Unload();
 			delete m;
 		}
-		modsLoaded.clear();
+		m_modsLoaded.clear();
 
 		// Save settings
-		userSettings.Save(userSettingsFile);
+		m_userSettings.Save(m_userSettingsFile);
 
 		ImGui_ImplDX11_Shutdown();
 		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
-		if (oldProc)
-			SetWindowLongPtr(FindMainWindow(GetCurrentProcessId()), GWLP_WNDPROC, oldProc);
-		isLoaded = false;
+		if (m_oldProc)
+			SetWindowLongPtr(FindMainWindow(GetCurrentProcessId()), GWLP_WNDPROC, m_oldProc);
+		m_isLoaded = false;
 	}
 }
 
 void DLLObject::ToggleOpen()
 {
-	isOpen = !isOpen;
-	ImGui::GetIO().MouseDrawCursor = isOpen;
+	m_isOpen = !m_isOpen;
+	ImGui::GetIO().MouseDrawCursor = m_isOpen;
 }
 
 void DLLObject::OnPresent(IDXGISwapChain *swap)
 {
-	if (!hasInitializedImgui)
+	if (!m_hasInitializedImgui)
 	{
-		hasInitializedImgui = true;
+		m_hasInitializedImgui = true;
 		ID3D11Device *device;
 		ID3D11DeviceContext *context;
 
@@ -224,17 +278,17 @@ void DLLObject::OnPresent(IDXGISwapChain *swap)
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
 		ImGui::GetIO().ConfigFlags = ImGuiConfigFlags_NavEnableGamepad;
-		ImGui::GetIO().IniFilename = fileImGuiIni.c_str();
-		ImGui::GetIO().LogFilename = fileImGuiLog.c_str();
+		ImGui::GetIO().IniFilename = m_fileImGuiIni.c_str();
+		ImGui::GetIO().LogFilename = m_fileImGuiLog.c_str();
 
 		HWND window = FindMainWindow(GetCurrentProcessId());
 		ImGui_ImplWin32_Init(window);
 		ImGui_ImplDX11_Init(device, context);
 
 
-		oldProc = SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
+		m_oldProc = SetWindowLongPtr(window, GWLP_WNDPROC, (LONG_PTR)WndProc);
 	}
 
-	if (isOpen)
+	if (m_isOpen)
 		UpdateWindows();
 }

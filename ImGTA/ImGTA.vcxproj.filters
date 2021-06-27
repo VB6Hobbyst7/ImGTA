@@ -274,6 +274,12 @@
     <ClInclude Include="..\Libraries\imgui\backends\imgui_impl_win32.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="switch_anim_dict_names.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle_names.h">
+      <Filter>Modules\Cheats</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lua_engine.h">

@@ -31,6 +31,16 @@ const std::string Mod::GetName()
 	return m_windowName;
 }
 
+void Mod::SetWindowCollapsed(bool collapse)
+{
+	ImGui::SetWindowCollapsed(m_windowName.c_str(), collapse, ImGuiCond_None);
+}
+
+void Mod::SetPauseMenuOn(bool on)
+{
+	m_pauseMenuOn = on;
+}
+
 void Mod::SetShowInGame(bool show)
 {
 	GetCommonSettings().showInGame = show;
@@ -63,8 +73,6 @@ void Mod::SetTextDrawMaxWarning(bool toggle)
 
 void Mod::DrawCommonSettingsMenus(CommonSettings & common)
 {
-	ImGui::MenuItem("Show in game", NULL, &common.showInGame);
-
 	if (ImGui::BeginMenu("Font size"))
 	{
 		if (ImGui::InputFloat("Menu Font size", &common.menuFontSize, 0.1f))
@@ -75,6 +83,9 @@ void Mod::DrawCommonSettingsMenus(CommonSettings & common)
 
 		if (ImGui::InputFloat("In-game Font size", &common.inGameFontSize, 0.1f))
 			ClipFloat(common.inGameFontSize, 0.1f, 3.0f);
+
+		if (ImGui::InputFloat("Column spacing", &common.columnSpacing, 0.02f))
+			ClipFloat(common.columnSpacing, 0.02f, 0.5f);
 
 		if (ImGui::Button("Reset"))
 		{

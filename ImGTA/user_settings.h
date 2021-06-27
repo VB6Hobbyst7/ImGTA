@@ -16,6 +16,7 @@ struct CommonSettings {
 	float menuFontSize = 1.0f;
 	float contentFontSize = 1.0f;
 	float inGameFontSize = 0.3f;
+	float columnSpacing = 0.1f;
 	int inGameFontRed = 255;
 	int inGameFontGreen = 255;
 	int inGameFontBlue = 255;
@@ -35,8 +36,9 @@ struct AudioSettings {
 
 struct CheatsSettings {
 	CommonSettings common;
+	bool enableInGameHUD = true;
+	bool showGeneralInfo = true;
 	bool showAvailableInputs = true;
-	bool showAllInGame = true;
 	bool floatingMenu = true;
 	bool displayKMH = true;
 };
@@ -52,8 +54,8 @@ struct CutsceneSettings {
 struct HandleHelperSettings {
 	CommonSettings common;
 	int nearbyObjectMax = 30;
+	bool drawTrackedStats = true;
 	float drawOffsetZ = 0;
-	bool drawEntityInfo = true;
 	bool drawOnScreenEntityOnly = true;
 	bool drawId = true;
 	bool drawLife = true;

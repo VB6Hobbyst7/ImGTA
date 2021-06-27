@@ -12,6 +12,7 @@
 #include "input_controls.h"
 #include "mission_helper.h"
 #include "model.h"
+#include "vehicle_names.h"
 
 #include "natives.h"
 
@@ -20,6 +21,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <bitset>
 #include <cstdio>
 
 #pragma region Weapon Array
@@ -29,8 +31,21 @@ const char *weapons[] = { "weapon_dagger", "weapon_bat", "weapon_bottle", "weapo
 void CheatsMod::Load()
 {
 	m_settings = m_dllObject.GetUserSettings().cheats;
+
 	if (m_supportGlobals)
 		m_helper = new MissionHelper(getGameVersion());
+
+	// Setup available vehicles
+	for (const auto & category : vehicle_names)
+	{
+		std::vector<int> tmpAvailableVehicles;
+		for (int i = 0; i < category.second.size(); ++i)
+		{
+			if (STREAMING::IS_MODEL_A_VEHICLE(MISC::GET_HASH_KEY(category.second.at(i).c_str())))
+				tmpAvailableVehicles.push_back(i);
+		}
+		m_availableVehicles.insert({ category.first, tmpAvailableVehicles });
+	}
 }
 
 void CheatsMod::Unload()
@@ -41,112 +56,181 @@ void CheatsMod::Unload()
 void CheatsMod::Think()
 {
 	m_pauseMenuOn = HUD::IS_PAUSE_MENU_ACTIVE();
+	m_currentPos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), false);
 	int playerPedID = PLAYER::PLAYER_PED_ID();
 	int playerID = PLAYER::PLAYER_ID();
+	char buf[112] = "";
 	if (m_explosiveBullets)
 		MISC::SET_EXPLOSIVE_AMMO_THIS_FRAME(playerPedID);
 
-	if (m_settings.common.showInGame)
+	if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame)
 	{
-		char buf[112] = "";
-		std::ostringstream buffer;
-		float startX = m_settings.common.inGameOffsetX;
-		float startY = m_settings.common.inGameOffsetY;
-		float inputStartX = 0.5f;
-		float inputStartY = 0.75f;
-		const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
-		const float valueStep = 2.4f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
-		std::string speedUnits = m_settings.displayKMH ? "km/h" : "m/s";
-
-		// TODO: Remove the manual tweaks here and there... It's unreadable
-
-		// Position
-		Vector3 pos = ENTITY::GET_ENTITY_COORDS(playerPedID, TRUE);
-		buffer << "Position (x, y, z): (";
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.x << ",";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.y << ", ";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.z << ")";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.2f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-
-		startY += step;
-
-		int health = ENTITY::GET_ENTITY_HEALTH(playerPedID);
-		int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(playerPedID);
-		std::snprintf(buf, sizeof(buf), "Health: %d / %d", health, maxHealth);
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		int armour = PED::GET_PED_ARMOUR(playerPedID);
-		int maxArmour = PLAYER::GET_PLAYER_MAX_ARMOUR(PLAYER::PLAYER_ID());
-		std::snprintf(buf, sizeof(buf), "Armour: %d / %d", armour, maxArmour);
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		float speed = ENTITY::GET_ENTITY_SPEED(playerPedID);
-		if (m_settings.displayKMH)
-			speed *= 3.6f;
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << "Speed: " << std::setfill(' ') << std::setw(7) << speed << std::setfill(' ') << std::setw(5) << speedUnits;
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		Vector3 speed3;
-		Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(playerPedID, FALSE);
-		if (vehicle)
-			speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(vehicle, TRUE);
-		else
-			speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(playerPedID, TRUE);
-		if (m_settings.displayKMH)
+		if (m_settings.showGeneralInfo)
 		{
-			speed3.x *= 3.6f;
-			speed3.y *= 3.6f;
-			speed3.z *= 3.6f;
+			std::ostringstream buffer;
+			float startX = m_settings.common.inGameOffsetX;
+			float startY = m_settings.common.inGameOffsetY;
+			const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
+			const float valueStep = 2.4f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
+			std::string speedUnits = m_settings.displayKMH ? "km/h" : "m/s";
+			std::string accelerationUnits = m_settings.displayKMH ? "km/h/h" : "m/s/s";
+
+			// TODO: Remove the manual tweaks here and there... It's unreadable
+
+			// Position
+			Vector3 pos = ENTITY::GET_ENTITY_COORDS(playerPedID, TRUE);
+			buffer << "Position (x, y, z): (";
+			DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.x << ",";
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 1.9f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.y << ", ";
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.9f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << pos.z << ")";
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.9f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+			startY += step;
+
+			int health = ENTITY::GET_ENTITY_HEALTH(playerPedID);
+			int maxHealth = ENTITY::GET_ENTITY_MAX_HEALTH(playerPedID);
+			std::snprintf(buf, sizeof(buf), "Health: %d / %d", health, maxHealth);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			int armour = PED::GET_PED_ARMOUR(playerPedID);
+			int maxArmour = PLAYER::GET_PLAYER_MAX_ARMOUR(PLAYER::PLAYER_ID());
+			std::snprintf(buf, sizeof(buf), "Armour: %d / %d", armour, maxArmour);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			float speed = ENTITY::GET_ENTITY_SPEED(playerPedID);
+			if (m_settings.displayKMH)
+				speed *= 3.6f;
+			if (m_maxSpeed < speed)
+				m_maxSpeed = speed;
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << "Speed: " << std::setfill(' ') << std::setw(7) << speed << std::setfill(' ') << std::setw(5) << speedUnits;
+			DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			m_accelCumulTime += SYSTEM::TIMESTEP();
+			if (m_accelCumulTime > 0.3f) {
+				float accelTimestep = m_settings.displayKMH ? (m_accelCumulTime * 1000.0f / 3600.0f) : (m_accelCumulTime * 1000.0f);
+				m_currentAcceleration = (speed - m_lastSpeed) / accelTimestep;
+				m_accelCumulTime = 0.0f;
+				m_lastSpeed = speed; // Store current speed for next update
+			}
+			if (m_maxAccel < m_currentAcceleration)
+				m_maxAccel = m_currentAcceleration;
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(3) << "Acceleration: " << std::setfill(' ') << std::setw(8) << m_currentAcceleration << std::setfill(' ') << std::setw(7) << accelerationUnits;
+			DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			std::snprintf(buf, sizeof(buf), "Max speed: %.3f %s", m_maxSpeed, speedUnits.c_str());
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			std::snprintf(buf, sizeof(buf), "Max acceleration: %.3f %s", m_maxAccel, accelerationUnits.c_str());
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			Vector3 speed3;
+			Vehicle vehicle = PED::GET_VEHICLE_PED_IS_IN(playerPedID, FALSE);
+			if (vehicle)
+				speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(vehicle, TRUE);
+			else
+				speed3 = ENTITY::GET_ENTITY_SPEED_VECTOR(playerPedID, TRUE);
+			if (m_settings.displayKMH)
+			{
+				speed3.x *= 3.6f;
+				speed3.y *= 3.6f;
+				speed3.z *= 3.6f;
+			}
+			buffer.str("");
+			buffer.clear();
+			buffer << "Speed vector (x, y, z): (";
+			DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.x << ",";
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.y << ", ";
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+
+			buffer.str("");
+			buffer.clear();
+			buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.z << ")" << std::setw(5) << speedUnits;
+			DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			float sprintTimeRemaining = PLAYER::GET_PLAYER_SPRINT_TIME_REMAINING(playerID);
+			std::snprintf(buf, sizeof(buf), "Sprint time remaining: %.1f s", sprintTimeRemaining);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			float underwaterTimeRemaining = PLAYER::GET_PLAYER_UNDERWATER_TIME_REMAINING(playerID);
+			std::snprintf(buf, sizeof(buf), "Underwater time remaining: %.1f s", underwaterTimeRemaining);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			bool invincible = PLAYER::GET_PLAYER_INVINCIBLE(playerID);
+			std::snprintf(buf, sizeof(buf), "Invincible: %s", BoolToStr(invincible));
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			bool ragdollPossible = PED::CAN_PED_RAGDOLL(playerPedID);
+			std::snprintf(buf, sizeof(buf), "Can ragdoll: %s", BoolToStr(ragdollPossible));
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
+
+			if (streamingCount >= m_largestStreaming)
+			{
+				m_largestStreaming = streamingCount;
+				m_largestStreamingTime = MISC::GET_GAME_TIMER();
+
+			}
+			std::snprintf(buf, sizeof(buf), "Streaming: %d (%d)", streamingCount, m_largestStreaming);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			if (m_largestStreaming != 0 && MISC::GET_GAME_TIMER() >= m_largestStreamingTime + 3000)
+				m_largestStreaming = 0;
+
+			std::snprintf(buf, sizeof(buf), "Your Ped Handle: %d", playerPedID);
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			std::snprintf(buf, sizeof(buf), "Game Time: %d", MISC::GET_GAME_TIMER());
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
+			startY += step;
+
+			std::snprintf(buf, sizeof(buf), "Date (D/M/Y) and time: (%d / %d / %d: %d h, %d min, %d sec)",
+				CLOCK::GET_CLOCK_DAY_OF_MONTH(), CLOCK::GET_CLOCK_MONTH() + 1, CLOCK::GET_CLOCK_YEAR(),
+				CLOCK::GET_CLOCK_HOURS(), CLOCK::GET_CLOCK_MINUTES(), CLOCK::GET_CLOCK_SECONDS());
+			DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		}
-		buffer.str("");
-		buffer.clear();
-		buffer << "Speed vector (x, y, z): (";
-		DrawTextToScreen(buffer.str().c_str(), startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.x << ",";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 2.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.y << ", ";
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 3.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-
-		buffer.str("");
-		buffer.clear();
-		buffer << std::fixed << std::setprecision(2) << std::setfill(' ') << std::setw(8) << speed3.z << ")" << std::setw(5) << speedUnits;
-		DrawTextToScreen(buffer.str().c_str(), startX + valueStep * 4.5f, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		//bool damagePossible = ENTITY::_GET_ENTITY_CAN_BE_DAMAGED(playerID);
-		bool invincible = PLAYER::GET_PLAYER_INVINCIBLE(playerID);
-		std::snprintf(buf, sizeof(buf), "Invincible: %s", BoolToStr(invincible));
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		bool ragdollPossible = PED::CAN_PED_RAGDOLL(playerPedID);
-		std::snprintf(buf, sizeof(buf), "Can ragdoll: %s", BoolToStr(ragdollPossible));
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
+		
 		
 		if (m_settings.showAvailableInputs)
 		{
+			float inputStartX = 0.5f;
+			float inputStartY = 0.75f;
+			const float step = 1.2f * TextFontHeight(m_settings.common.inGameFontSize, m_font);
 			std::string inputs{ "Available inputs:" };
 			DrawTextToScreen(inputs.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 			inputStartY += step;
@@ -215,7 +299,6 @@ void CheatsMod::Think()
 			std::string bufferLines;
 			const int bufferLinesCount = 5;
 			int i = 0;
-			int iColumn = 0;
 			inputStartY -= step * (bufferLinesCount - 1);
 			for (const auto & inputString : inputStrings)
 			{
@@ -226,11 +309,11 @@ void CheatsMod::Think()
 				if (i % bufferLinesCount == (bufferLinesCount - 1))
 					DrawTextToScreen(bufferLines.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
+				// Change column
 				if (i % 10 == 9)
 				{
-					inputStartX += 0.10f;
-					inputStartY -= step * (10 - iColumn);
-					iColumn++;
+					inputStartX += (m_settings.common.columnSpacing + step);
+					inputStartY -= step * 10;
 				}
 				inputStartY += step;
 				i++;
@@ -238,44 +321,15 @@ void CheatsMod::Think()
 			if (i % bufferLinesCount == (bufferLinesCount - 1))
 				DrawTextToScreen(bufferLines.c_str(), inputStartX, inputStartY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		}
-
-		int streamingCount = STREAMING::GET_NUMBER_OF_STREAMING_REQUESTS();
-
-		if (streamingCount >= m_largestStreaming)
-		{
-			m_largestStreaming = streamingCount;
-			m_largestStreamingTime = MISC::GET_GAME_TIMER();
-
-		}
-		std::snprintf(buf, sizeof(buf), "Streaming: %d (%d)", streamingCount, m_largestStreaming);
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		if (m_largestStreaming != 0 && MISC::GET_GAME_TIMER() >= m_largestStreamingTime + 3000)
-			m_largestStreaming = 0;
-
-		std::snprintf(buf, sizeof(buf), "Your Ped Handle: %d", playerPedID);
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		std::snprintf(buf, sizeof(buf), "Game Time: %d", MISC::GET_GAME_TIMER());
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		startY += step;
-
-		std::snprintf(buf, sizeof(buf), "Date (D/M/Y) and time: (%d / %d / %d: %d h, %d min, %d sec)",
-			CLOCK::GET_CLOCK_DAY_OF_MONTH(), CLOCK::GET_CLOCK_MONTH() + 1, CLOCK::GET_CLOCK_YEAR(),
-			CLOCK::GET_CLOCK_HOURS(), CLOCK::GET_CLOCK_MINUTES(), CLOCK::GET_CLOCK_SECONDS());
-		DrawTextToScreen(buf, startX, startY, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
-		
-
-		std::snprintf(buf, sizeof(buf), "Menu key: 'Insert'");
-		DrawTextToScreen(buf, 0.5f, 0.98f, m_settings.common.inGameFontSize, m_font, false, 200, 0, 0);
 	}
+
+	std::snprintf(buf, sizeof(buf), "Menu key: 'Insert'");
+	DrawTextToScreen(buf, 0.5f, 0.98f, m_settings.common.inGameFontSize, m_font, false, 200, 0, 0);
 
 	if (m_scriptVarNeedsUpdate)
 	{
 		m_dllObject.SetFloatingMenu(m_settings.floatingMenu);
-		m_dllObject.SetShowAllInGame(m_settings.showAllInGame);
+		m_dllObject.SetEnableHUD(m_settings.enableInGameHUD);
 		m_scriptVarNeedsUpdate = false;
 	}
 }
@@ -284,12 +338,39 @@ void CheatsMod::DrawPlayerMenu()
 {
 	if (ImGui::BeginMenu("Player"))
 	{
+		if (ImGui::MenuItem("Fill Health, Armour, Energy"))
+		{
+			m_dllObject.RunOnNativeThread([]
+			{
+				int p = PLAYER::PLAYER_PED_ID();
+				ENTITY::SET_ENTITY_HEALTH(p, PED::GET_PED_MAX_HEALTH(p), FALSE);
+				PED::SET_PED_ARMOUR(PLAYER::PLAYER_PED_ID(), PLAYER::GET_PLAYER_MAX_ARMOUR(PLAYER::PLAYER_ID()));
+				PLAYER::SPECIAL_ABILITY_FILL_METER(PLAYER::PLAYER_ID(), 1, 0);
+			});
+		}
+
 		if (ImGui::MenuItem("Heal"))
 		{
 			m_dllObject.RunOnNativeThread([]
 			{
-				auto p = PLAYER::PLAYER_PED_ID();
+				int p = PLAYER::PLAYER_PED_ID();
 				ENTITY::SET_ENTITY_HEALTH(p, PED::GET_PED_MAX_HEALTH(p), FALSE);
+			});
+		}
+
+		if (ImGui::MenuItem("Max armour"))
+		{
+			m_dllObject.RunOnNativeThread([]
+			{
+				PED::SET_PED_ARMOUR(PLAYER::PLAYER_PED_ID(), PLAYER::GET_PLAYER_MAX_ARMOUR(PLAYER::PLAYER_ID()));
+			});
+		}
+
+		if (ImGui::MenuItem("Charge special ability"))
+		{
+			m_dllObject.RunOnNativeThread([]
+			{
+				PLAYER::SPECIAL_ABILITY_FILL_METER(PLAYER::PLAYER_ID(), 1, 0);
 			});
 		}
 
@@ -304,11 +385,18 @@ void CheatsMod::DrawPlayerMenu()
 		if (ImGui::BeginMenu("Teleport"))
 		{
 			ImGuiExtras::InputVector3("TeleportPos", &m_teleportPos);
+			ImGui::SameLine();
+			if (ImGui::Button("Current"))
+				m_teleportPos = m_currentPos;
+
 			if (ImGui::Button("Teleport"))
 			{
 				m_dllObject.RunOnNativeThread([=]
 				{
-					ENTITY::SET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), m_teleportPos.x, m_teleportPos.y, m_teleportPos.z, TRUE, TRUE, TRUE, FALSE);
+					if (PED::IS_PED_SITTING_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID()))
+						ENTITY::SET_ENTITY_COORDS(PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE), m_teleportPos.x, m_teleportPos.y, m_teleportPos.z, TRUE, TRUE, TRUE, FALSE);
+					else
+						ENTITY::SET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), m_teleportPos.x, m_teleportPos.y, m_teleportPos.z, TRUE, TRUE, TRUE, FALSE);
 				});
 			}
 			ImGui::EndMenu();
@@ -372,6 +460,29 @@ void CheatsMod::DrawVehicleMenu()
 			});
 		}
 
+		if (ImGui::BeginMenu("Pimp my ride"))
+		{
+			ImGui::InputFloat("Power percent", &m_powerPercent);
+			ClipFloat(m_powerPercent, 0.0f, 10000.0f);
+			if (ImGui::Button("Pimp it!"))
+			{
+				m_dllObject.RunOnNativeThread([=]
+				{
+					if (PED::IS_PED_SITTING_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID()))
+						VEHICLE::MODIFY_VEHICLE_TOP_SPEED(PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE), m_powerPercent);
+				});
+			}
+			if (ImGui::Button("Can't handle it? Reset!"))
+			{
+				m_dllObject.RunOnNativeThread([=]
+				{
+					if (PED::IS_PED_SITTING_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID()))
+						VEHICLE::MODIFY_VEHICLE_TOP_SPEED(PED::GET_VEHICLE_PED_IS_IN(PLAYER::PLAYER_PED_ID(), FALSE), 100.0f);
+				});
+			}
+			ImGui::EndMenu();
+		}
+
 		if (ImGui::BeginMenu("Destroy##Vehicle"))
 		{
 			if (ImGui::MenuItem("Kill"))
@@ -410,32 +521,75 @@ void CheatsMod::DrawVehicleMenu()
 	}
 }
 
+void CheatsMod::SpawnVehicle(const std::string & name)
+{
+	m_dllObject.RunOnNativeThread([=]
+	{
+		Model vehModel(name.c_str());
+		if (vehModel.IsValid() && vehModel.IsVehicle())
+		{
+			Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
+			m_lastSpawned = VEHICLE::CREATE_VEHICLE(vehModel.GetHash(), pos.x, pos.y, pos.z, 0.0f,
+												    TRUE, m_attachVehicleToScript, FALSE);
+			if (m_spawnInVehicle)
+				TASK::TASK_WARP_PED_INTO_VEHICLE(PLAYER::GET_PLAYER_PED(PLAYER::PLAYER_ID()), m_lastSpawned, -1); // -1: driver seat
+		}
+	});
+}
+
 void CheatsMod::DrawWorldMenu()
 {
 	if (ImGui::BeginMenu("World"))
 	{
-		if (m_lastSpawned != 0)
-			ImGui::Text("Last Spawned Handle: %d", m_lastSpawned);
 		if (ImGui::BeginMenu("Spawn Vehicle"))
 		{
-			if (ImGui::BeginMenu("Hash##SpawnVehicleMenu"))
+			if (ImGui::BeginMenu("Category"))
 			{
-				if (ImGui::InputText("Hash##SpawnVehicleInput", m_vehicleHashInput, sizeof(m_vehicleHashInput), ImGuiInputTextFlags_EnterReturnsTrue))
+				for (const auto & category : m_availableVehicles)
 				{
-					m_dllObject.RunOnNativeThread([=]
+					if (category.second.size() > 0)
 					{
-						Model vehModel(m_vehicleHashInput);
-						if (vehModel.IsValid() && vehModel.IsVehicle())
+						if (ImGui::BeginMenu(category.first.c_str()))
 						{
-							Vector3 pos = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), TRUE);
-							m_lastSpawned = VEHICLE::CREATE_VEHICLE(vehModel.GetHash(), pos.x, pos.y, pos.z, 0.0f, TRUE, TRUE, FALSE);
+							for (int veh_i = 0; veh_i < category.second.size(); ++veh_i)
+							{
+								const std::string name = vehicle_names.at(category.first).at(category.second.at(veh_i));
+								if (ImGui::MenuItem(name.c_str())) {
+									SpawnVehicle(name);
+									m_lastSpawnedName = name;
+								}
+							}
+							ImGui::EndMenu();
 						}
-					});
+					}
 				}
 				ImGui::EndMenu();
 			}
+
+			if (ImGui::BeginMenu("Name##SpawnVehicleMenu"))
+			{
+				if (ImGui::InputText("Name##SpawnVehicleInput", m_vehicleNameInput, sizeof(m_vehicleNameInput), ImGuiInputTextFlags_EnterReturnsTrue))
+				{
+					SpawnVehicle(std::string(m_vehicleNameInput));
+				}
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMenu();
 		}
+
+		ImGui::MenuItem("Spawn in vehicle", NULL, &m_spawnInVehicle);
+		ImGui::MenuItem("Attach vehicle to script", NULL, &m_attachVehicleToScript);
+
+		ImGui::Separator();
+
+		if (m_lastSpawned != 0) {
+			ImGui::Text("Last spawned vehicle: %s (handle: %d)", m_lastSpawnedName.c_str(), m_lastSpawned);
+			
+			if (ImGui::Button("Re-spawn"))
+				SpawnVehicle(m_lastSpawnedName);
+		}
+
 		ImGui::EndMenu();
 	}
 }
@@ -458,20 +612,36 @@ void CheatsMod::DrawMissionMenu()
 
 void CheatsMod::DrawHUDMenu()
 {
-	if (ImGui::BeginMenu("Debug HUD"))
+	ImGui::Separator();
+	ImGui::Checkbox("##Enable HUD", &m_settings.common.showInGame);
+
+	if (ImGui::BeginMenu("HUD"))
 	{
 		DrawCommonSettingsMenus(m_settings.common);
 
-		ImGui::MenuItem("Km/h", NULL, &m_settings.displayKMH);
+		ImGui::Separator();
+		ImGui::MenuItem("Show general info", NULL, &m_settings.showGeneralInfo);
 		ImGui::MenuItem("Show available inputs", NULL, &m_settings.showAvailableInputs);
+		ImGui::MenuItem("Km/h", NULL, &m_settings.displayKMH);
+		if (ImGui::Button("Reset max speed/acceleration"))
+		{
+			m_maxSpeed = 0.0f;
+			m_maxAccel = 0.0f;
+		}
+
 
 		ImGui::EndMenu();
 	}
 
-	if (ImGui::BeginMenu("All HUDs"))
+	ImGui::Separator();
+
+	if (ImGui::BeginMenu("All modules"))
 	{
-		if (ImGui::MenuItem("Show in game", NULL, &m_settings.showAllInGame))
-			m_dllObject.SetShowAllInGame(m_settings.showAllInGame);
+		if (ImGui::MenuItem("Show HUDs", NULL, &m_inputShowAllHUDs))
+			m_dllObject.SetShowAllInGame(m_inputShowAllHUDs);
+
+		if (ImGui::MenuItem("Collapse windows", NULL, &m_inputCollapseAllWindows))
+			m_dllObject.SetAllWindowCollapsed(m_inputCollapseAllWindows);
 
 		if (ImGui::BeginMenu("Font size"))
 		{
@@ -553,22 +723,21 @@ bool CheatsMod::Draw()
 		if (!m_supportGlobals)
 		{
 			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(255, 0, 0, 255), " Your game version (%d) does not support specific memory access.", getGameVersion());
+			ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), " Your game version (%d) does not support specific memory access.", getGameVersion());
 		}
 		if (m_textDrawMaxWarning)
 		{
 			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(0, 255, 0, 255), " Maximum (100) number of element displayed in-game reached (Some will not be displayed)!");
+			ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.3f, 1.0f), " Maximum (100) number of element displayed in-game reached (Some will not be displayed)!");
 		}
 		if (m_pauseMenuOn)
 		{
 			ImGui::SameLine();
-			ImGui::TextColored(ImVec4(0, 0, 255, 255), " Game paused. No updates!");
+			ImGui::TextColored(ImVec4(0.3f, 0.3f, 1.0f, 1.0f), " Game paused. No updates!");
 		}
 
-		ImGui::SameLine(ImGui::GetWindowWidth() - 310);
-		ImGui::Checkbox("Debug", &m_settings.common.showInGame);
-		if (ImGui::Checkbox("Show in game", &m_settings.showAllInGame))
+		ImGui::SameLine(ImGui::GetWindowWidth() - 230);
+		if (ImGui::Checkbox("Enable HUD", &m_settings.enableInGameHUD))
 			m_scriptVarNeedsUpdate = true;
 		if (ImGui::Checkbox("Floating menu", &m_settings.floatingMenu))
 			m_scriptVarNeedsUpdate = true;

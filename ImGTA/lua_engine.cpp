@@ -37,8 +37,8 @@ void LuaEngine::lua_BaseInvoke(lua_State *L)
 {
 	UINT64 addr = luaL_checkinteger(L, 1);
 	nativeInit(addr);
-
-	for (int i = 2; i <= lua_gettop(L); i++)
+	const int count = lua_gettop(L);
+	for (int i = 2; i <= count; i++)
 	{
 		if (lua_isinteger(L, i))
 			nativePush(static_cast<int>(lua_tointeger(L, i)));
@@ -48,7 +48,6 @@ void LuaEngine::lua_BaseInvoke(lua_State *L)
 			nativePush(lua_tostring(L, i));
 		else
 			luaL_error(L, "not an integer, number, or string");
-		lua_pop(L, 1);
 	}
 }
 

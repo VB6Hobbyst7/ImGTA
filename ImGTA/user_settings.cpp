@@ -34,10 +34,12 @@ void UserSettingsManager::Load(const std::string & filename) {
 			current >> s.area.drawBox;
 		// Audio
 		// Cheats
+		else if (line.find("cheats.enableInGameHUD") != -1)
+			current >> s.cheats.enableInGameHUD;
+		else if (line.find("cheats.showGeneralInfo") != -1)
+			current >> s.cheats.showGeneralInfo;
 		else if (line.find("cheats.showAvailableInputs") != -1)
 			current >> s.cheats.showAvailableInputs;
-		else if (line.find("cheats.showAllInGame") != -1)
-			current >> s.cheats.showAllInGame;
 		else if (line.find("cheats.floatingMenu") != -1)
 			current >> s.cheats.floatingMenu;
 		else if (line.find("cheats.displayKMH") != -1)
@@ -47,10 +49,10 @@ void UserSettingsManager::Load(const std::string & filename) {
 		// HandleHelper
 		else if (line.find("handleHelper.nearbyObjectMax") != -1)
 			current >> s.handleHelper.nearbyObjectMax;
+		else if (line.find("handleHelper.drawTrackedStats") != -1)
+			current >> s.handleHelper.drawTrackedStats;
 		else if (line.find("handleHelper.drawOffsetZ") != -1)
 			current >> s.handleHelper.drawOffsetZ;
-		else if (line.find("handleHelper.drawEntityInfo") != -1)
-			current >> s.handleHelper.drawEntityInfo;
 		else if (line.find("handleHelper.drawOnScreenEntityOnly") != -1)
 			current >> s.handleHelper.drawOnScreenEntityOnly;
 		else if (line.find("handleHelper.drawId") != -1)
@@ -97,16 +99,17 @@ void UserSettingsManager::Save(const std::string & filename) {
 	file << "area.drawBox = " << s.area.drawBox << std::endl;
 	// Audio
 	// Cheats
+	file << "cheats.enableInGameHUD = " << s.cheats.enableInGameHUD << std::endl;
+	file << "cheats.showGeneralInfo = " << s.cheats.showGeneralInfo << std::endl;
 	file << "cheats.showAvailableInputs = " << s.cheats.showAvailableInputs << std::endl;
-	file << "cheats.showAllInGame = " << s.cheats.showAllInGame << std::endl;
 	file << "cheats.floatingMenu = " << s.cheats.floatingMenu << std::endl;
 	file << "cheats.displayKMH = " << s.cheats.displayKMH << std::endl;
 	// Comms
 	// Cutscene
 	// HandleHelper
 	file << "handleHelper.nearbyObjectMax = " << s.handleHelper.nearbyObjectMax << std::endl;
+	file << "handleHelper.drawTrackedStats = " << s.handleHelper.drawTrackedStats << std::endl;
 	file << "handleHelper.drawOffsetZ = " << s.handleHelper.drawOffsetZ << std::endl;
-	file << "handleHelper.drawEntityInfo = " << s.handleHelper.drawEntityInfo << std::endl;
 	file << "handleHelper.drawOnScreenEntityOnly = " << s.handleHelper.drawOnScreenEntityOnly << std::endl;
 	file << "handleHelper.drawId = " << s.handleHelper.drawId << std::endl;
 	file << "handleHelper.drawLife = " << s.handleHelper.drawLife << std::endl;
@@ -125,7 +128,7 @@ void UserSettingsManager::Save(const std::string & filename) {
 
 void UserSettingsManager::LoadCommon(std::string & line, std::istringstream & stream, CommonSettings & common, const std::string & prefix)
 {
-	if (line.find(prefix + "common.showAllInGame") != -1)
+	if (line.find(prefix + "common.showInGame") != -1)
 		stream >> common.showInGame;
 	else if (line.find(prefix + "common.menuFontSize") != -1)
 		stream >> common.menuFontSize;
@@ -133,6 +136,8 @@ void UserSettingsManager::LoadCommon(std::string & line, std::istringstream & st
 		stream >> common.contentFontSize;
 	else if (line.find(prefix + "common.inGameFontSize") != -1)
 		stream >> common.inGameFontSize;
+	else if (line.find(prefix + "common.columnSpacing") != -1)
+		stream >> common.columnSpacing;
 	else if (line.find(prefix + "common.inGameFontRed") != -1)
 		stream >> common.inGameFontRed;
 	else if (line.find(prefix + "common.inGameFontGreen") != -1)
@@ -147,10 +152,11 @@ void UserSettingsManager::LoadCommon(std::string & line, std::istringstream & st
 
 void UserSettingsManager::SaveCommon(std::ofstream & file, CommonSettings & common, const std::string & prefix)
 {
-	file << prefix + "common.showAllInGame = " << common.showInGame << std::endl;
+	file << prefix + "common.showInGame = " << common.showInGame << std::endl;
 	file << prefix + "common.menuFontSize = " << common.menuFontSize << std::endl;
 	file << prefix + "common.contentFontSize = " << common.contentFontSize << std::endl;
 	file << prefix + "common.inGameFontSize = " << common.inGameFontSize << std::endl;
+	file << prefix + "common.columnSpacing = " << common.columnSpacing << std::endl;
 	file << prefix + "common.inGameFontRed = " << common.inGameFontRed << std::endl;
 	file << prefix + "common.inGameFontGreen = " << common.inGameFontGreen << std::endl;
 	file << prefix + "common.inGameFontBlue = " << common.inGameFontBlue << std::endl;

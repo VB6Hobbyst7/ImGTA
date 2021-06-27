@@ -86,7 +86,7 @@ void AreaMod::Think()
 			}
 		}
 
-		if (m_settings.common.showInGame && m_settings.common.showInGame)
+		if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame)
 		{
 			float screenX, screenY;
 			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(
@@ -108,10 +108,13 @@ void AreaMod::DrawMenuBar()
 {
 	if (ImGui::BeginMenuBar())
 	{
+		ImGui::Checkbox("##Enable HUD", &m_settings.common.showInGame);
+
 		if (ImGui::BeginMenu("HUD"))
 		{
 			DrawCommonSettingsMenus(m_settings.common);
 
+			ImGui::Separator();
 			ImGui::InputFloat("Z offset", &m_settings.drawOffsetZ, 0.1f);
 		
 			ImGui::EndMenu();

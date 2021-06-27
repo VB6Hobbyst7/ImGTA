@@ -67,13 +67,47 @@ struct SwitchArray5 {
 
 struct SwitchArray6 {
 	// Global_87845
-	PaddedInt f_0[4];
+	PaddedInt f_0[4]; // Entity ID
 	CharacterID f_7;
 	QWORD _padding[37];
 	int f_44; // 55
 	int f_45;
 	int f_46;
+}; // Not fininshed
+
+struct SwitchLocationIdHistory {
+	int size = 5;
+	DWORD _padding;
+	PaddedInt history[5];
+}; // Size 6 * 8 bytes
+
+struct SwitchArray7Bis {
+	int size = 4;
+	DWORD _padding0;
+	PaddedInt field_0[4]; // Boolean values
 };
+
+struct SwitchArray7 {
+	// Global_114140 -> Global_97353.f_16787
+	int switchLocationId_size = 3; // 0
+	DWORD _padding0;
+	PaddedInt switchLocationId[3]; // 1
+	int switchIdHistory_size = 3; // 4
+	DWORD _padding4;
+	SwitchLocationIdHistory switchIdHistory[3]; // 5
+	std::bitset<64> field_23;
+	int switchArray7BisSize = 3; // 24
+	DWORD _padding24;
+	SwitchArray7Bis switchArray7[3]; // 25
+	int field_40; // boolean values 40
+	DWORD _padding40;
+}; // One element only: Size 1 * 8 bytes
+
+struct SwitchArray8 {
+	// Global_101145 -> Global_97353.f_1729.f_539.f_1524
+	int randVal;
+	DWORD _padding;
+}; // Size 1 * 8 bytes
 
 // Global_97353.f_16787
 // local_115.f_3 // Global_87845.f_45
@@ -117,6 +151,12 @@ private:
 	GlobalArray<SwitchArray2> m_gSwitch2;
 	GlobalArray<SwitchArray4> m_gSwitch4;
 	GlobalArray<SwitchArray5> m_gSwitch5;
+	GlobalArray<SwitchArray8> m_gSwitch8;
+	SwitchArray7 m_switch7;
+
+	std::string m_dictName;
+	std::string m_dictUseless1;
+	std::string m_dictUseless2;
 	
 	// ImGui inputs / internals
 	bool m_wantsUpdate = false;

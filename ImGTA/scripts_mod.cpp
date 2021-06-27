@@ -73,7 +73,7 @@ void ScriptsMod::Think()
 		m_wantsUpdate = false;
 	}
 
-	if (m_settings.common.showInGame) {
+	if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame) {
 		std::lock_guard<std::mutex> lock(m_scriptsMutex);
 		char buf[112] = "";
 		float xOff = m_settings.common.inGameOffsetX;
@@ -106,10 +106,11 @@ void ScriptsMod::Think()
 			if (i % bufferLinesCount == (bufferLinesCount - 1))
 				DrawTextToScreen(bufferLines.c_str(), xOff, yOff, m_settings.common.inGameFontSize, m_font, false, m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 
+			// Change column
 			if (i % 28 == 27)
 			{
-				xOff -= (0.13f + step);
-				yOff -= step * 28;
+				xOff -= (m_settings.common.columnSpacing + step);
+				yOff -= step * 27;
 			}
 			
 			yOff += step;
@@ -196,6 +197,9 @@ void ScriptsMod::DrawMenuBar()
 			ImGui::MenuItem("Sort by name", NULL, &m_settings.sortByName);
 			ImGui::EndMenu();
 		}
+
+		ImGui::Separator();
+		ImGui::Checkbox("##Enable HUD", &m_settings.common.showInGame);
 
 		if (ImGui::BeginMenu("HUD"))
 		{
