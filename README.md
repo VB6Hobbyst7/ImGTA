@@ -13,11 +13,11 @@ Notes:
 
 # List of all modules (V1.2)
 * Cheats (main menu):
-  * Player modifications (heal, kill, teleport, add weapon)
-  * Vehicle (repair, destroy)
-  * World (spawn vehicle)
+  * Player modifications (heal, armour, special ability, kill, teleport, add weapon)
+  * Vehicle (repair, boost power, destroy)
+  * World (spawn vehicle, re-spawn last spawned)
   * HUD (font sizes/color, km/h - m/s, show available inputs)
-  * Player debug variables (handle, position, health, armour, speed, speed vector, game time)
+  * Player debug variables (handle, position, health, armour, speed, acceleration, max speed/acceleration, speed vector, sprint/underwater time remaining,  game time)
 * Audio
   * Conversation (restart, stop, pause, skip to next line, start preloaded conversation)
   * Audio scenes (start, set variable, stop)
@@ -42,7 +42,8 @@ Notes:
   * List nearby pedestrians id
   * List nearby vehicles id
   * Show pedestrians and vehicles in game (id, life)
-  * Entity list of variables (type, health, injured, model, position, is mission entity)
+  * Show position and speed of tracked entity in game
+  * Entity list of variables (type, health, injured, model, position, speed, is mission entity)
 * Lua console
   * Call all natives directly within the game
   * Autocompletion for natives
