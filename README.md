@@ -9,7 +9,8 @@ As the information based on globals is reverse engineered, it is sometimes witho
 # Mod in-game displays (V1.2)
 ![Mod Menu](https://github.com/Rayope/ImGTA/blob/master/Images/InGameHUD.jpg?raw=true)
 Notes:
-* It shows nearby animals as well<br />
+* It shows nearby animals as well
+* You can show/hide needed in-game displays<br />
 
 # List of all modules (V1.2)
 * Cheats (main menu):
