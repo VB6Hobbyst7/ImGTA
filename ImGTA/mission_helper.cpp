@@ -20,12 +20,12 @@ MissionHelper::MissionHelper(eGameVersion ver) : m_version(ver)
 
 void MissionHelper::Fail()
 {
-	*getGlobalPtr(GlobalID::_89962) = 0;
+	*GetGlobalPtr(GlobalID::_89962) = 0;
 }
 
 void MissionHelper::Skip()
 {
-	*getGlobalPtr(GlobalID::_84544) = 1;
-	*getGlobalPtr(GlobalID::_54748) = 1;
-	*getGlobalPtr(GlobalID::_89962) = 9;
+	*GetGlobalPtr(GlobalID::_84544) = 1;
+	*GetGlobalPtr(GlobalID::_54748) = 1;
+	*GetGlobalPtr(GlobalID::_89962) = 9;
 }

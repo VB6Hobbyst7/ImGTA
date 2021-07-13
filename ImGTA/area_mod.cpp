@@ -5,22 +5,23 @@
  */
 
 #include "area_mod.h"
-#include "natives.h"
-#include "imgui_extras.h"
+
 #include "script.h"
 #include "anim_dict.h"
 #include "utils.h"
 
+#include "natives.h"
+
+#include "imgui_extras.h"
+
 
 void AreaMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().area;
 }
 
 void AreaMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().area = m_settings;
 }
 
@@ -85,17 +86,18 @@ void AreaMod::Think()
 			}
 		}
 
-		if (m_settings.drawInGame && m_commonSettings.showInGame)
+		if (m_dllObject.GetEnableHUD() && m_settings.common.showInGame)
 		{
 			float screenX, screenY;
-			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(m_currentPos.x, m_currentPos.y, m_currentPos.z + m_settings.drawOffsetZ,
+			HUD::GET_HUD_SCREEN_POSITION_FROM_WORLD_POSITION(
+				m_currentPos.x, m_currentPos.y, m_currentPos.z + m_settings.drawOffsetZ,
 				&screenX, &screenY);
 
-			char buf[256] = "";
-			eFont font = eFont::FontChaletLondon;
-			sprintf_s(buf, "Angled area: %s\nArea: %s\nCoord: %s",
+			char buf[112] = "";
+			std::snprintf(buf, sizeof(buf), "Angled area: %s\nArea: %s\nCoord: %s",
 				BoolToStr(m_isInAngledArea), BoolToStr(m_isInArea), BoolToStr(m_isAtCoord));
-			DrawTextToScreen(buf, screenX, screenY, m_commonSettings.inGameFontSize, font, false, m_commonSettings.inGameFontRed, m_commonSettings.inGameFontGreen, m_commonSettings.inGameFontBlue);
+			DrawTextToScreen(buf, screenX, screenY, m_settings.common.inGameFontSize, m_font, false,
+				m_settings.common.inGameFontRed, m_settings.common.inGameFontGreen, m_settings.common.inGameFontBlue);
 		}
 
 		m_wantsUpdate = false;
@@ -106,16 +108,15 @@ void AreaMod::DrawMenuBar()
 {
 	if (ImGui::BeginMenuBar())
 	{
+		ImGui::Checkbox("##Enable HUD", &m_settings.common.showInGame);
+
 		if (ImGui::BeginMenu("HUD"))
 		{
-			ImGui::MenuItem("Show on HUD", NULL, &m_settings.drawInGame);
+			DrawCommonSettingsMenus(m_settings.common);
 
-			if (ImGui::BeginMenu("Misc"))
-			{
-				ImGui::InputFloat("Z offset", &m_settings.drawOffsetZ, 0.1f);
-				ImGui::EndMenu();
-			}
-
+			ImGui::Separator();
+			ImGui::InputFloat("Z offset", &m_settings.drawOffsetZ, 0.1f);
+		
 			ImGui::EndMenu();
 		}
 
@@ -125,10 +126,10 @@ void AreaMod::DrawMenuBar()
 
 bool AreaMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

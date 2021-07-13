@@ -5,10 +5,10 @@
  */
 
 #pragma once
-#include <mutex>
 #include "mod.h"
+#include "user_settings.h"
 
-struct SyncSceneSettings;
+#include <mutex>
 
 class SyncSceneMod : public Mod
 {
@@ -28,6 +28,7 @@ private:
 	void UpdateHandleData();
 	void ResetData();
 	void ListRunning();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	SyncSceneSettings m_settings;
 	float m_phase = 0;

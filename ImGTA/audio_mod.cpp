@@ -6,23 +6,24 @@
  */
 
 #include "audio_mod.h"
-#include "natives.h"
+
 #include "script.h"
-#include "audio_scenes.h"
-#include "music_events.h"
 #include "global_id.h"
+#include "utils.h"
+#include "music_events.h"
+#include "audio_scenes.h"
+
+#include "natives.h"
 #include "types.h"
 
 
 void AudioMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().audio;
 }
 
 void AudioMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().audio = m_settings;
 }
 
@@ -49,10 +50,10 @@ void AudioMod::Think()
 
 	if (m_supportGlobals)
 	{
-		m_audioName = std::string((char *)getGlobalPtr(GlobalID::_15311));
-		m_audioSource = std::string((char *)getGlobalPtr(GlobalID::_15762));
-		m_audio1 = std::string((char *)getGlobalPtr(GlobalID::_16696));
-		m_audio2 = std::string((char *)getGlobalPtr(GlobalID::_15146));
+		m_audioName = std::string((char *)GetGlobalPtr(GlobalID::_15311));
+		m_audioSource = std::string((char *)GetGlobalPtr(GlobalID::_15762));
+		m_audio1 = std::string((char *)GetGlobalPtr(GlobalID::_16696));
+		m_audio2 = std::string((char *)GetGlobalPtr(GlobalID::_15146));
 	}
 }
 
@@ -237,10 +238,10 @@ void AudioMod::DrawMenuBar()
 
 bool AudioMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 	ImGui::Text("Is Phone Ringing: %d", m_isRingtonePlaying);
 	ImGui::Text("Is Call Ongoing: %d", m_isCallOngoing);
 	ImGui::Separator();

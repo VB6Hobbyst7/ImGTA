@@ -5,6 +5,7 @@
  */
 
 #include "anim_dict.h"
+
 #include "natives.h"
 
 AnimDict::AnimDict(const char *dict, bool block)

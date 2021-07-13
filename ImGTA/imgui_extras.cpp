@@ -7,6 +7,8 @@
 #include "imgui_extras.h"
 #include "imgui_internal.h"
 
+#include <cstdio>
+
 namespace ImGuiExtras
 {
 	bool BitField(const char *label, unsigned *bits, unsigned *hoverIndex)
@@ -94,16 +96,16 @@ namespace ImGuiExtras
 
 	bool InputVector3(const char *label, Vector3 *vec, const char *fmt, ImGuiInputTextFlags flags)
 	{
-		char labelBuf[128] = "";
+		char buf[128] = "";
 		bool ret = false;
 
 		ImGui::PushItemWidth(75.0f);
-		sprintf_s(labelBuf, "##%sX", label);
-		ret |= ImGui::InputFloat(labelBuf, &vec->x, 0.0f, 0.0f, fmt, flags); ImGui::SameLine();
-		sprintf_s(labelBuf, "##%sY", label);
-		ret |= ImGui::InputFloat(labelBuf, &vec->y, 0.0f, 0.0f, fmt, flags); ImGui::SameLine();
-		sprintf_s(labelBuf, "##%sZ", label);
-		ret |= ImGui::InputFloat(labelBuf, &vec->z, 0.0f, 0.0f, fmt, flags);
+		std::snprintf(buf, sizeof(buf), "##%sX", label);
+		ret |= ImGui::InputFloat(buf, &vec->x, 0.0f, 0.0f, fmt, flags); ImGui::SameLine();
+		std::snprintf(buf, sizeof(buf), "##%sY", label);
+		ret |= ImGui::InputFloat(buf, &vec->y, 0.0f, 0.0f, fmt, flags); ImGui::SameLine();
+		std::snprintf(buf, sizeof(buf), "##%sZ", label);
+		ret |= ImGui::InputFloat(buf, &vec->z, 0.0f, 0.0f, fmt, flags);
 		ImGui::PopItemWidth();
 
 		return ret;

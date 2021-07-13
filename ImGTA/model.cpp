@@ -5,6 +5,7 @@
  */
 
 #include "model.h"
+
 #include "natives.h"
 
 Model::Model(const char *model, bool block) : Model(MISC::GET_HASH_KEY((char *)model), block) {}

@@ -6,8 +6,12 @@
  */
 
 #include "lua_console_mod.h"
-#include "imgui_internal.h"
+
+#include "lua_engine.h"
 #include "script.h"
+
+#include "imgui_internal.h"
+
 #include <algorithm>
 
 LuaConsoleMod::LuaConsoleMod(DLLObject & dllObject, bool supportGlobals, LuaEngine & luaEngine) : Mod(dllObject, "Lua Console", true, supportGlobals), m_luaEngine(luaEngine)
@@ -21,13 +25,11 @@ LuaConsoleMod::LuaConsoleMod(DLLObject & dllObject, bool supportGlobals, LuaEngi
 
 void LuaConsoleMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().luaConsole;
 }
 
 void LuaConsoleMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().luaConsole = m_settings;
 }
 
@@ -58,17 +60,16 @@ void LuaConsoleMod::DrawMenuBar()
 
 bool LuaConsoleMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	if (m_settings.showInfo)
 	{
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "Needs testing, can crash your game.");
 		ImGui::TextColored(ImVec4(255, 0, 0, 255), "If trying out random functions,\n"
-						   "be aware that some listed in your 'natives.lua' may not be integrated\n"
-						   "to ScriptHookV and it will crash.");
+						   "be aware that some listed in your 'natives.lua' may not be available\n"
+						   "in ScriptHookV and it will crash.");
 		ImGui::TextColored(ImVec4(0, 25, 0, 255), "Look at natives.lua for function names or tab for autocompletion. Examples:");
 		ImGui::TextColored(ImVec4(0, 25, 0, 255), "val = entity.get_entity_health(2)");
 		ImGui::TextColored(ImVec4(0, 25, 0, 255), "print(val)");
@@ -212,7 +213,10 @@ int LuaConsoleMod::InputTextCallback(ImGuiInputTextCallbackData * data)
 			while (word_start > data->Buf)
 			{
 				const char c = word_start[-1];
-				if (c == ' ' || c == '\t' || c == ',' || c == ';')
+				if (c == ' ' || c == '\t' || c == ',' || c == ';'
+					|| c == '(' || c == '{' || c == '['
+					|| c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '%'
+					|| c == '!' || c == '|' || c == '&' || c == '~' || c == '^')
 					break;
 				word_start--;
 			}

@@ -5,13 +5,16 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include <bitset>
-
 #include "utils.h"
-#include "natives.h"
+
 #include "mod.h"
 
+#include "natives.h"
+
+#include <bitset>
+
 ThreadBasket threadBasket;
+int textDrawCount = 0;
 
 BOOL IsMainWindow(HWND handle)
 {
@@ -39,8 +42,24 @@ HWND FindMainWindow(unsigned long process_id)
 	return data.windowHandle;
 }
 
+void ResetTextDrawCount()
+{
+	textDrawCount = 0;
+}
+
+int GetTextDrawCount()
+{
+	return textDrawCount;
+}
+
+float TextFontHeight(float size, eFont font)
+{
+	return HUD::GET_RENDERED_CHARACTER_HEIGHT(size, font);
+}
+
 void DrawTextToScreen(const char *text, float x, float y, float scale, eFont font, bool alignRight, int red, int green, int blue)
 {
+	// WARNING: Only the first 100 calls to this function are displayed!
 	HUD::SET_TEXT_FONT((int)font);
 	HUD::SET_TEXT_SCALE(scale, scale);
 	HUD::SET_TEXT_COLOUR(red, green, blue, 255);
@@ -50,8 +69,9 @@ void DrawTextToScreen(const char *text, float x, float y, float scale, eFont fon
 	HUD::SET_TEXT_DROPSHADOW(2, 2, 0, 0, 0);
 	HUD::SET_TEXT_EDGE(1, 0, 0, 0, 205);
 	HUD::BEGIN_TEXT_COMMAND_DISPLAY_TEXT((char *)"STRING");
-	HUD::ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME((char *)text);
+	HUD::ADD_TEXT_COMPONENT_SUBSTRING_KEYBOARD_DISPLAY((char *)text);
 	HUD::END_TEXT_COMMAND_DISPLAY_TEXT(x, y, 0);
+	textDrawCount++;
 }
 
 void ClipInt(int & value, int min, int max)
@@ -116,12 +136,25 @@ bool InitThreadBasket()
 	if (IsVersionSupportedForGlobals(getGameVersion()))
 	{
 		PVOID baseAddress = GetModuleHandleA("GTA5.exe");
+		if (baseAddress == NULL)
+			return false;
+
+		// Offset to the thread basket address, valid for build 372 only
 		PVOID offsetAddress = (PVOID)((char*)baseAddress + 0x2A07D38);
 
 		DWORD d, ds;
-		VirtualProtect(offsetAddress, sizeof(ThreadBasket), PAGE_EXECUTE_READ, &d);
-		memcpy(&threadBasket, offsetAddress, sizeof(ThreadBasket));
-		VirtualProtect(offsetAddress, sizeof(ThreadBasket), d, &ds);
+		
+		// Make the memory readable
+		if (!VirtualProtect(offsetAddress, sizeof(ThreadBasket), PAGE_EXECUTE_READ, &d))
+			return false;
+
+		// Copy the ThreadBasket
+		if (!memcpy(&threadBasket, offsetAddress, sizeof(ThreadBasket)))
+			return false;
+
+		// Return the previous rights to the memory
+		if (!VirtualProtect(offsetAddress, sizeof(ThreadBasket), d, &ds))
+			return false;
 		return true;
 	}
 	else
@@ -130,6 +163,9 @@ bool InitThreadBasket()
 
 uint64_t * GetThreadAddress(int localId, int scriptHash)
 {
+	if (localId < 0 || scriptHash == 0)
+		return nullptr;
+
 	bool threadBasketLoaded = false;
 	if (threadBasket.srcThreads == nullptr)
 		threadBasketLoaded = InitThreadBasket();
@@ -154,4 +190,11 @@ uint64_t * GetThreadAddress(int localId, int scriptHash)
 	}
 
 	return localAddress;
+}
+
+uint64_t * GetGlobalPtr(int globalId)
+{
+	if (globalId < 0)
+		return nullptr;
+	return getGlobalPtr(globalId);
 }

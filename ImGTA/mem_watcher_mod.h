@@ -8,10 +8,10 @@
 #pragma once
 #include "mod.h"
 #include "watch_entry.h"
+#include "user_settings.h"
+
 #include <vector>
 #include <mutex>
-
-struct MemWatcherSettings;
 
 class MemWatcherMod : public Mod
 {
@@ -27,9 +27,11 @@ public:
 	void Unload() override;
 
 protected:
+	void SortWatches();
 	void ShowAddAddress(bool isGlobal);
-	void DrawMenuBar();
 	void ShowSelectedPopup();
+	void DrawMenuBar();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	MemWatcherSettings m_settings;
 	std::vector<WatchEntry> m_watches;
@@ -38,6 +40,7 @@ protected:
 	WatchEntry *m_selectedEntry = nullptr;
 	int m_inputAddressIndex = 0;
 	int m_inputType = 0;
+	int m_indexRange = 1;
 
 	char m_scriptNameBuf[128] = { 0 };
 	char m_watchInfoBuf[512] = { 0 };
@@ -48,6 +51,10 @@ protected:
 	int m_scriptHash = 0;
 	bool m_scriptRunning = false;
 	bool m_selectedWatchScriptRunning = false;
-	bool m_addressUnavailable = false;
+	bool m_addressAvailable = true;
+	bool m_inputsUpdated = false;
+	bool m_variableAlreadyWatched = false;
 	std::string m_onlineVersion = "";
 };
+
+bool CompareWatch(WatchEntry a, WatchEntry b);

@@ -1,0 +1,3 @@
+# Remove for language statistics
+Libraries/* linguist-vendored
+natives.* linguist-generated

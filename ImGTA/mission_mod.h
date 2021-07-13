@@ -6,14 +6,14 @@
 
 #pragma once
 #include "mod.h"
-#include "types.h"
-#include "strangers_and_freaks_names.h"
 #include "utils.h"
+#include "user_settings.h"
+#include "strangers_and_freaks_names.h"
+
+#include "types.h"
 
 #include <bitset>
 #include <string>
-
-struct MissionSettings;
 
 enum CharacterID { // Guess from standard_global_reg
 	MICHAEL = 0,
@@ -275,6 +275,7 @@ private:
 	void DrawMenuBar();
 	void ResetData();
 	void UpdateMissionData();
+	CommonSettings & GetCommonSettings() override { return m_settings.common; }
 
 	MissionSettings m_settings;
 	GlobalArray<MissionArray> m_gMission1;

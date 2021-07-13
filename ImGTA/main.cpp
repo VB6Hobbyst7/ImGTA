@@ -5,10 +5,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-#include <Windows.h>
-#include "main.h"
-#include "imgui_impl_win32.h"
 #include "script.h"
+
+#include "main.h"
+
+#include "imgui_impl_win32.h"
+
+#include <Windows.h>
 
 DLLObject object{};
 

@@ -14,14 +14,14 @@ enum WatchType
 	kFloat,
 	kString,
 	kVector3,
-	kBitfield
+	kBitfield32
 };
 
 
 class WatchEntry
 {
 public:
-	WatchEntry(int addressIndex, WatchType type, std::string scriptName, int scriptHash, std::string info = std::string("")) : m_addressIndex(addressIndex), m_type(type), m_scriptName(scriptName), m_scriptHash(scriptHash), m_info(info), m_drawInGame(true)
+	WatchEntry(int addressIndex, WatchType type, std::string scriptName, int scriptHash, std::string info = std::string("")) : m_addressIndex(addressIndex), m_type(type), m_scriptName(scriptName), m_scriptHash(scriptHash), m_info(info), m_showInGame(true)
 	{}
 
 	int m_addressIndex;
@@ -31,7 +31,7 @@ public:
 	WatchType m_type;
 	std::string m_info;
 	std::string m_value;
-	bool m_drawInGame;
+	bool m_showInGame;
 
 	bool IsGlobal() { return m_scriptHash == 0; }
 	void UpdateValue();

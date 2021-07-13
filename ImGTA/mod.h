@@ -6,11 +6,14 @@
  */
 
 #pragma once
-#include <string>
+#include "enums.h"
+
 #include "imgui.h"
-#include "user_settings.h"
+
+#include <string>
 
 class DLLObject;
+struct CommonSettings;
 
 class Mod
 {
@@ -20,26 +23,34 @@ public:
 	bool HasWindow();
 	const std::string GetName();
 
-	void CommonLoad();
-	void CommonUnload();
 	virtual void Load() = 0;
 	virtual void Unload() = 0;
 	virtual void Think() = 0;
 	// Draws in an ImGui window, already created. Return false to NOT automatically end the window.
 	virtual bool Draw() = 0;
 
+	void SetWindowCollapsed(bool collapse);
+	void SetPauseMenuOn(bool on);
+	void SetShowInGame(bool show);
 	void SetFontSize(float menuSize, float contentSize, float ingameSize);
 	void SetInGameFontColor(int red, int green, int blue);
-	void SetShowInGame(bool show);
+	void SetInGameOffsets(float x, float y);
+	void SetTextDrawMaxWarning(bool toggle);
 
 	ImGuiWindowFlags m_windowFlags;
 
 protected:
-	CommonSettings m_commonSettings;
+	virtual CommonSettings & GetCommonSettings() = 0;
+	void DrawCommonSettingsMenus(CommonSettings & common);
+
 	DLLObject & m_dllObject;
 	std::string m_windowName;
+	bool m_enableHUD;
 	bool m_hasWindow;
+	bool m_pauseMenuOn;
 	bool m_supportGlobals;
+	bool m_textDrawMaxWarning;
 
+	const eFont m_font = eFont::FontChaletLondon;
 	const float m_inputIDWidgetWidth = 150.0f;
 };

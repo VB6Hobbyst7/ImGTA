@@ -6,10 +6,14 @@
  */
 
 #include "watch_entry.h"
+
+#include "utils.h"
+
 #include "types.h"
 #include "main.h"
-#include "utils.h"
+
 #include <bitset>
+#include <cstdio>
 
 void WatchEntry::UpdateValue()
 {
@@ -29,25 +33,25 @@ std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)
 	if (globalAddr == nullptr)
 		return std::string("NULL");
 
-	char buf[256] = "";
+	char buf[112] = "";
 
 	switch (type)
 	{
 	case WatchType::kInt:
-		sprintf_s(buf, "%d", *(int *)globalAddr);
+		std::snprintf(buf, sizeof(buf), "%d", *(int *)globalAddr);
 		break;
 	case WatchType::kFloat:
-		sprintf_s(buf, "%.4f", *(float *)globalAddr);
+		std::snprintf(buf, sizeof(buf), "%.4f", *(float *)globalAddr);
 		break;
 	case WatchType::kVector3:
 		Vector3 vec = *(Vector3 *)globalAddr;
-		sprintf_s(buf, "(%.4f, %.4f, %.4f)", vec.x, vec.y, vec.z);
+		std::snprintf(buf, sizeof(buf), "(%.4f, %.4f, %.4f)", vec.x, vec.y, vec.z);
 		break;
 	case WatchType::kString:
-		sprintf_s(buf, "\"%s\"", (char *)globalAddr);
+		std::snprintf(buf, sizeof(buf), "\"%s\"", (char *)globalAddr);
 		break;
-	case WatchType::kBitfield:
-		sprintf_s(buf, "%s", std::bitset<32>(*globalAddr).to_string().c_str());
+	case WatchType::kBitfield32:
+		std::snprintf(buf, sizeof(buf), "%s", std::bitset<32>(*globalAddr).to_string().c_str());
 	}
 
 	return std::string(buf);
@@ -55,7 +59,7 @@ std::string GetDisplayForType(uint64_t *globalAddr, WatchType type)
 
 std::string GetDisplayForType(int addrId, WatchType type)
 {
-	return GetDisplayForType(getGlobalPtr(addrId), type);
+	return GetDisplayForType(GetGlobalPtr(addrId), type);
 }
 
 std::string GetDisplayForType(int addrId, int scriptHash, WatchType type)

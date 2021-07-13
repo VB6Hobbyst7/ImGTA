@@ -5,21 +5,22 @@
  */
 
 #include "sync_scene_mod.h"
-#include "natives.h"
+
 #include "script.h"
 #include "model.h"
+
+#include "natives.h"
+
 #include <bitset>
 
 
 void SyncSceneMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().syncScene;
 }
 
 void SyncSceneMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().syncScene = m_settings;
 }
 
@@ -122,10 +123,10 @@ void SyncSceneMod::DrawMenuBar()
 
 bool SyncSceneMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)

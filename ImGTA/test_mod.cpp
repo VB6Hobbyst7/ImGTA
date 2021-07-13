@@ -6,8 +6,10 @@
  */
 
 #include "test_mod.h"
-#include "natives.h"
+
 #include "script.h"
+
+#include "natives.h"
 
 
 void TestMod::Load()
@@ -49,10 +51,8 @@ void TestMod::DrawMenuBar()
 
 bool TestMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
 	ImGui::Text("Text sample");
 
 	return true;

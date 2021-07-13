@@ -5,12 +5,15 @@
  */
 
 #include "mission_mod.h"
-#include "natives.h"
+
 #include "script.h"
-#include "imgui.h"
-#include "imgui_extras.h"
 #include "watch_entry.h"
 #include "global_id.h"
+
+#include "natives.h"
+
+#include "imgui.h"
+#include "imgui_extras.h"
 
 
 MissionMod::MissionMod(DLLObject & dllObject, bool supportGlobals) :
@@ -38,13 +41,11 @@ MissionMod::MissionMod(DLLObject & dllObject, bool supportGlobals) :
 
 void MissionMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().mission;
 }
 
 void MissionMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().mission = m_settings;
 }
 
@@ -90,15 +91,15 @@ void MissionMod::UpdateMissionData()
 	m_gSaf2.LoadElement();
 
 
-	m_availableMissionCount = *(int *)getGlobalPtr(GlobalID::_87299);
-	m_missionState = *(int *)getGlobalPtr(GlobalID::_89962);
-	m_deathName = std::string((char *)getGlobalPtr(GlobalID::_68477));
-	m_missionUnk0 = *(int *)getGlobalPtr(GlobalID::_68507);
-	m_missionUnk68523 = *(int *)getGlobalPtr(GlobalID::_68523);
-	m_missionUnk87289 = *(int *)getGlobalPtr(GlobalID::_87289);
-	m_missionUnk87290 = *(int *)getGlobalPtr(GlobalID::_87290);
-	m_missionUnk87298 = *(int *)getGlobalPtr(GlobalID::_87298);
-	m_missionUnk81105 = *(int *)getGlobalPtr(GlobalID::_81105);
+	m_availableMissionCount = *(int *)GetGlobalPtr(GlobalID::_87299);
+	m_missionState = *(int *)GetGlobalPtr(GlobalID::_89962);
+	m_deathName = std::string((char *)GetGlobalPtr(GlobalID::_68477));
+	m_missionUnk0 = *(int *)GetGlobalPtr(GlobalID::_68507);
+	m_missionUnk68523 = *(int *)GetGlobalPtr(GlobalID::_68523);
+	m_missionUnk87289 = *(int *)GetGlobalPtr(GlobalID::_87289);
+	m_missionUnk87290 = *(int *)GetGlobalPtr(GlobalID::_87290);
+	m_missionUnk87298 = *(int *)GetGlobalPtr(GlobalID::_87298);
+	m_missionUnk81105 = *(int *)GetGlobalPtr(GlobalID::_81105);
 }
 
 void MissionMod::DrawMenuBar()
@@ -117,10 +118,10 @@ void MissionMod::DrawMenuBar()
 
 bool MissionMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	ImGui::Checkbox("Constant Updates?", &m_constantUpdate);
 	if (!m_constantUpdate)
@@ -544,6 +545,8 @@ const char * CharacterIDStr(CharacterID id)
 		return "Franklin";
 	case TREVOR:
 		return "Trevor";
+
+	// Not sure about these next ones
 	case LAMAR:
 		return "Lamar";
 	case JIMMY:

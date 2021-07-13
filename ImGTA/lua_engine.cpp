@@ -7,6 +7,9 @@
  */
 
 #include "lua_engine.h"
+
+#include "utils.h"
+
 #include "nativeCaller.h"
 
 
@@ -21,7 +24,8 @@ const struct luaL_Reg LuaEngine::gtalib[] =
 	{ "invoke", LuaEngine::lua_Invoke },
 	{ "invokeString", LuaEngine::lua_InvokeString },
 	{ "invokeInteger", LuaEngine::lua_InvokeInteger },
-	{ "getGlobal", LuaEngine::lua_GetGlobal },
+	{ "invokeFloat", LuaEngine::lua_InvokeFloat },
+	{ "getGlobalInt", LuaEngine::lua_GetGlobalInt },
 	{ "setGlobal", LuaEngine::lua_SetGlobal },
 	{ NULL, NULL }
 };
@@ -33,18 +37,17 @@ void LuaEngine::lua_BaseInvoke(lua_State *L)
 {
 	UINT64 addr = luaL_checkinteger(L, 1);
 	nativeInit(addr);
-
-	for (int i = 2; i <= lua_gettop(L); i++)
+	const int count = lua_gettop(L);
+	for (int i = 2; i <= count; i++)
 	{
 		if (lua_isinteger(L, i))
-			nativePush<int>(static_cast<int>(lua_tointeger(L, i)));
+			nativePush(static_cast<int>(lua_tointeger(L, i)));
 		else if (lua_isnumber(L, i))
 			nativePush(static_cast<float>(lua_tonumber(L, i)));
 		else if (lua_isstring(L, i))
 			nativePush(lua_tostring(L, i));
 		else
 			luaL_error(L, "not an integer, number, or string");
-		lua_pop(L, 1);
 	}
 }
 
@@ -52,7 +55,7 @@ int LuaEngine::lua_Invoke(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
-	lua_pushinteger(L, *nativeCall());
+	nativeCall();
 
 	return 1;
 }
@@ -61,7 +64,7 @@ int LuaEngine::lua_InvokeString(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
-	lua_pushstring(L, (char *)*nativeCall());
+	lua_pushstring(L, *reinterpret_cast<char **>(nativeCall()));
 
 	return 1;
 }
@@ -70,8 +73,17 @@ int LuaEngine::lua_InvokeInteger(lua_State *L)
 {
 	lua_BaseInvoke(L);
 
-	lua_pushinteger(L, static_cast<int>(*nativeCall()));
+	lua_pushinteger(L, *reinterpret_cast<int *>(nativeCall()));
 
+	return 1;
+}
+
+int LuaEngine::lua_InvokeFloat(lua_State *L)
+{
+	lua_BaseInvoke(L);
+
+	lua_pushnumber(L,  *reinterpret_cast<float *>(nativeCall()));
+	
 	return 1;
 }
 
@@ -92,19 +104,19 @@ int LuaEngine::lua_Print(lua_State *L)
 	return 0;
 }
 
-int LuaEngine::lua_GetGlobal(lua_State *L)
+int LuaEngine::lua_GetGlobalInt(lua_State *L)
 {
 	int addr = static_cast<int>(luaL_checkinteger(L, 1));
 
 	if (addr < 0)
 		luaL_error(L, "invalid global address");
 
-	UINT64 *realAddr = getGlobalPtr(addr);
+	UINT64 *realAddr = GetGlobalPtr(addr);
 
 	if (!realAddr)
 		luaL_error(L, "invalid global address");
 
-	lua_pushinteger(L, *realAddr);
+	lua_pushinteger(L, *reinterpret_cast<int *>(realAddr));
 
 	return 1;
 }
@@ -116,16 +128,16 @@ int LuaEngine::lua_SetGlobal(lua_State *L)
 	if (addr < 0)
 		luaL_error(L, "invalid global address");
 
-	UINT64 *realAddr = getGlobalPtr(addr);
+	UINT64 *realAddr = GetGlobalPtr(addr);
 
 	if (!realAddr)
 		luaL_error(L, "invalid global address");
 
 	if (lua_isinteger(L, 2))
-		*realAddr = lua_tointeger(L, 2);
+		(*reinterpret_cast<int *>(realAddr)) = static_cast<int>(lua_tointeger(L, 2));
 	else if (lua_isnumber(L, 2))
-		*(float *)realAddr = static_cast<float>(lua_tonumber(L, 2));
-	else // TOOD: allow string copy. (dangerous, technically)
+		(*reinterpret_cast<float *>(realAddr)) = static_cast<float>(lua_tonumber(L, 2));
+	else // TODO: allow string copy. (dangerous, technically)
 		luaL_error(L, "not an integer or number.");
 
 	lua_pop(L, 1);
@@ -162,7 +174,6 @@ void LuaEngine::LoadLuaNatives()
 		luaStream << "\t" << GetLastLuaError() << std::endl;
 	}
 }
-
 
 int LuaEngine::DoLuaString(const char *line)
 {

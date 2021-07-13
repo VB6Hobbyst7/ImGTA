@@ -6,10 +6,11 @@
  */
 
 #pragma once
+#include "lua.hpp"
+
 #include <sstream>
 #include <string>
 #include <vector>
-#include "lua.hpp"
 
 class LuaEngine
 {
@@ -27,8 +28,9 @@ public:
 	static int lua_Invoke(lua_State *L);
 	static int lua_InvokeString(lua_State *L);
 	static int lua_InvokeInteger(lua_State *L);
+	static int lua_InvokeFloat(lua_State *L);
 	static int lua_Print(lua_State *L);
-	static int lua_GetGlobal(lua_State *L);
+	static int lua_GetGlobalInt(lua_State *L);
 	static int lua_SetGlobal(lua_State *L);
 
 	// TODO: Don't really like luaStream being static here, it shouldn't be...

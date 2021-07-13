@@ -6,24 +6,25 @@
  */
 
 #include "cutscene_mod.h"
-#include "natives.h"
+
 #include "script.h"
 #include "utils.h"
-#include "imgui_extras.h"
 #include "cutscene_names.h"
+
+#include "natives.h"
+
+#include "imgui_extras.h"
 
 #include <mutex>
 #include <condition_variable>
 
 void CutsceneMod::Load()
 {
-	Mod::CommonLoad();
 	m_settings = m_dllObject.GetUserSettings().cutscene;
 }
 
 void CutsceneMod::Unload()
 {
-	Mod::CommonUnload();
 	m_dllObject.GetUserSettings().cutscene = m_settings;
 }
 
@@ -206,10 +207,10 @@ void CutsceneMod::DrawMenuBar()
 
 bool CutsceneMod::Draw()
 {
-	ImGui::SetWindowFontScale(m_commonSettings.menuFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.menuFontSize);
 	DrawMenuBar();
 
-	ImGui::SetWindowFontScale(m_commonSettings.contentFontSize);
+	ImGui::SetWindowFontScale(m_settings.common.contentFontSize);
 
 	if (m_loadedCutsceneId != -1)
 		ImGui::Text("Loaded Cutscene Name: %s", cutsceneNames[m_loadedCutsceneId]);
